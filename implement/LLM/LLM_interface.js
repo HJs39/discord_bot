@@ -48,7 +48,7 @@ class LLM_interface {
      * @param {string} image_type images MIME type
      * @returns {response_receiver} response receiver
      */
-    async chat_oneshot_by_default(id, lastest, image, image_type) {
+    chat_oneshot_by_default(id, lastest, image, image_type) {
         let persona = this.#personas.get(id);
         let user_info = '';
         for (const user of this.#users.fetch(persona.used_user)) {
@@ -100,7 +100,7 @@ class LLM_interface {
      * @param {string} image_type images MIME type
      * @returns {response_receiver} response receiver
      */
-    async chat_oneshot_by_specific(name, id, lastest, image, image_type) {
+    chat_oneshot_by_specific(name, id, lastest, image, image_type) {
         let persona = this.#personas.get(id);
         let user_info = '';
         for (const user of this.#users.fetch(persona.used_user)) {
