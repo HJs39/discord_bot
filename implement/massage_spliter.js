@@ -1,4 +1,3 @@
-
 class message_spliter {
 
     /**

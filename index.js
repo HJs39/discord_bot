@@ -1,11 +1,11 @@
+const discord = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
-const discord = require('discord.js');
-const _ = require('lodash');
 const message_spliter = require('./implement/massage_spliter');
 const { token } = require('./assets/bot_assets.json');
 const { client } = require('./assets/client.js');
 const bot_assets = require('./assets/bot_assets.json');
+const _ = require('lodash');
 
 async function try_send_message_to_debug_channel(message) {
     if (client.debug_channel === null) {

@@ -1,7 +1,7 @@
 const { REST, Routes, SlashCommandBuilder, SlashCommandStringOption } = require('discord.js');
-const { clientId, test_server_guildId, token } = require('./assets/bot_assets.json');
 const fs = require('node:fs');
 const path = require('node:path');
+const { clientId, test_server_guildId, token } = require('./assets/bot_assets.json');
 
 const global_command_list = [];
 const global_command_name_list = [];

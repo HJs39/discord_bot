@@ -1,6 +1,6 @@
 const { Collection } = require('discord.js');
-const _ = require('lodash');
 const { defined_function } = require('../assets/defined_function.js');
+const _ = require('lodash');
 
 const operator = ['+', '-', '*', '/', '%', '^', '!'];
 

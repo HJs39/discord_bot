@@ -4,11 +4,11 @@ const interaction_processor = require('./interaction_processor');
 const persona_manager = require('./persona_manager');
 const message_repository = require('./message_repository');
 const user_repository = require('./user_repository');
-const _ = require('lodash');
-const logged_messages = require('../../assets/message_repository.json');
-const logged_user = require('../../assets/user_repository.json');
 const { persona, type_t } = require("./persona");
 const { placeholder_replacer } = require("./assets");
+const logged_messages = require('../../assets/message_repository.json');
+const logged_user = require('../../assets/user_repository.json');
+const _ = require('lodash');
 
 class memory_error extends Error {
     constructor(name, message) {

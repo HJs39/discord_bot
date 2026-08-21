@@ -1,5 +1,4 @@
 /**@import {chat_interaction} from './chat_interaction' */
-const { roleMention } = require('discord.js');
 const context = require('./context');
 const user_repository = require('./user_repository');
 

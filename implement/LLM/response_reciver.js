@@ -1,5 +1,5 @@
-const { timer } = require('./assets');
 const API_interactor = require('./API_interactor');
+const { timer } = require('./assets');
 
 class response_receiver {
 

@@ -6,12 +6,12 @@
 
 /**@import {API_config_t} from './API_interactor' */
 
+const timer = require('../timer');
+const placeholder_replacer = require('../placeholder_replacer');
+const message_spliter = require('../massage_spliter.js');
 /**@type {API_config_t} */
 const API_config = require('../../assets/API_config.json');
 const { assets_path } = require('../../assets/assets_path');
-const message_spliter = require('../massage_spliter.js');
-const timer = require('../timer');
-const placeholder_replacer = require('../placeholder_replacer');
 
 /**
  * @typedef {string} snowflake

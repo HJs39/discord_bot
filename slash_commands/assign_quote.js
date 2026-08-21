@@ -2,10 +2,10 @@ const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js'
 const { client } = require('../assets/client.js');
 const { quotes } = require('./quote.js');
 const { assets_path } = require('../assets/assets_path.js');
-const _ = require('lodash');
-const file_type = require('file-type');
 const fs = require("node:fs");
 const path = require('node:path');
+const _ = require('lodash');
+const file_type = require('file-type');
 
 module.exports = {
     command: new SlashCommandBuilder()
