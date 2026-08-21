@@ -1,0 +1,1 @@
+module.exports.assets_path = __dirname;
