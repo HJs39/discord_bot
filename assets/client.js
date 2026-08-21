@@ -11,7 +11,7 @@ for (const func of cooldown) {
     client.cooldown.set(func, new Collection());
 }
 /**@type {LLM_interface} */
-client.LLM = new LLM_interface(false, true);
+client.LLM = new LLM_interface(false, false);
 client.is_owner = (id) => { return id === bot_assets.owner; };
 
 module.exports.client = client;
