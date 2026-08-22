@@ -26,8 +26,11 @@ class persona_error extends Error {
 class persona_manager {
     /**@type {persona[]} */
     #personas;
-    constructor() {
-        this.#personas = require(path.join(assets_path, 'personas'));
+    /**
+     * @param {persona[]} source 
+     */
+    constructor(source) {
+        this.#personas = source;
     }
 
     /**

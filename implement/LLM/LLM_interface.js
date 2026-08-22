@@ -7,8 +7,13 @@ const user_repository = require('./user_repository');
 const { persona, type_t } = require("./persona");
 const { placeholder_replacer } = require("./assets");
 const logged_messages = require('../../assets/message_repository.json');
+const logged_persona = require('../../assets/personas.json');
 const logged_user = require('../../assets/user_repository.json');
 const _ = require('lodash');
+
+const global_message_repository = new message_repository(logged_messages);
+const global_user_repository = new user_repository(logged_user);
+const global_persona_repository = new persona_manager(logged_persona);
 
 class memory_error extends Error {
     constructor(name, message) {
@@ -29,14 +34,15 @@ class LLM_interface {
     #users;
     /**
      * 
+     * @param {import("./API_interactor").API_config_t} API_config API config load from  file
      * @param {boolean} always_fetch_model_list whether fetch model list automatically when switch API 
      * @param {boolean} [debug] switch to debug mode
      */
-    constructor(always_fetch_model_list, debug = false) {
-        this.#API_interactor = new API_interactor(always_fetch_model_list, debug);
-        this.#messages = new message_repository(logged_messages);
-        this.#users = new user_repository(logged_user);
-        this.#personas = new persona_manager();
+    constructor(API_config, always_fetch_model_list, debug = false) {
+        this.#API_interactor = new API_interactor(API_config, always_fetch_model_list, debug);
+        this.#messages = global_message_repository;
+        this.#users = global_user_repository;
+        this.#personas = global_persona_repository;
     }
 
     //#region chat
@@ -285,9 +291,9 @@ class LLM_interface {
         persona.memory.summarize_start_index = summarize_start_index || persona.memory.summarize_start_index;
     }
 
-    export_persona(id){
+    export_persona(id) {
         if (!this.#personas.has(id)) throw new memory_error('persona_not_exit', 'cannot export a not exist persona');
-        let persona=this.#personas.get(id);
+        let persona = this.#personas.get(id);
         return {
             name: persona.display_name,
             json: JSON.stringify(persona)

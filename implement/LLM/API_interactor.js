@@ -85,10 +85,11 @@ class API_interactor {
     #concurrent_limit;
     /**
      * 
+     * @param {API_config_t} API_config API config load from  file
      * @param {boolean} always_fetch_model_list - whether fetch model list automatically when switch API 
      * @param {boolean} [debug] - switch to debug mode
      */
-    constructor(always_fetch_model_list, debug = false) {
+    constructor(API_config, always_fetch_model_list, debug = false) {
         this.#APIs = [];
         for (const  /**@type {API_config_t} */ config of API_config) {
             this.#APIs.push({
