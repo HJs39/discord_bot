@@ -9,14 +9,12 @@ const { persona } = require('../implement/LLM/persona.js');
 
 const stats_regex = /<record>\s*(?<content>[\s\S]*?)\s*<\/?record>[\s\S]*?<stats_a>[\s\S]*?<name>\s*(?<char_a_name>[\s\S]*?)\s*<\/?name>[\s\S]*?<comment>\s*(?<char_a_comment>[\s\S]*?)\s*<\/?comment>[\s\S]*?<\/?stats_a>[\s\S]*?<stats_b>[\s\S]*?<name>\s*(?<char_b_name>[\s\S]*?)\s*<\/?name>[\s\S]*?<comment>\s*(?<char_b_comment>[\s\S]*?)\s*<\/?comment>[\s\S]*?<\/?stats_b>[\s\S]*?<winner>[\s\S]*?(?<winner>A|a|B|b)[\s\S]*?<\/?winner>/g;
 
-const role_name = '混亂聯盟比賽答疑組（悲）';
-
 module.exports = {
     command: new SlashCommandBuilder()
         .setName('battle')
         .setDescription('experimental AI battle function'),
     eval: async function (interaction) {
-        if (!(interaction.member.roles.cache.some((role) => role.name === role_name)) && !client.is_owner(interaction.user.id) && !battle_command_available.includes(interaction.user.id)) {
+        if (!(interaction.member.roles.cache.has('1514211757374312458')) && !client.is_owner(interaction.user.id) && !battle_command_available.includes(interaction.user.id)) {
             const embed = new EmbedBuilder()
                 .setAuthor({
                     name: "Battle",
