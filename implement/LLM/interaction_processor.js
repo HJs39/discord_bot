@@ -1,6 +1,7 @@
 /**@import {chat_interaction} from './chat_interaction' */
 const context = require('./context');
 const user_repository = require('./user_repository');
+const { placeholder_replacer } = require('./assets');
 
 class interaction_processor {
     /**
@@ -73,7 +74,7 @@ class interaction_processor {
             result.push({
                 role: 'user',
                 name: repository.get(c.user).internal_name,
-                content: c.user_input
+                content: new placeholder_replacer([['user', repository.get(c.user).internal_name]]).replace(c.user_input)
             });
         }
         return result;
