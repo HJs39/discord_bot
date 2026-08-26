@@ -113,7 +113,7 @@ class API_interactor {
         this.always_fetch_model_list = always_fetch_model_list;
         this.debug = debug;
         this.model_cache = [];
-        this.avalible_model_cache = this.#APIs[this.#current_API_id].avalible_model.map((model) => model.name);
+        this.avalible_model_cache = this.#APIs[this.#current_API_id].avalible_model;
         if (always_fetch_model_list) {
             this.#update_model_list();
         }
@@ -214,7 +214,7 @@ class API_interactor {
             this.current_rpm = this.#APIs[this.#current_API_id].rpm;
             this.#current_quota = 0;
             this.#concurrent_limit = this.#APIs[this.#current_API_id].concurrent_limit;
-            this.avalible_model_cache = this.#APIs[this.#current_API_id].avalible_model.map((model) => model.name);
+            this.avalible_model_cache = this.#APIs[this.#current_API_id].avalible_model;
             return true;
         }
         return false;
