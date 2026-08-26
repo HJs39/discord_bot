@@ -68,6 +68,12 @@ class LLM_interface {
 
         /**@type {chat_interaction[]} */
         let history = new Array();
+        if (persona.memory.summarized.at(-1) !== undefined) {
+            history.push({
+                role: 'assistant',
+                content: persona.memory.summarized.at(-1)
+            });
+        }
         if (persona.memory.raw_short_term.length < persona.memory.short_term_max) {
             if (persona.phony_chat.length !== 0) {
                 history.push(_.takeRight(persona.phony_chat, (persona.memory.short_term_max - persona.memory.raw_short_term.length) * 2));
@@ -120,6 +126,12 @@ class LLM_interface {
 
         /**@type {chat_interaction[]} */
         let history = new Array();
+        if (persona.memory.summarized.at(-1) !== undefined) {
+            history.push({
+                role: 'assistant',
+                content: persona.memory.summarized.at(-1)
+            });
+        }
         if (persona.memory.raw_short_term.length < persona.memory.short_term_max) {
             if (persona.phony_chat.length !== 0) {
                 history.push(_.takeRight(persona.phony_chat, (persona.memory.short_term_max - persona.memory.raw_short_term.length) * 2));
@@ -340,8 +352,17 @@ class LLM_interface {
         /**@type {chat_interaction[]} */
         let history = new Array();
         for (const instruction of persona.summarize_instruction) {
-            if (instruction.role !== 'placeholder') history.push(instruction);
-            else history.push(interaction_processor.flat_context(this.#messages.fetch(snowflake).filter(/**@type {context} */context => !context.summarized)));
+            if (instruction.role !== 'placeholder') {
+                history.push(instruction);
+            } else {
+                if (persona.memory.summarized.at(-1) !== undefined) {
+                    history.push({
+                        role: 'assistant',
+                        content: persona.memory.summarized.at(-1)
+                    });
+                }
+                history.push(interaction_processor.flat_context(this.#messages.fetch(snowflake).filter(/**@type {context} */context => !context.summarized)));
+            }
         }
         let lastest = history.pop();
         return new response_receiver(
