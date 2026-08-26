@@ -9,8 +9,6 @@
 const timer = require('../timer');
 const placeholder_replacer = require('../placeholder_replacer');
 const message_spliter = require('../massage_spliter.js');
-/**@type {API_config_t} */
-const API_config = require('../../assets/API_config.json');
 const { assets_path } = require('../../assets/assets_path');
 
 /**
@@ -20,7 +18,6 @@ const { assets_path } = require('../../assets/assets_path');
  */
 
 module.exports = {
-    API_config: API_config,
     assets_path: assets_path,
     message_spliter: message_spliter,
     timer: timer,
