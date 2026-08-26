@@ -70,7 +70,7 @@ class LLM_interface {
         let history = new Array();
         if (persona.memory.raw_short_term.length < persona.memory.short_term_max) {
             if (persona.phony_chat.length !== 0) {
-                history.push(_.takeRight(persona.phony_chat, persona.memory.short_term_max - persona.memory.raw_short_term.length));
+                history.push(_.takeRight(persona.phony_chat, (persona.memory.short_term_max - persona.memory.raw_short_term.length) * 2));
             }
             history.push(interaction_processor.flat_context(this.#messages.fetch(persona.memory.raw_short_term)));
         } else {
@@ -122,7 +122,7 @@ class LLM_interface {
         let history = new Array();
         if (persona.memory.raw_short_term.length < persona.memory.short_term_max) {
             if (persona.phony_chat.length !== 0) {
-                history.push(_.takeRight(persona.phony_chat, persona.memory.short_term_max - persona.memory.raw_short_term.length));
+                history.push(_.takeRight(persona.phony_chat, (persona.memory.short_term_max - persona.memory.raw_short_term.length) * 2));
             }
             history.push(interaction_processor.flat_context(this.#messages.fetch(persona.memory.raw_short_term)));
         } else {
