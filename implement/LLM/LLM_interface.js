@@ -262,9 +262,9 @@ class LLM_interface {
     }
 
     get_list_user_seeable(snowflake) {
-        const list = this.#personas.persona_list();
-        list.push(this.#personas.delete_persona());
-        return list.filter((p) => p.author === snowflake || p.type === type_t.public || p.type === type_t.default);
+        return this.#personas.persona_list().concat(this.#personas.deprecated_persona_list())
+            .filter((p) => p.persona.author === snowflake || p.persona.type === type_t.public || p.persona.type === type_t.default)
+            .sort((a, b) => a.id > b.id);
     }
 
     deprecated_persona(persona_id) {

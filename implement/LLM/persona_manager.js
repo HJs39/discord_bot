@@ -117,26 +117,28 @@ class persona_manager {
      */
     deprecated_persona_list() {
         let result = new Array();
-        return this.#personas.forEach((p, index) => {
+        this.#personas.forEach((p, index) => {
             if (p.deprecated) result.push({
                 id: index,
-                persona: persona
+                persona: p
             });
         });
+        return result;
     }
 
     /**
      * get the list of NOT deprecated personas
-     * @returns {persona[]} a list of useable personas
+     * @returns {filtered_persona_t[]} a list of useable personas
      */
     persona_list() {
         let result = new Array();
-        return this.#personas.forEach((p, index) => {
+        this.#personas.forEach((p, index) => {
             if (!p.deprecated) result.push({
                 id: index,
-                persona: persona
+                persona: p
             });
         });
+        return result;
     }
 
     /**
@@ -146,12 +148,13 @@ class persona_manager {
      */
     filter_by_author(author) {
         let result = new Array();
-        return this.#personas.forEach((p, index) => {
+        this.#personas.forEach((p, index) => {
             if (p.author === author) result.push({
                 id: index,
-                persona: persona
+                persona: p
             });
         });
+        return result;
     }
 
     /**
