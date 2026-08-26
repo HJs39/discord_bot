@@ -138,6 +138,21 @@ client.on(discord.Events.InteractionCreate, async (interaction) => {
             await try_reply(interaction);
             await handle_error(error);
         }
+    } else if (interaction.isStringSelectMenu()) {
+        const commands = interaction.customId.split(' ');
+        const command = interaction.client.commands.get(commands[0]);
+        if (!command) {
+            console.error(`No command matching ${interaction.commandName} was found.`);
+            return;
+        }
+
+        try {
+            await command.handle_select(interaction, commands);
+        } catch (error) {
+            console.error(error);
+            await try_reply(interaction);
+            await handle_error(error);
+        }
     }
 });
 
