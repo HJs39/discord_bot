@@ -7,6 +7,7 @@
  * @property {string} name this user's username, same as {@link User.username}
  * @property {string} internal_name this user's internal name(set by user or this user's username same as {@link user.name})
  * @property {string} description this user's self description
+ * @property {number} current_use current used persona id
  * @global
  */
 
