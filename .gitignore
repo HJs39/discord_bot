@@ -152,6 +152,7 @@ assets/quotes.json
 assets/personas.json
 assets/user_repository.json
 assets/message_repository.json
+assets/private-*
 not-commit-*
 
 todo.txt
