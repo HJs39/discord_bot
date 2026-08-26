@@ -213,7 +213,7 @@ class LLM_interface {
 
     /**
      * 
-     * @returns {string[]}
+     * @returns {import("./API_interactor").model_info[]}
      */
     get_avalible_models() {
         return this.#API_interactor.avalible_models();

@@ -161,7 +161,7 @@ class API_interactor {
 
     /**
      * 
-     * @returns {string[]}
+     * @returns {model_info[]}
      */
     avalible_models() {
         return this.avalible_model_cache;
