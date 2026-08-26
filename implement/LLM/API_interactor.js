@@ -113,6 +113,7 @@ class API_interactor {
         this.always_fetch_model_list = always_fetch_model_list;
         this.debug = debug;
         this.model_cache = [];
+        this.avalible_model_cache = this.#APIs[this.#current_API_id].avalible_model.map((model) => model.name);
         if (always_fetch_model_list) {
             this.#update_model_list();
         }
@@ -158,6 +159,14 @@ class API_interactor {
         return this.model_cache;
     }
 
+    /**
+     * 
+     * @returns {string[]}
+     */
+    avalible_models() {
+        return this.avalible_model_cache;
+    }
+
     #raise_rpm_refresh() {
         if (this.#rpm_timer !== undefined) return;
         this.#rpm_timer = setInterval(() => {
@@ -199,11 +208,13 @@ class API_interactor {
             // reset current chatting counter if API is switched to ensure last API chatting
             // would not block current API call
             if (this.always_fetch_model_list) this.#update_model_list();
+            else this.model_cache = [];
             this.#update_rpm_refresh();
             this.#rpm_count = 0;
             this.current_rpm = this.#APIs[this.#current_API_id].rpm;
             this.#current_quota = 0;
             this.#concurrent_limit = this.#APIs[this.#current_API_id].concurrent_limit;
+            this.avalible_model_cache = this.#APIs[this.#current_API_id].avalible_model.map((model) => model.name);
             return true;
         }
         return false;
