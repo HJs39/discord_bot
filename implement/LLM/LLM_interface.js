@@ -213,6 +213,22 @@ class LLM_interface {
 
     /**
      * 
+     * @returns {string[]}
+     */
+    get_avalible_models() {
+        return this.#API_interactor.avalible_models();
+    }
+
+    /**
+     * 
+     * @returns {import("./API_interactor").model_info}
+     */
+    get_current_model() {
+        return this.#API_interactor.current_model();
+    }
+
+    /**
+     * 
      * @returns {Promise<string[]>} list from API
      */
     async update_model_list() {

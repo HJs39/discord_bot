@@ -438,6 +438,10 @@ class API_interactor {
     api_callable() {
         return this.chatting < this.#concurrent_limit && (this.#rpm_count < this.current_rpm);
     }
+
+    current_model() {
+        return this.#APIs[this.#current_API_id].current_use;
+    }
 }
 
 module.exports = API_interactor;
