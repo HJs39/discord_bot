@@ -89,7 +89,7 @@ module.exports = {
             ['char_b_description', interaction.fields.getTextInputValue('char_b_description')]
         ]);
         /**@type {persona} */
-        const Eteris = client.LLM.get_persona(1);
+        const Eteris = client.battle.get_persona(1);
         /**@type {Array<chat_interaction>} */
         const inject_history = new Array();
         for (const chat of Eteris.phony_chat) {
@@ -101,7 +101,7 @@ module.exports = {
         }
         const format_instruction = inject_history.pop();
         /**@type {response_receiver} */
-        let receiver = client.LLM.chat_oneshot_customize_by_default(
+        let receiver = client.battle.chat_oneshot_customize_by_default(
             Eteris.persona,
             inject_history,
             format_instruction

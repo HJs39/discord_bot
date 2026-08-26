@@ -29,7 +29,7 @@ module.exports = {
         /**@type {LLM_interface} */
         let API;
         const choice = interaction.options.getString('api');
-        if (choice === 'battle') API = client.LLM;
+        if (choice === 'battle') API = client.battle;
         else throw new Error("unknow API");
         const embed = new EmbedBuilder()
             .setTitle("選擇可用模型")
@@ -65,7 +65,7 @@ module.exports = {
         const id = slipt_commands[1];
         /**@type {LLM_interface} */
         let API;
-        if (slipt_commands[1] === 'battle') API = client.LLM;
+        if (slipt_commands[1] === 'battle') API = client.battle;
         else throw new Error("unknow API");
         const select = interaction.values[0];
         const current_info = API.get_avalible_models().find((value) => value.name === select);
