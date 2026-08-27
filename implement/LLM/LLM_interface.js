@@ -263,7 +263,7 @@ class LLM_interface {
 
     get_list_user_seeable(snowflake) {
         return this.#personas.persona_list().concat(this.#personas.deprecated_persona_list())
-            .filter((p) => p.persona.author === snowflake || p.persona.type === type_t.public || p.persona.type === type_t.default)
+            .filter((p) => p.persona.author === snowflake || p.persona.type === type_t.public || p.persona.type === type_t.system)
             .sort((a, b) => a.id > b.id);
     }
 
