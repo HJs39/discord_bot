@@ -11,6 +11,10 @@
  * @global
  */
 
+const path = require('path');
+const fs = require('fs');
+const { assets_path } = require('./assets');
+
 /**
  * @class user_repository
  * @property {Map<snowflake,user>} repository
@@ -45,7 +49,8 @@ class user_repository {
         this.repository.set(snowflake, {
             name: name,
             internal_name: internal_name,
-            description: description
+            description: description,
+            current_use: 0
         });
     }
 

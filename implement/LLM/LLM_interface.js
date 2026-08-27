@@ -248,6 +248,7 @@ class LLM_interface {
     }
     //#endregion
 
+    //#region persona
     /**
      * get persona by id
      * @param {number} id 
@@ -372,7 +373,42 @@ class LLM_interface {
             lastest
         );
     }
+    //#endregion
 
+    /**
+     * 
+     * @param {import("./assets").snowflake} snowflake 
+     * @returns {boolean}
+     */
+    user_exist(snowflake) {
+        return this.#users.is_exit(snowflake);
+    }
+
+    /**
+     * 
+     * @param {import("./assets").snowflake} snowflake 
+     * @returns {import("./user_repository").user}
+     */
+    get_user(snowflake) {
+        return this.#users.get(snowflake);
+    }
+
+    /**
+     * 
+     * @param {import("./assets").snowflake} snowflake 
+     * @param {string} name 
+     * @param {string} internal_name 
+     * @param {string} description 
+     */
+    add_user(snowflake, name, internal_name, description) {
+        this.#users.add(snowflake, name, internal_name, description);
+    }
 }
+
+process.on('exit', (code) => {
+    global_message_repository.save();
+    global_persona_repository.save();
+    global_user_repository.save();
+});
 
 module.exports = LLM_interface;
