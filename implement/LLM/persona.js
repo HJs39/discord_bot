@@ -4,10 +4,10 @@
 
 /**
  * @readonly
- * @enum {'default'|'public'|'private'}
+ * @enum {'system'|'public'|'private'}
  */
 const type_t = Object.freeze({
-    default: 'default',
+    default: 'system',
     public: 'public',
     private: 'private'
 });
