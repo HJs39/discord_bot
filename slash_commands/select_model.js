@@ -20,9 +20,11 @@ module.exports = {
                 .setDescription("你沒有使用這個指令的權限！")
                 .setColor(colors.error)
                 .setFooter({
+                    text: '不要偷用！',
                     iconURL: client.user.displayAvatarURL(),
                 })
                 .setTimestamp();
+                console.log(`[Info]: someone try to call select_model command!\n  user id: ${interaction.user.id}\n  user name: ${interaction.user.globalName || interaction.user.userName}`);
             await interaction.reply({ embeds: [embed] });
             return;
         }
@@ -53,7 +55,7 @@ module.exports = {
             components: [action_row]
         });
     },
-    handle_select: async function (interaction,slipt_commands) {
+    handle_select: async function (interaction, slipt_commands) {
         if (!client.is_owner(interaction.user.id)) {
             await interaction.reply({
                 content: "你沒有資格做選擇！",
