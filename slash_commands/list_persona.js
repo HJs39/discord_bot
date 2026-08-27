@@ -14,7 +14,7 @@ module.exports = {
         await interaction.deferReply({ flags: ephemeral ? MessageFlags.Ephemeral : undefined });
         let output = '```';
         personas.forEach((persona) => {
-            output += `[${persona.id}|${persona.persona.type}]: ${persona.persona.display_name}${persona.persona.deprecated ? '(deprecated)' : ''}\n`;
+            output += `[${persona.id}|${persona.persona.type}${persona.persona.deprecated ? '|DEPRECATED' : ''}]: ${persona.persona.display_name}\n`;
         });
         await interaction.editReply(output.trimEnd() + '```');
     }
