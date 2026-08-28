@@ -718,7 +718,7 @@ module.exports = {
                                 .addComponents(
                                     new ButtonBuilder()
                                         .setCustomId('display_number phony_chat')
-                                        .setLabel(`${page}/${persona.phony_chat.length / 2}`)
+                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
                                         .setStyle(ButtonStyle.Secondary)
                                         .setDisabled(false)
                                 )
@@ -947,7 +947,7 @@ module.exports = {
                                             .setDisabled(false)
                                     );
                             } else if (p >= (persona.phony_chat.length / 2)) {
-                                page = persona.phony_chat.length / 2;
+                                page = Math.round(persona.phony_chat.length / 2);
                                 index = 2 * (page - 1);
                                 switch_page = new ActionRowBuilder()
                                     .addComponents(
@@ -1478,9 +1478,9 @@ module.exports = {
                     }
                 } else if (commands[0] === 'to_last') {
                     await i.deferUpdate();
-                    page = 1;
-                    index = 0;
                     if (commands[1] === 'phony_chat') {
+                        page = Math.round(persona.phony_chat.length / 2);
+                        index = 2 * (page - 1);
                         switch_page = new ActionRowBuilder()
                             .addComponents(
                                 new ButtonBuilder()
@@ -1530,6 +1530,8 @@ module.exports = {
                             })
                             .setTimestamp();
                     } else {
+                        page = persona.summarize_instruction.length;
+                        index = page - 1;
                         switch_page = new ActionRowBuilder()
                             .addComponents(
                                 new ButtonBuilder()
