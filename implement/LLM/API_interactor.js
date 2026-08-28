@@ -64,7 +64,7 @@
  */
 
 const OpenAI = require('openai');
-const { API_config } = require('./assets');
+const interaction_processor = require('./interaction_processor');
 const _ = require('lodash');
 
 
@@ -237,13 +237,12 @@ class API_interactor {
         var API_switch = false;
         console.log(`[info]: ${this.debug ? 'debug mode' : 'nomal mode'}`);
         try {
-            const message = [
+            const message = interaction_processor.combine([
                 { "role": "system", "content": system_instruction },
                 ...history
-            ];
+            ]).interactions;
             this.#raise_rpm_refresh();
             if (image !== undefined) {
-                console.log(`[info]: has image`);
                 message.push({
                     "role": "user",
                     "name": lastest.name,
@@ -272,7 +271,7 @@ class API_interactor {
                 if (this.debug) {
                     if (!API_switch) this.chatting -= 1;
                     console.log(`[info]: debug stream request`);
-                    console.log(`data after process:\n${JSON.stringify(
+                    console.log(`[info]: request data:\n${JSON.stringify(
                         {
                             model: name,
                             messages: message,
@@ -297,6 +296,17 @@ class API_interactor {
                 var COT = '';
                 var content = '';
                 var token_usage = undefined;
+                console.log(`[info]: request data:\n${JSON.stringify(
+                    {
+                        model: name,
+                        messages: message,
+                        max_token: current_use_API.max_token,
+                        extra_body: current_use_API.extra_body,
+                        stream: true
+                    },
+                    undefined,
+                    4
+                )}`);
                 const response = await current_use_API.openai.chat.completions.create({
                     model: name,
                     messages: message,
@@ -324,7 +334,7 @@ class API_interactor {
             }
             if (this.debug) {
                 if (!API_switch) this.chatting -= 1;
-                console.log(`data after process:\n${JSON.stringify(
+                console.log(`[info]: request data:\n${JSON.stringify(
                     {
                         model: name,
                         messages: message,
@@ -345,6 +355,17 @@ class API_interactor {
                     failed: false
                 }
             }
+            console.log(`[info]: request data:\n${JSON.stringify(
+                {
+                    model: name,
+                    messages: message,
+                    max_token: current_use_API.max_token,
+                    extra_body: current_use_API.extra_body,
+                    stream: true
+                },
+                undefined,
+                4
+            )}`);
             const response = await current_use_API.openai.chat.completions.create({
                 model: name,
                 messages: message,

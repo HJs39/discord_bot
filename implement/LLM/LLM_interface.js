@@ -179,12 +179,9 @@ class LLM_interface {
      */
     chat_oneshot_customize_by_default(system_instruction, history, lastest, image = undefined, image_type = undefined) {
         var system = '';
-        console.log('[info]: start prepare chat data');
         if (Array.isArray(system_instruction)) system = interaction_processor.combine(system_instruction).interactions[0].content;
         else system = system_instruction;
-        console.log('[info]: complete process system_instruction');
-        var useable_history = interaction_processor.combine(history).interactions;
-        console.log(`[info]: complete combine history\n  ${JSON.stringify(useable_history, undefined, 4)}`);
+        var useable_history = history;
         /**@type {import("./API_interactor").image_t} */
         var useable_image = {};
         if (image !== undefined && image_type !== undefined) {
@@ -196,7 +193,6 @@ class LLM_interface {
         } else {
             useable_image = undefined;
         }
-        console.log('[info]: complete process image');
         return new response_receiver(
             this.#API_interactor,
             system,
