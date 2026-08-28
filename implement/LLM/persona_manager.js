@@ -108,7 +108,7 @@ class persona_manager {
      * save all current persona setting to assets immediately
      */
     save() {
-        fs.writeFileSync(path.join(assets_path, 'personas.json'), JSON.stringify(this.#personas), 'utf-8');
+        fs.writeFileSync(path.join(assets_path, 'personas.json'), JSON.stringify(this.#personas, undefined, 4), 'utf-8');
     }
 
     /**
