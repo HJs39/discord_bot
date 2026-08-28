@@ -7,7 +7,7 @@
  * @enum {'system'|'public'|'private'}
  */
 const type_t = Object.freeze({
-    default: 'system',
+    system: 'system',
     public: 'public',
     private: 'private'
 });
