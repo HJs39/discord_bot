@@ -1,6 +1,18 @@
 const API_interactor = require('./API_interactor');
 const { timer } = require('./assets');
 
+/**@type {import('./API_interactor').API_result} */
+const bad_data = {
+    COT: '',
+    content: 'REQUEST TIMEOUT',
+    token_usage: {
+        prompt: 0,
+        output: 0,
+        total: 0
+    },
+    failed: true
+};
+
 class response_receiver {
 
     /**@type {import('./API_interactor').API_result|undefined} */
@@ -9,6 +21,8 @@ class response_receiver {
     #request;
     /**@type {boolean} */
     #generate;
+    /**@type {Number} */
+    #terminate_count;
 
     /**
      * 
@@ -23,14 +37,20 @@ class response_receiver {
         console.log(`[info]: construct receiver`);
         this.#result = undefined;
         this.#generate = false;
+        this.#terminate_count = 0;
         this.#request = setInterval(() => {
-            console.log(`[info]: in request loop`);
+            this.#terminate_count += 1;
             if (API.api_callable()) {
                 console.log('[info]: send request to API');
                 if (name !== undefined) this.#result = API.chat_by_name(name, system_instruction, history, lastest, image);
                 else this.#result = API.chat(system_instruction, history, lastest, image);
                 this.#generate = true;
                 clearInterval(this.#request);
+            }
+            if (this.#terminate_count === 84) {
+                this.#generate = true;
+                clearInterval(this.#request);
+                this.#result = bad_data;
             }
         }, 10000);
     }
