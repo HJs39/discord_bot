@@ -126,6 +126,7 @@ client.on(discord.Events.InteractionCreate, async (interaction) => {
         }
     } else if (interaction.isModalSubmit()) {
         const commands = interaction.customId.split(' ');
+        if (commands[0] === 'ignore') return;
         const command = interaction.client.commands.get(commands[0]);
         if (!command) {
             console.error(`No command matching ${interaction.commandName} was found.`);
