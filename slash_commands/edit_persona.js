@@ -235,7 +235,6 @@ module.exports = {
                                     .setLabel('編輯')
                                     .setStyle(ButtonStyle.Primary)
                             );
-                        console.log('persona side');
                     } else if (i.values[0] === 'format') {
                         switch_page = new ActionRowBuilder()
                             .addComponents(
