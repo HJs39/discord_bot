@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, MessageFlags, LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, MessageFlags, LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, CheckboxBuilder } = require('discord.js');
 const { cooldown_helper } = require('../implement/cooldown');
 const { persona, type_t } = require('../implement/LLM/persona.js');
 const { client } = require('../assets/client.js');
@@ -235,6 +235,7 @@ module.exports = {
                                     .setLabel('編輯')
                                     .setStyle(ButtonStyle.Primary)
                             );
+                        console.log('persona side');
                     } else if (i.values[0] === 'format') {
                         switch_page = new ActionRowBuilder()
                             .addComponents(
@@ -906,7 +907,7 @@ module.exports = {
                                 time: cooldown_helper.from_second(30)
                             });
                             await submit.deferUpdate();
-                            const p = Math.floor(Number(submit.fields.getTextInputValue('jump')));
+                            const p = parseInt(submit.fields.getTextInputValue('jump'));
                             if (p <= 1) {
                                 page = 1;
                                 index = 0;
@@ -985,7 +986,7 @@ module.exports = {
                                             .setStyle(ButtonStyle.Success)
                                             .setDisabled(true)
                                     );
-                            } else {
+                            } else if (!isNaN(p)) {
                                 page = p;
                                 index = 2 * (page - 1);
                                 switch_page = new ActionRowBuilder()
@@ -1064,7 +1065,7 @@ module.exports = {
                                 time: cooldown_helper.from_second(30)
                             });
                             await submit.deferUpdate();
-                            const p = Math.floor(Number(submit.fields.getTextInputValue('jump')));
+                            const p = parseInt(submit.fields.getTextInputValue('jump'));
                             if (p <= 1) {
                                 page = 1;
                                 index = 0;
@@ -1143,7 +1144,7 @@ module.exports = {
                                             .setStyle(ButtonStyle.Success)
                                             .setDisabled(true)
                                     );
-                            } else {
+                            } else if (!isNaN(p)) {
                                 page = p;
                                 index = page - 1;
                                 switch_page = new ActionRowBuilder()
@@ -2000,8 +2001,215 @@ module.exports = {
                     }
                     return;
                 } else if (commands[0] === 'edit') {
-                    if (commands[1] === 'phony_chat') {
+                    if (commands[1] === 'opening') {
+                        const modal = new ModalBuilder().setCustomId('ignore edit_opening').setTitle('編輯');
+                        modal.addLabelComponents(
+                            new LabelBuilder()
+                                .setLabel('顯示名稱')
+                                .setTextInputComponent(
+                                    new TextInputBuilder()
+                                        .setCustomId('display_name')
+                                        .setMaxLength(50)
+                                        .setStyle(TextInputStyle.Short)
+                                        .setRequired(true)
+                                        .setValue(persona.display_name)
+                                )
+                        )
+                            .addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('實際名稱')
+                                    .setTextInputComponent(
+                                        new TextInputBuilder()
+                                            .setCustomId('internal_name')
+                                            .setMaxLength(50)
+                                            .setStyle(TextInputStyle.Short)
+                                            .setRequired(true)
+                                            .setValue(persona.internal_name)
+                                    )
+                            )
+                            .addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('可見性')
+                                    .setStringSelectMenuComponent(
+                                        new StringSelectMenuBuilder()
+                                            .setCustomId('visible')
+                                            .addOptions([
+                                                { label: 'public', value: 'public', description: '公開' },
+                                                { label: 'private', value: 'private', description: '私人' }
+                                            ])
+                                    )
+
+                            )
+                            .addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('是否棄用')
+                                    .setCheckboxComponent(
+                                        new CheckboxBuilder()
+                                            .setCustomId('deprecated')
+                                            .setDefault(persona.deprecated)
+                                    )
+
+                            );
+                        await i.showModal(modal);
+                        try {
+                            const submit = await i.awaitModalSubmit({
+                                filter: i => i.customId === 'ignore edit_opening' && i.user.id === interaction.user.id,
+                                time: cooldown_helper.from_second(30)
+                            });
+                            await submit.deferUpdate();
+                            persona.display_name = submit.fields.getTextInputValue('display_name');
+                            persona.internal_name = submit.fields.getTextInputValue('internal_name');
+                            persona.type = submit.fields.getStringSelectValues('visible')[0] === 'public' ? type_t.public : type_t.private;
+                            persona.deprecated = submit.fields.getCheckbox('visible');
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('基本資訊')
+                                .setDescription(`名稱: ${persona.internal_name}\n顯示名稱: ${persona.display_name}\n當前狀態: ${persona.type}\n是否棄用: ${persona.deprecated ? '是' : '否'}`)
+                                .setFooter({
+                                    text: '概覽',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                            await submit.editReply({
+                                embeds: [embed],
+                                components: [select_list, switch_page, edit_button]
+                            });
+                            return;
+                        } catch {
+                            //do nothing
+                        }
+                    } else if (commands[1] === 'persona') {
+                        if (persona.persona.length > 4000) {
+                            await i.reply({
+                                content: '設定太長啦！\n已經沒辦法在Discord編輯了喔！',
+                                flags: MessageFlags.Ephemeral
+                            });
+                            return;
+                        }
                         const modal = new ModalBuilder().setCustomId('ignore edit_persona').setTitle('編輯');
+                        modal.addLabelComponents(
+                            new LabelBuilder()
+                                .setLabel('設定')
+                                .setTextInputComponent(
+                                    new TextInputBuilder()
+                                        .setCustomId('persona')
+                                        .setMaxLength(4000)
+                                        .setStyle(TextInputStyle.Paragraph)
+                                        .setValue(persona.persona)
+                                )
+                        );
+                        await i.showModal(modal);
+                        try {
+                            const submit = await i.awaitModalSubmit({
+                                filter: i => i.customId === 'ignore edit_persona' && i.user.id === interaction.user.id,
+                                time: cooldown_helper.from_second(30)
+                            });
+                            await submit.deferUpdate();
+                            persona.persona = submit.fields.getTextInputValue('persona');
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('設定:')
+                                .setDescription(`\`\`\`${persona.persona.slice(0, 1000)}${persona.persona.length > 1000 ? '...' : ''}\`\`\``)
+                                .setFooter({
+                                    text: '設定',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                            await submit.editReply({
+                                embeds: [embed],
+                                components: [select_list, switch_page, edit_button]
+                            });
+                            return;
+                        } catch {
+                            //do nothing
+                        }
+                    } else if (commands[1] === 'format') {
+                        if (persona.format.length > 4000 || persona.reply_format.length > 4000 || persona.user_format.length > 4000) {
+                            await i.reply({
+                                content: '設定太長啦！\n已經沒辦法在Discord編輯了喔！',
+                                flags: MessageFlags.Ephemeral
+                            });
+                            return;
+                        }
+                        const modal = new ModalBuilder().setCustomId('ignore edit_format').setTitle('編輯');
+                        modal.addLabelComponents(
+                            new LabelBuilder()
+                                .setLabel('普通訊息')
+                                .setTextInputComponent(
+                                    new TextInputBuilder()
+                                        .setCustomId('format')
+                                        .setMaxLength(4000)
+                                        .setStyle(TextInputStyle.Paragraph)
+                                        .setValue(persona.format)
+                                )
+                        )
+                            .addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('回覆')
+                                    .setTextInputComponent(
+                                        new TextInputBuilder()
+                                            .setCustomId('reply_format')
+                                            .setMaxLength(4000)
+                                            .setStyle(TextInputStyle.Paragraph)
+                                            .setValue(persona.reply_format)
+                                    )
+                            )
+                            .addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('使用者')
+                                    .setTextInputComponent(
+                                        new TextInputBuilder()
+                                            .setCustomId('user_format')
+                                            .setMaxLength(4000)
+                                            .setStyle(TextInputStyle.Paragraph)
+                                            .setValue(persona.user_format)
+                                    )
+                            );
+                        await i.showModal(modal);
+                        try {
+                            const submit = await i.awaitModalSubmit({
+                                filter: i => i.customId === 'ignore edit_format' && i.user.id === interaction.user.id,
+                                time: cooldown_helper.from_second(30)
+                            });
+                            await submit.deferUpdate();
+                            persona.format = submit.fields.getTextInputValue('format');
+                            persona.reply_format = submit.fields.getTextInputValue('reply_format');
+                            persona.user_format = submit.fields.getTextInputValue('user_format');
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`普通訊息:\n\`\`\`${persona.format || ' '}\`\`\`\n回覆:\n\`\`\`${persona.reply_format || ' '}\`\`\`\n使用者:\n\`\`\`${persona.user_format || ' '}\`\`\``)
+                                .setFooter({
+                                    text: '格式',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                            await submit.editReply({
+                                embeds: [embed],
+                                components: [select_list, switch_page, edit_button]
+                            });
+                            return;
+                        } catch {
+                            //do nothing
+                        }
+                    } else if (commands[1] === 'phony_chat') {
+                        if (persona.phony_chat[index].content.length > 4000 || persona.phony_chat.at(index + 1).content.length > 4000) {
+                            await i.reply({
+                                content: '太長啦！\n已經沒辦法在Discord編輯了喔！',
+                                flags: MessageFlags.Ephemeral
+                            });
+                            return;
+                        }
+                        const modal = new ModalBuilder().setCustomId('ignore edit_phony_chat').setTitle('編輯');
                         modal.addLabelComponents(
                             new LabelBuilder()
                                 .setLabel(persona.phony_chat[index].role)
@@ -2029,7 +2237,7 @@ module.exports = {
                         await i.showModal(modal);
                         try {
                             const submit = await i.awaitModalSubmit({
-                                filter: i => i.customId === 'ignore edit_persona' && i.user.id === interaction.user.id,
+                                filter: i => i.customId === 'ignore edit_phony_chat' && i.user.id === interaction.user.id,
                                 time: cooldown_helper.from_second(30)
                             });
                             await submit.deferUpdate();
@@ -2055,11 +2263,18 @@ module.exports = {
                         } catch {
                             //do nothing
                         }
-                    } else {
-                        const modal = new ModalBuilder().setCustomId('ignore edit_persona').setTitle('編輯');
+                    } else if (commands[1] === 'summarize') {
+                        if (persona.summarize_instruction[index].content.length > 4000) {
+                            await i.reply({
+                                content: '太長啦！\n已經沒辦法在Discord編輯了喔！',
+                                flags: MessageFlags.Ephemeral
+                            });
+                            return;
+                        }
+                        const modal = new ModalBuilder().setCustomId('ignore edit_summarize').setTitle('編輯');
                         modal.addLabelComponents(
                             new LabelBuilder()
-                                .setLabel(persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name)
+                                .setLabel(persona.summarize_instruction[index].role === 'user' ? 'user' : persona.internal_name)
                                 .setTextInputComponent(
                                     new TextInputBuilder()
                                         .setCustomId('instruction')
@@ -2071,7 +2286,7 @@ module.exports = {
                         await i.showModal(modal);
                         try {
                             const submit = await i.awaitModalSubmit({
-                                filter: i => i.customId === 'ignore edit_persona' && i.user.id === interaction.user.id,
+                                filter: i => i.customId === 'ignore edit_summarize' && i.user.id === interaction.user.id,
                                 time: cooldown_helper.from_second(30)
                             });
                             await submit.deferUpdate();
@@ -2087,6 +2302,68 @@ module.exports = {
                                         `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
                                 .setFooter({
                                     text: '總結',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                            await submit.editReply({
+                                embeds: [embed],
+                                components: [select_list, switch_page, edit_button]
+                            });
+                            return;
+                        } catch {
+                            //do nothing
+                        }
+                    } else {
+                        if (persona.format.length > 4000 || persona.reply_format.length > 4000 || persona.user_format.length > 4000) {
+                            await i.reply({
+                                content: '設定太長啦！\n已經沒辦法在Discord編輯了喔！',
+                                flags: MessageFlags.Ephemeral
+                            });
+                            return;
+                        }
+                        const modal = new ModalBuilder().setCustomId('ignore edit_memory').setTitle('編輯');
+                        modal.addLabelComponents(
+                            new LabelBuilder()
+                                .setLabel('發送倫數')
+                                .setTextInputComponent(
+                                    new TextInputBuilder()
+                                        .setCustomId('short_term')
+                                        .setMaxLength(10)
+                                        .setStyle(TextInputStyle.Short)
+                                        .setValue(persona.memory.short_term_max.toString())
+                                )
+                        )
+                            .addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('總結開始位置')
+                                    .setTextInputComponent(
+                                        new TextInputBuilder()
+                                            .setCustomId('summarize_start_index')
+                                            .setMaxLength(10)
+                                            .setStyle(TextInputStyle.Short)
+                                            .setValue(persona.memory.summarize_start_index.toString())
+                                    )
+                            );
+                        await i.showModal(modal);
+                        try {
+                            const submit = await i.awaitModalSubmit({
+                                filter: i => i.customId === 'ignore edit_memory' && i.user.id === interaction.user.id,
+                                time: cooldown_helper.from_second(30)
+                            });
+                            await submit.deferUpdate();
+                            const short_term = parseInt(submit.fields.getTextInputValue('short_term'));
+                            const summarize_start_index = parseInt(submit.fields.getTextInputValue('summarize_start_index'));
+                            persona.memory.short_term_max = isNaN(short_term) ? persona.memory.short_term_max : short_term;
+                            persona.memory.summarize_start_index = isNaN(summarize_start_index) ? persona.memory.summarize_start_index : summarize_start_index;
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`發送${persona.memory.short_term_max}倫對話\n總結${persona.memory.summarize_start_index}前的所有對話\n${persona.internal_name}最新的記憶:\n${persona.memory.summarized.length > 0 ? `\`\`\`${persona.memory.summarized.at(-1)}\`\`\`` : '尚未總結'}`)
+                                .setFooter({
+                                    text: '記憶處理',
                                     iconURL: interaction.user.displayAvatarURL()
                                 })
                                 .setTimestamp();
