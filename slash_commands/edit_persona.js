@@ -17,7 +17,7 @@ module.exports = {
         const persona_id = interaction.options.getInteger('persona');
         /**@type {persona} */
         const persona = client.battle.get_persona(persona_id);
-        if (persona.type === type_t.system) {
+        if (persona.type === type_t.system || persona.author !== interaction.user.id) {
             await interaction.reply({
                 content: '你不能修改這個！',
                 flags: MessageFlags.Ephemeral
