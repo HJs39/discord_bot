@@ -1629,18 +1629,56 @@ module.exports = {
                 } else if (commands[0] === 'create') {
                     if (commands[1] === 'phony_chat') {
                         const modal = new ModalBuilder().setCustomId('ignore create_persona').setTitle('建立');
-                        modal.addLabelComponents(
-                            new LabelBuilder()
-                                .setLabel('創建位置')
-                                .setStringSelectMenuComponent(
-                                    new StringSelectMenuBuilder()
-                                        .setCustomId('position')
-                                        .addOptions([
-                                            { label: 'front', value: 'front', description: '在此位置的前方新增' },
-                                            { label: 'back', value: 'back', description: '在此位置的後方新增' }
-                                        ])
-                                )
-                        );
+                        modal
+                            .addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('name')
+                                    .setTextInputComponent(
+                                        new TextInputBuilder()
+                                            .setCustomId('name')
+                                            .setMaxLength(64)
+                                            .setPlaceholder('phony_chat的name欄位，只有role為user時才會使用，留空則使用你的username')
+                                            .setStyle(TextInputStyle.Short)
+                                    )
+                            )
+                            .addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('訊息')
+                                    .setTextInputComponent(
+                                        new TextInputBuilder()
+                                            .setCustomId('content')
+                                            .setMaxLength(4000)
+                                            .setPlaceholder('此訊息的內容')
+                                            .setRequired(true)
+                                            .setStyle(TextInputStyle.Paragraph)
+                                    )
+                            )
+                            .addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('role')
+                                    .setStringSelectMenuComponent(
+                                        new StringSelectMenuBuilder()
+                                            .setCustomId('role')
+                                            .setOptions([
+                                                { label: 'user', value: 'user' },
+                                                { label: 'assistant', value: 'assistant' }
+                                            ])
+                                            .setRequired(true)
+                                    )
+                            )
+                            .addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('創建位置')
+                                    .setStringSelectMenuComponent(
+                                        new StringSelectMenuBuilder()
+                                            .setCustomId('position')
+                                            .addOptions([
+                                                { label: 'front', value: 'front', description: '在此位置的前方新增' },
+                                                { label: 'back', value: 'back', description: '在此位置的後方新增' }
+                                            ])
+                                            .setRequired(true)
+                                    )
+                            );
                         await i.showModal(modal);
                         try {
                             const submit = await i.awaitModalSubmit({
@@ -1648,30 +1686,27 @@ module.exports = {
                                 time: cooldown_helper.from_second(30)
                             });
                             await submit.deferUpdate();
+                            const name = submit.fields.getTextInputValue('name');
+                            const content = submit.fields.getTextInputValue('content');
+                            const role = submit.fields.getStringSelectValues('role')[0];
                             const position = submit.fields.getStringSelectValues('position')[0];
                             if (position === 'front') {
                                 const temp = _.take(persona.phony_chat, index);
                                 temp.push({
-                                    role: 'user',
-                                    name: internal_user.name,
-                                    content: ''
-                                }, {
-                                    role: 'assistant',
-                                    content: ''
+                                    role: role,
+                                    name: role === 'user' ? (name ?? internal_user.internal_name) : undefined,
+                                    content: content
                                 });
                                 temp.push(_.takeRight(persona.phony_chat, persona.phony_chat.length - index));
                                 persona.phony_chat = temp;
                             } else {
                                 const temp = _.take(persona.phony_chat, index + 2);
                                 temp.push({
-                                    role: 'user',
-                                    name: internal_user.name,
-                                    content: ''
-                                }, {
-                                    role: 'assistant',
-                                    content: ''
+                                    role: role,
+                                    name: role === 'user' ? (name ?? internal_user.internal_name) : undefined,
+                                    content: content
                                 });
-                                temp.push(_.takeRight(persona.phony_chat, persona.phony_chat.length - index));
+                                temp.push(_.takeRight(persona.phony_chat, persona.phony_chat.length - index - 2));
                                 persona.phony_chat = temp;
                             }
                             if (page == 1) {
