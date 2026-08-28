@@ -292,49 +292,90 @@ module.exports = {
                                     .setStyle(ButtonStyle.Primary)
                             );
                     } else if (i.values[0] === 'phony_chat') {
-                        switch_page = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_first phony_chat')
-                                    .setLabel('<<')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_previous phony_chat')
-                                    .setLabel('<')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('display_number phony_chat')
-                                    .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
-                                    .setStyle(ButtonStyle.Secondary)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_next phony_chat')
-                                    .setLabel('>')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_last phony_chat')
-                                    .setLabel('>>')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(false)
-                            );
+                        if (persona.phony_chat.length == 0) {
+                            switch_page = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_first phony_chat')
+                                        .setLabel('<<')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_previous phony_chat')
+                                        .setLabel('<')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('display_number phony_chat')
+                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_next phony_chat')
+                                        .setLabel('>')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_last phony_chat')
+                                        .setLabel('>>')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(true)
+                                );
+                        } else {
+                            switch_page = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_first phony_chat')
+                                        .setLabel('<<')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_previous phony_chat')
+                                        .setLabel('<')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('display_number phony_chat')
+                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_next phony_chat')
+                                        .setLabel('>')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_last phony_chat')
+                                        .setLabel('>>')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(false)
+                                );
+                        }
                         embed = new EmbedBuilder()
                             .setAuthor({
                                 name: interaction.member?.displayName ?? interaction.user.displayName,
                                 iconURL: interaction.user.displayAvatarURL(),
                             })
                             .setTitle('\u200b')
-                            .setDescription(`${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`)
+                            .setDescription(`${persona.phony_chat.at(0)
+                                ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                : '沒有注入的對話歷史'}`)
                             .setFooter({
                                 text: '偽造對話',
                                 iconURL: interaction.user.displayAvatarURL()
@@ -533,7 +574,7 @@ module.exports = {
                             .addComponents(
                                 new ButtonBuilder()
                                     .setCustomId('display_number phony_chat')
-                                    .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                    .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                     .setStyle(ButtonStyle.Secondary)
                                     .setDisabled(false)
                             )
@@ -557,7 +598,9 @@ module.exports = {
                                 iconURL: interaction.user.displayAvatarURL(),
                             })
                             .setTitle('\u200b')
-                            .setDescription(`${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`)
+                            .setDescription(`${persona.phony_chat.at(0)
+                                ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                : '沒有注入的對話歷史'}`)
                             .setFooter({
                                 text: '偽造對話',
                                 iconURL: interaction.user.displayAvatarURL()
@@ -681,7 +724,7 @@ module.exports = {
                                 .addComponents(
                                     new ButtonBuilder()
                                         .setCustomId('display_number phony_chat')
-                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                         .setStyle(ButtonStyle.Secondary)
                                         .setDisabled(false)
                                 )
@@ -718,7 +761,7 @@ module.exports = {
                                 .addComponents(
                                     new ButtonBuilder()
                                         .setCustomId('display_number phony_chat')
-                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                         .setStyle(ButtonStyle.Secondary)
                                         .setDisabled(false)
                                 )
@@ -744,7 +787,9 @@ module.exports = {
                                 iconURL: interaction.user.displayAvatarURL(),
                             })
                             .setTitle('\u200b')
-                            .setDescription(`${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`)
+                            .setDescription(`${persona.phony_chat.at(0)
+                                ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                : '沒有注入的對話歷史'}`)
                             .setFooter({
                                 text: '偽造對話',
                                 iconURL: interaction.user.displayAvatarURL()
@@ -928,7 +973,7 @@ module.exports = {
                                     .addComponents(
                                         new ButtonBuilder()
                                             .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                             .setStyle(ButtonStyle.Secondary)
                                             .setDisabled(false)
                                     )
@@ -967,7 +1012,7 @@ module.exports = {
                                     .addComponents(
                                         new ButtonBuilder()
                                             .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                             .setStyle(ButtonStyle.Secondary)
                                             .setDisabled(false)
                                     )
@@ -1006,7 +1051,7 @@ module.exports = {
                                     .addComponents(
                                         new ButtonBuilder()
                                             .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                             .setStyle(ButtonStyle.Secondary)
                                             .setDisabled(false)
                                     )
@@ -1031,7 +1076,9 @@ module.exports = {
                                     iconURL: interaction.user.displayAvatarURL(),
                                 })
                                 .setTitle('\u200b')
-                                .setDescription(`${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`)
+                                .setDescription(`${persona.phony_chat.at(0)
+                                    ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                    : '沒有注入的對話歷史'}`)
                                 .setFooter({
                                     text: '偽造對話',
                                     iconURL: interaction.user.displayAvatarURL()
@@ -1272,7 +1319,7 @@ module.exports = {
                                 .addComponents(
                                     new ButtonBuilder()
                                         .setCustomId('display_number phony_chat')
-                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                         .setStyle(ButtonStyle.Secondary)
                                         .setDisabled(false)
                                 )
@@ -1309,7 +1356,7 @@ module.exports = {
                                 .addComponents(
                                     new ButtonBuilder()
                                         .setCustomId('display_number phony_chat')
-                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                         .setStyle(ButtonStyle.Secondary)
                                         .setDisabled(false)
                                 )
@@ -1335,7 +1382,9 @@ module.exports = {
                                 iconURL: interaction.user.displayAvatarURL(),
                             })
                             .setTitle('\u200b')
-                            .setDescription(`${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`)
+                            .setDescription(`${persona.phony_chat.at(0)
+                                ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                : '沒有注入的對話歷史'}`)
                             .setFooter({
                                 text: '偽造對話',
                                 iconURL: interaction.user.displayAvatarURL()
@@ -1499,7 +1548,7 @@ module.exports = {
                             .addComponents(
                                 new ButtonBuilder()
                                     .setCustomId('display_number phony_chat')
-                                    .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                    .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                     .setStyle(ButtonStyle.Secondary)
                                     .setDisabled(false)
                             )
@@ -1523,7 +1572,9 @@ module.exports = {
                                 iconURL: interaction.user.displayAvatarURL(),
                             })
                             .setTitle('\u200b')
-                            .setDescription(`${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`)
+                            .setDescription(`${persona.phony_chat.at(0)
+                                ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                : '沒有注入的對話歷史'}`)
                             .setFooter({
                                 text: '偽造對話',
                                 iconURL: interaction.user.displayAvatarURL()
@@ -1728,7 +1779,7 @@ module.exports = {
                                     .addComponents(
                                         new ButtonBuilder()
                                             .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                             .setStyle(ButtonStyle.Secondary)
                                             .setDisabled(false)
                                     )
@@ -1765,7 +1816,7 @@ module.exports = {
                                     .addComponents(
                                         new ButtonBuilder()
                                             .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                             .setStyle(ButtonStyle.Secondary)
                                             .setDisabled(false)
                                     )
@@ -1802,7 +1853,7 @@ module.exports = {
                                     .addComponents(
                                         new ButtonBuilder()
                                             .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                             .setStyle(ButtonStyle.Secondary)
                                             .setDisabled(false)
                                     )
@@ -1827,7 +1878,9 @@ module.exports = {
                                     iconURL: interaction.user.displayAvatarURL(),
                                 })
                                 .setTitle('\u200b')
-                                .setDescription(`${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`)
+                                .setDescription(`${persona.phony_chat.at(0)
+                                    ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                    : '沒有注入的對話歷史'}`)
                                 .setFooter({
                                     text: '偽造對話',
                                     iconURL: interaction.user.displayAvatarURL()
@@ -2043,7 +2096,7 @@ module.exports = {
                                 .setTextInputComponent(
                                     new TextInputBuilder()
                                         .setCustomId('display_name')
-                                        .setMaxLength(50)
+                                        .setMaxLength(64)
                                         .setStyle(TextInputStyle.Short)
                                         .setRequired(true)
                                         .setValue(persona.display_name)
@@ -2055,7 +2108,7 @@ module.exports = {
                                     .setTextInputComponent(
                                         new TextInputBuilder()
                                             .setCustomId('internal_name')
-                                            .setMaxLength(50)
+                                            .setMaxLength(64)
                                             .setStyle(TextInputStyle.Short)
                                             .setRequired(true)
                                             .setValue(persona.internal_name)
@@ -2068,8 +2121,8 @@ module.exports = {
                                         new StringSelectMenuBuilder()
                                             .setCustomId('visible')
                                             .addOptions([
-                                                { label: 'public', value: 'public', description: '公開' },
-                                                { label: 'private', value: 'private', description: '私人' }
+                                                { label: 'public', value: 'public', description: '公開', default: persona.type === type_t.public },
+                                                { label: 'private', value: 'private', description: '私人', default: persona.type === type_t.private }
                                             ])
                                     )
 
@@ -2094,7 +2147,7 @@ module.exports = {
                             persona.display_name = submit.fields.getTextInputValue('display_name');
                             persona.internal_name = submit.fields.getTextInputValue('internal_name');
                             persona.type = submit.fields.getStringSelectValues('visible')[0] === 'public' ? type_t.public : type_t.private;
-                            persona.deprecated = submit.fields.getCheckbox('visible');
+                            persona.deprecated = submit.fields.getCheckbox('deprecated');
                             embed = new EmbedBuilder()
                                 .setAuthor({
                                     name: interaction.member?.displayName ?? interaction.user.displayName,
@@ -2236,7 +2289,13 @@ module.exports = {
                             //do nothing
                         }
                     } else if (commands[1] === 'phony_chat') {
-                        if (persona.phony_chat[index].content.length > 4000 || persona.phony_chat.at(index + 1).content.length > 4000) {
+                        if (persona.phony_chat.length === 0) {
+                            await i.reply({
+                                content: '你已經沒有東西可以編輯了！',
+                                flags: MessageFlags.Ephemeral
+                            });
+                            return;
+                        } else if (persona.phony_chat[index].content.length > 4000 || persona.phony_chat.at(index + 1).content.length > 4000) {
                             await i.reply({
                                 content: '太長啦！\n已經沒辦法在Discord編輯了喔！',
                                 flags: MessageFlags.Ephemeral
@@ -2283,7 +2342,9 @@ module.exports = {
                                     iconURL: interaction.user.displayAvatarURL(),
                                 })
                                 .setTitle('\u200b')
-                                .setDescription(`${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`)
+                                .setDescription(`${persona.phony_chat.at(0)
+                                    ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                    : '沒有注入的對話歷史'}`)
                                 .setFooter({
                                     text: '偽造對話',
                                     iconURL: interaction.user.displayAvatarURL()
@@ -2432,7 +2493,7 @@ module.exports = {
                         });
                         if (submit.fields.getTextInputValue('confirm') !== '確認') return;
                         if (commands[1] === 'phony_chat') {
-                            if (persona.phony_chat.length <= 2) {
+                            if (persona.phony_chat.length <= 0) {
                                 await submit.reply({
                                     content: '不能再刪了！',
                                     flags: MessageFlags.Ephemeral
@@ -2466,7 +2527,7 @@ module.exports = {
                                     .addComponents(
                                         new ButtonBuilder()
                                             .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                             .setStyle(ButtonStyle.Secondary)
                                             .setDisabled(false)
                                     )
@@ -2503,9 +2564,46 @@ module.exports = {
                                     .addComponents(
                                         new ButtonBuilder()
                                             .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                             .setStyle(ButtonStyle.Secondary)
                                             .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_next phony_chat')
+                                            .setLabel('>')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(true)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_last phony_chat')
+                                            .setLabel('>>')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(true)
+                                    );
+                            } else if (persona.phony_chat.length == 0) {
+                                switch_page = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_first phony_chat')
+                                            .setLabel('<<')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(true)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_previous phony_chat')
+                                            .setLabel('<')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(true)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('display_number phony_chat')
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                            .setStyle(ButtonStyle.Secondary)
+                                            .setDisabled(true)
                                     )
                                     .addComponents(
                                         new ButtonBuilder()
@@ -2540,7 +2638,7 @@ module.exports = {
                                     .addComponents(
                                         new ButtonBuilder()
                                             .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2)}`)
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                             .setStyle(ButtonStyle.Secondary)
                                             .setDisabled(false)
                                     )
@@ -2565,7 +2663,9 @@ module.exports = {
                                     iconURL: interaction.user.displayAvatarURL(),
                                 })
                                 .setTitle('\u200b')
-                                .setDescription(`${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`)
+                                .setDescription(`${persona.phony_chat.at(0)
+                                    ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                    : '沒有注入的對話歷史'}`)
                                 .setFooter({
                                     text: '偽造對話',
                                     iconURL: interaction.user.displayAvatarURL()
@@ -2741,11 +2841,11 @@ module.exports = {
         const focus = interaction.options.getFocused();
         /**@type {import('../implement/LLM/persona_manager.js').filtered_persona_t[]} */
         const user_seeable = client.battle.get_list_user_seeable(interaction.user.id);
-        if (/^\d*$/.test(focus)) {
-            idx = Number(focus);
-            await interaction.respond(user_seeable.filter(p => p.id >= idx).map(p => ({ name: p.persona.display_name, value: p.id })));
-        } else {
+        const idx = parseInt(focus);
+        if (isNaN(idx)) {
             await interaction.respond(user_seeable.filter(p => p.persona.display_name.startsWith(focus)).map(p => ({ name: p.persona.display_name, value: p.id })));
+        } else {
+            await interaction.respond(user_seeable.filter(p => p.id >= idx).map(p => ({ name: p.persona.display_name, value: p.id })));
         }
     }
 }

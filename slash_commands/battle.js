@@ -68,7 +68,7 @@ module.exports = {
             );
         await interaction.showModal(modal);
     },
-    handle_modal: async function (interaction, slipt_commands) {
+    handle_modal: async function (interaction, split_commands) {
         const embed_waiting = new EmbedBuilder()
             .setAuthor({
                 name: "Battle",

@@ -24,7 +24,7 @@ module.exports = {
                     iconURL: client.user.displayAvatarURL(),
                 })
                 .setTimestamp();
-                console.log(`[Info]: someone try to call select_model command!\n  user id: ${interaction.user.id}\n  user name: ${interaction.user.globalName || interaction.user.userName}`);
+            console.log(`[Info]: someone try to call select_model command!\n  user id: ${interaction.user.id}\n  user name: ${interaction.user.globalName || interaction.user.userName}`);
             await interaction.reply({ embeds: [embed] });
             return;
         }
@@ -55,7 +55,7 @@ module.exports = {
             components: [action_row]
         });
     },
-    handle_select: async function (interaction, slipt_commands) {
+    handle_select: async function (interaction, split_commands) {
         if (!client.is_owner(interaction.user.id)) {
             await interaction.reply({
                 content: "你沒有資格做選擇！",
@@ -64,10 +64,10 @@ module.exports = {
             return;
         }
         await interaction.deferUpdate();
-        const id = slipt_commands[1];
+        const id = split_commands[1];
         /**@type {LLM_interface} */
         let API;
-        if (slipt_commands[1] === 'battle') API = client.battle;
+        if (id === 'battle') API = client.battle;
         else throw new Error("unknow API");
         const select = interaction.values[0];
         const current_info = API.get_avalible_models().find((value) => value.name === select);
@@ -86,7 +86,7 @@ module.exports = {
         const action_row = new ActionRowBuilder()
             .addComponents(
                 new StringSelectMenuBuilder()
-                    .setCustomId(`select_model ${slipt_commands[1]}`)
+                    .setCustomId(`select_model ${id}`)
                     .setPlaceholder("可用模型")
                     .setOptions(string_options)
             );
