@@ -4,6 +4,7 @@
  */
 /**
  * @typedef user
+ * @property {snowflake} snowflake this user's discord snowflake
  * @property {string} name this user's username, same as {@link User.username}
  * @property {string} internal_name this user's internal name(set by user or this user's username same as {@link user.name})
  * @property {string} description this user's self description
@@ -47,7 +48,8 @@ class user_repository {
      */
     add(snowflake, user_name, internal_name, description) {
         this.repository.set(snowflake, {
-            name: name,
+            snowflake: snowflake,
+            name: user_name,
             internal_name: internal_name,
             description: description,
             current_use: 0

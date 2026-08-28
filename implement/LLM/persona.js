@@ -56,7 +56,8 @@ class persona_memory {
 /**
  * @class persona
  * @property {string} display_name - this persona's display name, used in user's select list and list command
- * @property {string} internal_name - this persona's internal name, used in request message
+ * @property {string} internal_name - this persona's internal name, used in macro and reference
+ * @property {string} identity_name - this persona's name used in "name" parameter in request message
  * @property {type_t} type - current stats of this persona
  * @property {snowflake} author - who create this persona
  * @property {boolean} deprecated - wether this persona is deprecated or not
@@ -74,7 +75,8 @@ class persona {
     /**
      * deprecated default always false
      * @param {string} display_name this persona's display name, used in user's select list and list command
-     * @param {string} internal_name this persona's internal name, used in request message
+     * @param {string} internal_name this persona's internal name, used in macro and reference
+     * @param {string} identity_name this persona's name used in "name" parameter in request message
      * @param {type_t} type current stats of this persona
      * @param {snowflake} author - who create this persona
      * @param {string} persona AI's persona setting
@@ -85,16 +87,17 @@ class persona {
      * @param {chat_interaction[]} summarize_instruction fake chat history for prompt injection in summarize mode, include placeholder
      * @param {persona_memory} memory persona's memory, see {@link persona_memory}
      */
-    constructor(display_name, internal_name, type, author, persona, format, reply_format,user_format, phony_chat, summarize_instruction, memory) {
+    constructor(display_name, internal_name, identity_name, type, author, persona, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
         this.display_name = display_name;
         this.internal_name = internal_name;
+        this.identity_name = identity_name;
         this.type = type;
         this.author = author;
         this.deprecated = false;
         this.persona = persona;
         this.format = format;
         this.reply_format = reply_format;
-        this.user_format=user_format;
+        this.user_format = user_format;
         this.phony_chat = phony_chat;
         this.summarize_instruction = summarize_instruction;
         this.used_user = new Array(author);

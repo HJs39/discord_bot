@@ -38,7 +38,7 @@ class persona_manager {
      * @returns {number} a deprecated persona's id or the index after last in current array
      */
     search_useable_id() {
-        const id = this.#personas.findIndex((p) => !p.deprecated);
+        const id = this.#personas.findIndex((p) => p.deprecated);
         if (id === -1) return this.#personas.length
         else return id;
     }
@@ -63,7 +63,8 @@ class persona_manager {
      * create a persona by id
      * @param {number} id the identity of the persona
      * @param {string} display_name this persona's display name, used in user's select list and list command
-     * @param {string} internal_name this persona's internal name, used in request message
+     * @param {string} internal_name this persona's internal name, used in macro and reference
+     * @param {string} identity_name  this persona's name used in "name" parameter in request message
      * @param {type_t} type current stats of this persona
      * @param {snowflake} author - who create this persona
      * @param {string} persona_instruction AI's persona setting
@@ -74,11 +75,12 @@ class persona_manager {
      * @param {chat_interaction[]} summarize_instruction fake chat history for prompt injection in summarize mode, include placeholder
      * @param {persona_memory} memory persona's memory, see {@link persona_memory}
      */
-    create_persona(id, display_name, internal_name, type, author, persona_instruction, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
+    create_persona(id, display_name, internal_name, identity_name, type, author, persona_instruction, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
         if (id === this.#personas.length) {
             this.#personas.push(new persona(
                 display_name,
                 internal_name,
+                identity_name,
                 type,
                 author,
                 persona_instruction,
@@ -93,6 +95,7 @@ class persona_manager {
             let persona = this.#personas[id];
             persona.display_name = display_name;
             persona.internal_name = internal_name;
+            persona.identity_name = identity_name;
             persona.type = type;
             persona.author = author;
             persona.persona = persona_instruction;

@@ -4,6 +4,7 @@ const interaction_processor = require('./interaction_processor');
 const persona_manager = require('./persona_manager');
 const message_repository = require('./message_repository');
 const user_repository = require('./user_repository');
+const context = require("./context");
 const { persona, type_t } = require("./persona");
 const { placeholder_replacer } = require("./assets");
 const logged_messages = require('../../assets/message_repository.json');
@@ -254,25 +255,48 @@ class LLM_interface {
         return this.#personas.get(id);
     }
 
+    /**
+     * 
+     * @param {import("./assets").snowflake} author 
+     * @returns {import("./persona_manager").filtered_persona_t[]}
+     */
     get_persona_list_by_author(author) {
-        return this.#personas.filter_by_author(author);
+        return this.#personas.filter_by_author(author).sort((a, b) => a.id > b.id);
     }
 
+    /**
+     * 
+     * @param {import("./assets").snowflake} snowflake 
+     * @returns {import("./persona_manager").filtered_persona_t[]}
+     */
     get_list_user_seeable(snowflake) {
         return this.#personas.persona_list().concat(this.#personas.deprecated_persona_list())
             .filter((p) => p.persona.author === snowflake || p.persona.type === type_t.public || p.persona.type === type_t.system)
             .sort((a, b) => a.id > b.id);
     }
 
+    /**
+     * 
+     * @param {number} persona_id 
+     * @returns {boolean}
+     */
     deprecated_persona(persona_id) {
         return this.#personas.delete_persona(persona_id);
     }
 
     /**
-     * create a persona by id
-     * @param {number} id the identity of the persona
+     * 
+     * @param {number} persona_id 
+     */
+    undo_deprecated(persona_id){
+        this.#personas.undo_delete(persona_id);
+    }
+
+    /**
+     * create a persona
      * @param {string} display_name this persona's display name, used in user's select list and list command
-     * @param {string} internal_name this persona's internal name, used in request message
+     * @param {string} internal_name this persona's internal name, used in macro and reference
+     * @param {string} identity_name  this persona's name used in "name" parameter in request message
      * @param {type_t} type current stats of this persona
      * @param {snowflake} author - who create this persona
      * @param {string} persona_instruction AI's persona setting
@@ -283,18 +307,19 @@ class LLM_interface {
      * @param {chat_interaction[]} summarize_instruction fake chat history for prompt injection in summarize mode, include placeholder
      * @param {persona_memory} memory persona's memory, see {@link persona_memory}
      */
-    create_persona(id, display_name, internal_name, type, author, persona_instruction, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
+    create_persona(display_name, internal_name, identity_name, type, author, persona_instruction, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
         this.#personas.create_persona(
-            id,
+            this.#personas.search_useable_id(),
             display_name,
             internal_name,
+            identity_name,
             type,
             author,
             persona_instruction,
             format,
             reply_format,
-            phony_chat,
             user_format,
+            phony_chat,
             summarize_instruction,
             memory
         );
@@ -371,6 +396,7 @@ class LLM_interface {
     }
     //#endregion
 
+    //#region user
     /**
      * 
      * @param {import("./assets").snowflake} snowflake 
@@ -398,6 +424,16 @@ class LLM_interface {
      */
     add_user(snowflake, name, internal_name, description) {
         this.#users.add(snowflake, name, internal_name, description);
+    }
+    //#endregion
+
+    /**
+     * 
+     * @param {import("./assets").snowflake} snowflake 
+     * @returns {context}
+     */
+    get_message_context(snowflake) {
+        return this.#messages.get(snowflake);
     }
 }
 
