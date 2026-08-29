@@ -8,7 +8,7 @@
  * @class context
  * @property {Date} send_at a date object for moment parse
  * @property {string} assistant_message raw message content from API
- * @property {string} persona_id the owner of this message(for wrap from user "Alice" to persona name)
+ * @property {number} persona_id the owner of this message(for wrap from user "Alice" to persona name)
  * @property {snowflake} user user's information
  * @property {string} user_input formatted user input for summarize
  * @property {boolean} summarized whether this context has been summarized
@@ -19,7 +19,7 @@ class context {
      * construct a context
      * @param {Date} send_at a date object for moment parse
      * @param {string} assistant_message raw message content from discord
-     * @param {string} persona_id the owner of this message(for wrap from user "Alice" to persona name)
+     * @param {number} persona_id the owner of this message(for wrap from user "Alice" to persona name)
      * @param {snowflake} user user's snowflake(use to search user imformation from user_repository)
      * @param {string} user_input formatted user input for summarize
      */
@@ -37,7 +37,7 @@ class context {
  * @typedef file_context_node_t
  * @property {string} send_at from Date object
  * @property {string} assistant_message
- * @property {string} persona_id
+ * @property {number} persona_id
  * @property {snowflake} user
  * @property {string} user_input
  * @property {boolean} summarized

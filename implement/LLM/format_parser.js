@@ -20,7 +20,7 @@ class format_parser {
         const result = format.replace(/\\?(?!\\)\$\{(.*?)\}/g, (full_match, identity) => {
             if (full_match.startsWith('\\')) return full_match;
             if (identity.startsWith('time:')) {
-                const time = identity.slice(6);
+                const time = identity.slice(5);
                 time_macro.push(time);
                 return `\${${time}}`;
             } else {

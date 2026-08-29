@@ -25,7 +25,11 @@ class interaction_processor {
         var is_user = false;
         for (const interaction of interactions) {
             if (current === undefined) {
-                current = interaction;
+                current = {
+                    role: interaction.role,
+                    content: interaction.content,
+                    name: interaction.name
+                };
             } else if (current.role === interaction.role) {
                 current.content += `\n\n${interaction.content}`;
                 /**
@@ -50,7 +54,11 @@ class interaction_processor {
                 if (current.role === 'user') is_user = true;
             } else {
                 result.push(current);
-                current = interaction;
+                current = {
+                    role: interaction.role,
+                    content: interaction.content,
+                    name: interaction.name
+                };
             }
         }
         if (current !== undefined) result.push(current);
@@ -67,14 +75,14 @@ class interaction_processor {
         /**@type {chat_interaction[]} */
         let result = new Array();
         for (const c of contexts) {
+            if (c.user_input.length !== 0) result.push({
+                role: 'user',
+                name: repository.get(c.user).name,
+                content: new placeholder_replacer([['user', repository.get(c.user).internal_name]]).replace(c.user_input)
+            });
             result.push({
                 role: 'assistant',
                 content: c.assistant_message
-            });
-            result.push({
-                role: 'user',
-                name: repository.get(c.user).internal_name,
-                content: new placeholder_replacer([['user', repository.get(c.user).internal_name]]).replace(c.user_input)
             });
         }
         return result;
