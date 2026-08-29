@@ -63,6 +63,14 @@ class message_repository {
     }
 
     /**
+     * 
+     * @param {snowflake} snowflake 
+     */
+    remove(snowflake){
+        this.repository.delete(snowflake);
+    }
+
+    /**
      * save current message to files
      */
     save() {

@@ -77,11 +77,11 @@ class LLM_interface {
         }
         if (persona.memory.raw_short_term.length < persona.memory.short_term_max) {
             if (persona.phony_chat.length !== 0) {
-                history.push(_.takeRight(persona.phony_chat, (persona.memory.short_term_max - persona.memory.raw_short_term.length) * 2));
+                history.push(..._.takeRight(persona.phony_chat, (persona.memory.short_term_max - persona.memory.raw_short_term.length) * 2));
             }
-            history.push(interaction_processor.flat_context(this.#messages.fetch(persona.memory.raw_short_term)));
+            history.push(...interaction_processor.flat_context(this.#users, this.#messages.fetch(persona.memory.raw_short_term)));
         } else {
-            history.push(interaction_processor.flat_context(this.#messages.fetch(_.takeRight(persona.memory.raw_short_term, persona.memory.short_term_max))));
+            history.push(...interaction_processor.flat_context(this.#users, this.#messages.fetch(_.takeRight(persona.memory.raw_short_term, persona.memory.short_term_max))));
         }
 
         /**@type {import("./API_interactor").image_t} */
@@ -135,11 +135,11 @@ class LLM_interface {
         }
         if (persona.memory.raw_short_term.length < persona.memory.short_term_max) {
             if (persona.phony_chat.length !== 0) {
-                history.push(_.takeRight(persona.phony_chat, (persona.memory.short_term_max - persona.memory.raw_short_term.length) * 2));
+                history.push(..._.takeRight(persona.phony_chat, (persona.memory.short_term_max - persona.memory.raw_short_term.length) * 2));
             }
-            history.push(interaction_processor.flat_context(this.#messages.fetch(persona.memory.raw_short_term)));
+            history.push(...interaction_processor.flat_context(this.#users, this.#messages.fetch(persona.memory.raw_short_term)));
         } else {
-            history.push(interaction_processor.flat_context(this.#messages.fetch(_.takeRight(persona.memory.raw_short_term, persona.memory.short_term_max))));
+            history.push(...interaction_processor.flat_context(this.#users, this.#messages.fetch(_.takeRight(persona.memory.raw_short_term, persona.memory.short_term_max))));
         }
 
         /**@type {import("./API_interactor").image_t} */
@@ -288,7 +288,7 @@ class LLM_interface {
      * 
      * @param {number} persona_id 
      */
-    undo_deprecated(persona_id){
+    undo_deprecated(persona_id) {
         this.#personas.undo_delete(persona_id);
     }
 
@@ -434,6 +434,23 @@ class LLM_interface {
      */
     get_message_context(snowflake) {
         return this.#messages.get(snowflake);
+    }
+
+    /**
+     * 
+     * @param {import("./assets").snowflake} message_id 
+     * @param {context} context 
+     */
+    save_context(message_id, context) {
+        this.#messages.push(message_id, context);
+    }
+
+    /**
+     * 
+     * @param {import("./assets").snowflake} message_id 
+     */
+    remove_context(message_id){
+        this.#messages.remove(message_id);
     }
 }
 
