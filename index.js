@@ -2,9 +2,15 @@ const discord = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
 const message_spliter = require('./implement/massage_spliter');
-const { token } = require('./assets/bot_assets.json');
+const context = require('./implement/LLM/context');
+const placeholder_replacer = require('./implement/placeholder_replacer');
+const format_parser = require('./implement/LLM/format_parser');
+const response_receiver = require('./implement/LLM/response_reciver');
+const { cooldown_helper } = require('./implement/cooldown.js');
+const { persona } = require('./implement/LLM/persona');
 const { client } = require('./assets/client.js');
 const bot_assets = require('./assets/bot_assets.json');
+const moment = require('moment');
 const _ = require('lodash');
 
 async function try_send_message_to_debug_channel(message) {
@@ -158,6 +164,265 @@ client.on(discord.Events.InteractionCreate, async (interaction) => {
     }
 });
 
+client.on(discord.Events.MessageCreate, async (message) => {
+    const mention_regex = new RegExp(`<@${client.user.id}>`, 'g');
+    if (message.author.bot) return;
+    else if (!bot_assets.chatable_channel.includes(message.channel.id)) return;
+    else if (!message.mentions.users.has(client.user.id)) return;
+    if (!client.chat.user_exist(message.author.id)) {
+        await message.reply({
+            content: '你還沒有建立個人資料！\n試著用`/create_profile`建立一個新的吧！'
+        });
+        return;
+    }
+    /**@type {import('../implement/LLM/user_repository').user} */
+    const user = client.chat.get_user(message.author.id);
+    /**@type {persona} */
+    let used_persona = undefined;
+    const placeholder = [];
+    const user_send_at = moment(new Date());
+    /**@type {import('./implement/LLM/persona_manager.js').filtered_persona_t} */
+    let format = undefined;
+    if (message.type === discord.MessageType.Reply) {
+        const reference = message.reference;
+        if (!reference) return;
+        let input = '';
+        let ref_mes = undefined;
+
+        try {
+            ref_mes = await message.fetchReference();
+            placeholder.push(['target_message', ref_mes]);
+            if (ref_mes.author.id === client.user.id) {
+                /**@type {context} */
+                const self_send = client.chat.get_message_context(ref_mes.id);
+                if (!self_send) return;
+                placeholder.push(['target_user', client.chat.get_persona(self_send.persona_id).internal_name]);
+            } else if (client.chat.user_exist(ref_mes.author.id)) {
+                placeholder.push(['target_user', client.chat.get_user(ref_mes.author.id).internal_name]);
+            } else {
+                placeholder.push(['target_user', ref_mes.author.displayName]);
+            }
+        } catch (error) {
+            console.error(error);
+            await handle_error(error);
+            return;
+        }
+
+        if (mention_regex.test(message.content)) used_persona = client.chat.get_persona(user.current_use);
+        else used_persona = client.chat.get_persona(client.chat.get_message_context(ref_mes.id).persona_id);
+
+        if (!used_persona.used_user.includes(user.snowflake)) used_persona.used_user.push(user.snowflake);
+        format = format_parser.parse(used_persona.reply_format);
+
+        for (const time of format.time_macro) {
+            placeholder.push([time, user_send_at.format(time)]);
+        }
+        const content = message.content.replace(/<@(\d+)>/g, (full_match, id) => {
+            if (client.chat.user_exist(id)) {
+                return `@${client.chat.get_user(id).internal_name}`;
+            } else if (id === client.user.id) {
+                return `@${used_persona.internal_name}`;
+            } else {
+                const user = client.users.cache.get(userId);
+                if (user) return `@${user.displayName}`;
+                else return `@未知使用者`;
+            }
+        });
+        placeholder.push(['message', content]);
+        input = new placeholder_replacer(placeholder).replace(format.result);
+
+        /**@type {ArrayBuffer} */
+        let image_buffer = undefined;
+        /**@type {string} */
+        let image_type = undefined;
+        if (message.attachments.size > 0 && message.attachments.first().contentType?.startsWith('image/')) {
+            const download_image = await fetch(message.attachments.first().url);
+            const byte_image = await download_image.arrayBuffer();
+            image_buffer = Buffer.from(byte_image);
+            image_type = message.attachments.first().contentType.slice(6);
+        }
+        const typing = setInterval(() => {
+            message.channel.sendTyping();
+        }, cooldown_helper.from_second(8));
+        try {
+            /**@type {response_receiver} */
+            const receiver = client.chat.chat_oneshot_by_default(
+                user.current_use,
+                {
+                    role: 'user',
+                    content: (new placeholder_replacer([['user', user.internal_name]])).replace(input),
+                    name: user.name
+                },
+                image_buffer,
+                image_type);
+
+            let result = await receiver.get_result();
+
+            if (result.failed) {
+                clearInterval(typing);
+                await message.reply({
+                    content: `generate failed:\n${result.content}`
+                });
+            } else {
+                clearInterval(typing);
+                if (result.content.length > 1800) {
+                    for (const split_mes of message_spliter.split(result.content)) {
+                        const reply_mes = await message.reply({
+                            content: split_mes
+                        });
+                        client.chat.save_context(
+                            reply_mes.id,
+                            new context(
+                                new Date(),
+                                split_mes,
+                                user.current_use,
+                                user.snowflake,
+                                input
+                            )
+                        );
+                        used_persona.memory.raw_short_term.push(reply_mes.id);
+                        input = '';
+                    }
+                } else {
+                    const reply_mes = await message.reply({
+                        content: result.content
+                    });
+                    client.chat.save_context(
+                        reply_mes.id,
+                        new context(
+                            new Date(),
+                            result.content,
+                            user.current_use,
+                            user.snowflake,
+                            input
+                        )
+                    );
+                    used_persona.memory.raw_short_term.push(reply_mes.id);
+                }
+                try {
+                    const channel = await client.channels.fetch(bot_assets.COT_channel);
+                    for (const split_mes of message_spliter.split(result.COT)) {
+                        await channel.send(split_mes);
+                    }
+                } catch (error) {
+                    console.log(`[Error]: failed to send response COT\n  Details: ${error}`);
+                }
+            }
+        } catch (error) {
+            clearInterval(typing);
+            console.error(error);
+            await handle_error(error);
+        }
+    } else {
+        used_persona = client.chat.get_persona(user.current_use);
+
+        if (!used_persona.used_user.includes(user.snowflake)) used_persona.used_user.push(user.snowflake);
+
+        format = format_parser.parse(used_persona.format);
+
+        for (const time of format.time_macro) {
+            placeholder.push([time, user_send_at.format(time)]);
+        }
+        const content = message.content.replace(/<@(\d+)>/g, (full_match, id) => {
+            if (client.chat.user_exist(id)) {
+                return `@${client.chat.get_user(id).internal_name}`;
+            } else if (id === client.user.id) {
+                return `@${used_persona.internal_name}`;
+            } else {
+                const user = client.users.cache.get(userId);
+                if (user) return `@${user.displayName}`;
+                else return `@未知使用者`;
+            }
+        });
+        placeholder.push(['message', content]);
+        input = new placeholder_replacer(placeholder).replace(format.result);
+
+        /**@type {ArrayBuffer} */
+        let image_buffer = undefined;
+        /**@type {string} */
+        let image_type = undefined;
+        if (message.attachments.size > 0 && message.attachments.first().contentType?.startsWith('image/')) {
+            const download_image = await fetch(message.attachments.first().url);
+            const byte_image = await download_image.arrayBuffer();
+            image_buffer = Buffer.from(byte_image);
+            image_type = message.attachments.first().contentType.slice(6);
+        }
+
+        const typing = setInterval(() => {
+            message.channel.sendTyping();
+        }, cooldown_helper.from_second(8));
+        try {
+            /**@type {response_receiver} */
+            const receiver = client.chat.chat_oneshot_by_default(
+                user.current_use,
+                {
+                    role: 'user',
+                    content: (new placeholder_replacer([['user', user.internal_name]])).replace(input),
+                    name: user.name
+                },
+                image_buffer,
+                image_type);
+
+            let result = await receiver.get_result();
+
+            if (result.failed) {
+                clearInterval(typing);
+                await message.reply({
+                    content: `generate failed:\n${result.content}`
+                });
+            } else {
+                clearInterval(typing);
+                if (result.content.length > 1800) {
+                    for (const split_mes of message_spliter.split(result.content)) {
+                        const reply_mes = await message.reply({
+                            content: split_mes
+                        });
+                        client.chat.save_context(
+                            reply_mes.id,
+                            new context(
+                                new Date(),
+                                split_mes,
+                                user.current_use,
+                                user.snowflake,
+                                input
+                            )
+                        );
+                        used_persona.memory.raw_short_term.push(reply_mes.id);
+                        input = '';
+                    }
+                } else {
+                    const reply_mes = await message.reply({
+                        content: result.content
+                    });
+                    client.chat.save_context(
+                        reply_mes.id,
+                        new context(
+                            new Date(),
+                            result.content,
+                            user.current_use,
+                            user.snowflake,
+                            input
+                        )
+                    );
+                    used_persona.memory.raw_short_term.push(reply_mes.id);
+                }
+                try {
+                    const channel = await client.channels.fetch(bot_assets.COT_channel);
+                    for (const split_mes of message_spliter.split(result.COT)) {
+                        await channel.send(split_mes);
+                    }
+                } catch (error) {
+                    console.log(`[Error]: failed to send response COT\n  Details: ${error}`);
+                }
+            }
+        } catch (error) {
+            clearInterval(typing);
+            console.error(error);
+            await handle_error(error);
+        }
+    }
+});
+
 client.on(discord.Events.ShardDisconnect, (event, id) => {
     console.log(`[Info]: Alice is disconnect from discord!\n  id: ${id}\n  event code: ${event.code}`);
 });
@@ -166,4 +431,4 @@ process.on('exit', code => {
     console.log(`[Info]: Alice is shutdown by exit program!\n  code: ${code}`);
 });
 
-client.login(token);
+client.login(bot_assets.token);
