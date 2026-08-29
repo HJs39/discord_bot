@@ -10,7 +10,8 @@ module.exports = {
         .addStringOption(option => option.setName('api')
             .setDescription("API for choose")
             .setChoices(
-                { name: 'battle', value: 'battle' }
+                { name: 'battle', value: 'battle' },
+                { name: 'chat', value: 'chat' }
             )
             .setRequired(true)),
     eval: async function (interaction) {
@@ -32,6 +33,7 @@ module.exports = {
         let API;
         const choice = interaction.options.getString('api');
         if (choice === 'battle') API = client.battle;
+        else if (choice === 'chat') API = client.chat;
         else throw new Error("unknow API");
         const embed = new EmbedBuilder()
             .setTitle("選擇可用模型")
@@ -68,6 +70,7 @@ module.exports = {
         /**@type {LLM_interface} */
         let API;
         if (id === 'battle') API = client.battle;
+        else if (id === 'chat') API = client.chat;
         else throw new Error("unknow API");
         const select = interaction.values[0];
         const current_info = API.get_avalible_models().find((value) => value.name === select);
