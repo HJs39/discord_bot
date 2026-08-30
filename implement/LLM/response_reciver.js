@@ -41,6 +41,7 @@ class response_receiver {
         this.#request = setInterval(() => {
             this.#terminate_count += 1;
             if (API.api_callable()) {
+                if (image !== undefined && !API.allowed_image()) return;
                 console.log('[info]: send request to API');
                 if (name !== undefined) this.#result = API.chat_by_name(name, system_instruction, history, lastest, image);
                 else this.#result = API.chat(system_instruction, history, lastest, image);

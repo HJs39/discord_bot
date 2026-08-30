@@ -235,7 +235,19 @@ client.on(discord.Events.MessageCreate, async (message) => {
         let image_buffer = undefined;
         /**@type {string} */
         let image_type = undefined;
-        if (message.attachments.size > 0 && message.attachments.first().contentType?.startsWith('image/')) {
+        if (message.attachments.size > 0) {
+            if (!message.attachments.first().contentType?.startsWith('image/')) {
+                await message.reply({
+                    content: 'request blocked:\nsystem do not implement not image attachment'
+                });
+                return;
+            }
+            if (!client.chat.allowed_send_image()) {
+                await message.reply({
+                    content: 'request blocked:\ncurrent API do not allowed image, please try again later'
+                });
+                return;
+            }
             const download_image = await fetch(message.attachments.first().url);
             const byte_image = await download_image.arrayBuffer();
             image_buffer = Buffer.from(byte_image);
@@ -304,6 +316,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
                     for (const split_mes of message_spliter.split(result.COT)) {
                         await channel.send(split_mes);
                     }
+                    if (result.token_usage) await channel.send(`-# prompt: ${result.token_usage.prompt}\n-# output: ${result.token_usage.output}\n-# total: ${result.token_usage.total}`);
                 } catch (error) {
                     console.log(`[Error]: failed to send response COT\n  Details: ${error}`);
                 }
@@ -341,7 +354,19 @@ client.on(discord.Events.MessageCreate, async (message) => {
         let image_buffer = undefined;
         /**@type {string} */
         let image_type = undefined;
-        if (message.attachments.size > 0 && message.attachments.first().contentType?.startsWith('image/')) {
+        if (message.attachments.size > 0) {
+            if (!message.attachments.first().contentType?.startsWith('image/')) {
+                await message.reply({
+                    content: 'request blocked:\nsystem do not implement not image attachment'
+                });
+                return;
+            }
+            if (!client.chat.allowed_send_image()) {
+                await message.reply({
+                    content: 'request blocked:\ncurrent API do not allowed image, please try again later'
+                });
+                return;
+            }
             const download_image = await fetch(message.attachments.first().url);
             const byte_image = await download_image.arrayBuffer();
             image_buffer = Buffer.from(byte_image);
@@ -411,6 +436,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
                     for (const split_mes of message_spliter.split(result.COT)) {
                         await channel.send(split_mes);
                     }
+                    if (result.token_usage) await channel.send(`-# prompt: ${result.token_usage.prompt}\n-# output: ${result.token_usage.output}\n-# total: ${result.token_usage.total}`);
                 } catch (error) {
                     console.log(`[Error]: failed to send response COT\n  Details: ${error}`);
                 }
