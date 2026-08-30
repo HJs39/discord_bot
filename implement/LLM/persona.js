@@ -104,56 +104,6 @@ class persona {
         this.memory = memory
     }
 }
-/*
-persona array in JSON seems like:
-[
-    {
-        "display_name": "Alice(default)",
-        "internal_name": "Alice",
-        "type": "default",
-        "deprecated": false,
-        "persona": {
-            "role": "system",
-            "content": "You are a ..."
-        },
-        "format": "${user} send at ${time:YYYY/MM/DD HH:mm:ss}:\n${message}",
-        "reply_format": "${target_user}:\n${target_message}\n\n${user} reply to ${target_user}, send at ${time:YYYY/MM/DD HH:mm:ss}:\n${message}",
-        "user_format": "${name} ${description}",
-        "phony_chat": [
-            {
-                "role": "user",
-                "name": "...",
-                "content": "Alice! Can..."
-            },
-            {
-                "role": "assistant",
-                "content": "Ok, let's..."
-            }
-        ],
-        "summarize_instruction": [
-            {
-                "role": "user",
-                "content": "Let's summarize..."
-            },
-            {
-                "role": "assistant",
-                "content": "Ok, let me..."
-            },
-            {
-                "role": "placeholder",
-                "content": "${history}"
-            }
-        ],
-        "used_user": [],
-        "memory": {
-            "short_term_max": 10,
-            "summarize_start_index": 10,
-            "raw_message_snowflake": [],
-            "summarized": []
-        }
-    }
-]
-*/
 
 module.exports = {
     persona,
