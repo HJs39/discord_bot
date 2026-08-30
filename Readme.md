@@ -3,6 +3,7 @@
 一個使用`node.js`實作的discord bot
 
 受jasonkao402的[項目]([github.com/jasonkao402/PyDiscordBot/tree/master](https://github.com/jasonkao402/PyDiscordBot/tree/master))啟發(~~實際上就是抄了不少)~~
+
 Alice的`battle`功能源自`米米警察`的`aibattle`系列指令(最初用於測試API調用)
 
 ## 環境配置
@@ -106,4 +107,5 @@ Alice的`battle`功能源自`米米警察`的`aibattle`系列指令(最初用於
 ## 附錄
 
 我寫這些幹嘛...
+
 算了反正也沒人看。
