@@ -30,7 +30,6 @@ module.exports = {
         /**@type {import('../implement/LLM/user_repository.js').user} */
         const user = client.chat.get_user(interaction.user.id);
         const persona_id = interaction.options.getInteger('persona');
-        await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
         /**@type {import('../implement/LLM/persona_manager.js').filtered_persona_t[]} */
         const user_seeable = client.battle.get_list_user_seeable(interaction.user.id);
         /**@type {persona} */
