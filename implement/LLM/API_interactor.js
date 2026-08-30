@@ -23,6 +23,7 @@
  * @property {number} concurrent_limit - how much request can this API handle at same time
  * @property {object} extra_body - the extra body append in request
  * @property {number} round_robin_quota - number of requests before switching to the next API key
+ * @property {boolean} allowed_image - whether this API source allowed image send
  * @property {model_info[]} avalible_model - the list of model information
  * @property {model_info} current_use - default use model id
  * @global
@@ -42,6 +43,7 @@
  * @property {number} [frequency_penalty]
  * @property {number} concurrent_limit - how much request can this API handle at same time
  * @property {number} round_robin_quota - number of requests before switching to the next API key
+ * @property {boolean} allowed_image - whether this API source allowed image send
  * from jasonkao402
  * @see {@link https://github.com/jasonkao402/PyDiscordBot/blob/master/cog/llmAgentAPI.py}
  * @global
@@ -114,6 +116,7 @@ class API_interactor {
                 frequency_penalty: _.get(config, "frequency_penalty") ?? undefined,
                 concurrent_limit: config.concurrent_limit,
                 round_robin_quota: config.round_robin_quota,
+                allowed_image: config.allowed_image,
                 current_use: config.current_use,
                 max_tokens: config.max_tokens
             });
@@ -231,6 +234,50 @@ class API_interactor {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 
+     * @param {API_config_t} config 
+     */
+    reload_api_config(config) {
+        this.#APIs = [];
+        for (const  /**@type {API_config_t} */ config of API_config) {
+            this.#APIs.push({
+                openai: new OpenAI({
+                    baseURL: config.url,
+                    apiKey: config.key
+                }),
+                avalible_model: config.avalible_model,
+                extra_body: config.extra_body,
+                rpm: config.rpm,
+                temperature: _.get(config, "temperature") ?? undefined,
+                top_p: _.get(config, "top_p") ?? undefined,
+                presence_penalty: _.get(config, "presence_penalty") ?? undefined,
+                frequency_penalty: _.get(config, "frequency_penalty") ?? undefined,
+                concurrent_limit: config.concurrent_limit,
+                round_robin_quota: config.round_robin_quota,
+                allowed_image: config.allowed_image,
+                current_use: config.current_use,
+                max_tokens: config.max_tokens
+            });
+        }
+        this.#current_API_id = 0;
+        this.#current_quota = 0;
+        this.current_rpm = this.#APIs[this.#current_API_id].rpm;
+        this.chatting = 0;
+        this.#concurrent_limit = this.#APIs[this.#current_API_id].concurrent_limit;
+        this.always_fetch_model_list = always_fetch_model_list;
+        this.debug = debug;
+        this.model_cache = [];
+        this.avalible_model_cache = this.#APIs[this.#current_API_id].avalible_model;
+        if (always_fetch_model_list) {
+            this.#update_model_list();
+        }
+        if (this.#rpm_timer !== undefined) clearInterval(this.#rpm_timer);
+        this.#rpm_timer = undefined;
+        this.#rpm_count = 0;
+        this.#idel_count = 0;
     }
 
     /**
@@ -501,6 +548,14 @@ class API_interactor {
 
     current_model() {
         return this.#APIs[this.#current_API_id].current_use;
+    }
+
+    /**
+     * check this API allowed send image or not
+     * @returns {boolean} whether current API allowed send image or not
+     */
+    allowed_image() {
+        return this.#APIs[this.#current_API_id].allowed_image;
     }
 }
 

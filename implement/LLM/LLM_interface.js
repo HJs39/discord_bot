@@ -46,6 +46,22 @@ class LLM_interface {
         this.#personas = global_persona_repository;
     }
 
+    /**
+     * 
+     * @param {import("./API_interactor").API_config_t} config 
+     */
+    reload_api(config){
+        this.#API_interactor.reload_api_config(config);
+    }
+
+    /**
+     * check this API allowed send image or not
+     * @returns {boolean} whether current API allowed send image or not
+     */
+    allowed_send_image(){
+        return this.#API_interactor.allowed_image();
+    }
+
     //#region chat
     /**
      * start a chat with a created persona
