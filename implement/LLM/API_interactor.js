@@ -14,7 +14,11 @@
  * @typedef API_config_t
  * @property {string} url - the url to call API
  * @property {string} key - API key
- * @property {number} max_token - maximum token that model can response
+ * @property {number} max_tokens - maximum token that model can response
+ * @property {number} [temperature] - temperature setting
+ * @property {number} [top_p] - top_p parameter
+ * @property {number} [presence_penalty]
+ * @property {number} [frequency_penalty]
  * @property {number} rpm - rate limit per minute for this API call
  * @property {number} concurrent_limit - how much request can this API handle at same time
  * @property {object} extra_body - the extra body append in request
@@ -29,9 +33,13 @@
  * @property {OpenAI} openai - OpenAI object
  * @property {model_info[]} avalible_model - the list of model id
  * @property {model_info} current_use - default use model id
- * @property {number} max_token - maximum token that model can response
+ * @property {number} max_tokens - maximum token that model can response
  * @property {object} extra_body - the extra body append in request
  * @property {number} rpm - rate limit per minute for this API call
+ * @property {number} [temperature] - temperature setting
+ * @property {number} [top_p] - top_p parameter
+ * @property {number} [presence_penalty]
+ * @property {number} [frequency_penalty]
  * @property {number} concurrent_limit - how much request can this API handle at same time
  * @property {number} round_robin_quota - number of requests before switching to the next API key
  * from jasonkao402
@@ -100,9 +108,14 @@ class API_interactor {
                 avalible_model: config.avalible_model,
                 extra_body: config.extra_body,
                 rpm: config.rpm,
+                temperature: _.get(config, "temperature") ?? undefined,
+                top_p: _.get(config, "top_p") ?? undefined,
+                presence_penalty: _.get(config, "presence_penalty") ?? undefined,
+                frequency_penalty: _.get(config, "frequency_penalty") ?? undefined,
                 concurrent_limit: config.concurrent_limit,
                 round_robin_quota: config.round_robin_quota,
-                current_use: config.current_use
+                current_use: config.current_use,
+                max_tokens: config.max_tokens
             });
         }
         this.#current_API_id = 0;
@@ -275,7 +288,11 @@ class API_interactor {
                         {
                             model: name,
                             messages: message,
-                            max_token: current_use_API.max_token,
+                            max_tokens: current_use_API.max_tokens,
+                            temperature: current_use_API.temperature,
+                            presence_penalty: current_use_API.presence_penalty,
+                            frequency_penalty: current_use_API.frequency_penalty,
+                            top_p: current_use_API.top_p,
                             extra_body: current_use_API.extra_body,
                             stream: true
                         },
@@ -300,7 +317,11 @@ class API_interactor {
                     {
                         model: name,
                         messages: message,
-                        max_token: current_use_API.max_token,
+                        max_tokens: current_use_API.max_tokens,
+                        temperature: current_use_API.temperature,
+                        presence_penalty: current_use_API.presence_penalty,
+                        frequency_penalty: current_use_API.frequency_penalty,
+                        top_p: current_use_API.top_p,
                         extra_body: current_use_API.extra_body,
                         stream: true
                     },
@@ -310,7 +331,11 @@ class API_interactor {
                 const response = await current_use_API.openai.chat.completions.create({
                     model: name,
                     messages: message,
-                    max_token: current_use_API.max_token,
+                    max_tokens: current_use_API.max_tokens,
+                    temperature: current_use_API.temperature,
+                    presence_penalty: current_use_API.presence_penalty,
+                    frequency_penalty: current_use_API.frequency_penalty,
+                    top_p: current_use_API.top_p,
                     extra_body: current_use_API.extra_body,
                     stream: true
                 });
@@ -338,8 +363,13 @@ class API_interactor {
                     {
                         model: name,
                         messages: message,
-                        max_token: current_use_API.max_token,
-                        extra_body: current_use_API.extra_body
+                        max_tokens: current_use_API.max_tokens,
+                        temperature: current_use_API.temperature,
+                        presence_penalty: current_use_API.presence_penalty,
+                        frequency_penalty: current_use_API.frequency_penalty,
+                        top_p: current_use_API.top_p,
+                        extra_body: current_use_API.extra_body,
+                        stream: false
                     },
                     undefined,
                     4
@@ -359,9 +389,13 @@ class API_interactor {
                 {
                     model: name,
                     messages: message,
-                    max_token: current_use_API.max_token,
+                    max_tokens: current_use_API.max_tokens,
+                    temperature: current_use_API.temperature,
+                    presence_penalty: current_use_API.presence_penalty,
+                    frequency_penalty: current_use_API.frequency_penalty,
+                    top_p: current_use_API.top_p,
                     extra_body: current_use_API.extra_body,
-                    stream: true
+                    stream: false
                 },
                 undefined,
                 4
@@ -369,8 +403,13 @@ class API_interactor {
             const response = await current_use_API.openai.chat.completions.create({
                 model: name,
                 messages: message,
-                max_token: current_use_API.max_token,
-                extra_body: current_use_API.extra_body
+                max_tokens: current_use_API.max_tokens,
+                temperature: current_use_API.temperature,
+                presence_penalty: current_use_API.presence_penalty,
+                frequency_penalty: current_use_API.frequency_penalty,
+                top_p: current_use_API.top_p,
+                extra_body: current_use_API.extra_body,
+                stream: false
             });
             if (!API_switch) this.chatting -= 1;
             return {
