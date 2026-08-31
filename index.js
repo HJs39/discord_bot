@@ -100,6 +100,16 @@ client.on(discord.Events.InteractionCreate, async (interaction) => {
         } catch (error) {
             console.log(`[Error]: cannot autocomplete the command "${interaction.commandName}"'s option`);
         }
+    } else if (bot_assets.banned_global.includes(interaction.user.id)) {
+        try {
+            await interaction.reply({
+                content: "你沒有權限使用這個！",
+                flags: discord.MessageFlags.Ephemeral
+            });
+        } catch (error) {
+            console.error(error);
+            await handle_error(error);
+        }
     } else if (interaction.isChatInputCommand()) {
         const command = interaction.client.commands.get(interaction.commandName);
 
@@ -168,7 +178,8 @@ client.on(discord.Events.MessageCreate, async (message) => {
     const mention_regex = new RegExp(`<@${client.user.id}>`, 'g');
     if (message.author.bot) return;
     else if (!bot_assets.chatable_channel.includes(message.channel.id)) return;
-    else if (!message.mentions.users.has(client.user.id)) return;
+    else if (!message.mentions.users.has(client.user.id) || message.mentions.everyone) return;
+    else if (bot_assets.banned_global.includes(message.author.id) || bot_assets.banned_chat.includes(message.author.id)) return;
     if (!client.chat.user_exist(message.author.id)) {
         await message.reply({
             content: '你還沒有建立個人資料！\n試著用`/create_profile`建立一個新的吧！'
@@ -278,10 +289,16 @@ client.on(discord.Events.MessageCreate, async (message) => {
             } else {
                 clearInterval(typing);
                 if (result.content.length > 1800) {
+                    let reply = true;
                     for (const split_mes of message_spliter.split(result.content)) {
-                        const reply_mes = await message.reply({
-                            content: split_mes
-                        });
+                        /**@type {Promise<discord.OmitPartialGroupDMChannel<discord.Message<boolean>>>} */
+                        let reply_mes;
+                        if (reply) {
+                            reply_mes = await message.reply(split_mes);
+                            reply = false;
+                        } else {
+                            ref_mes = await message.channel.send(split_mes);
+                        }
                         client.chat.save_context(
                             reply_mes.id,
                             new context(
@@ -296,9 +313,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
                         input = '';
                     }
                 } else {
-                    const reply_mes = await message.reply({
-                        content: result.content
-                    });
+                    const reply_mes = await message.reply(result.content);
                     client.chat.save_context(
                         reply_mes.id,
                         new context(
@@ -398,10 +413,16 @@ client.on(discord.Events.MessageCreate, async (message) => {
             } else {
                 clearInterval(typing);
                 if (result.content.length > 1800) {
+                    let reply = true;
                     for (const split_mes of message_spliter.split(result.content)) {
-                        const reply_mes = await message.reply({
-                            content: split_mes
-                        });
+                        /**@type {Promise<discord.OmitPartialGroupDMChannel<discord.Message<boolean>>>} */
+                        let reply_mes;
+                        if (reply) {
+                            reply_mes = await message.reply(split_mes);
+                            reply = false;
+                        } else {
+                            ref_mes = await message.channel.send(split_mes);
+                        }
                         client.chat.save_context(
                             reply_mes.id,
                             new context(
@@ -416,9 +437,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
                         input = '';
                     }
                 } else {
-                    const reply_mes = await message.reply({
-                        content: result.content
-                    });
+                    const reply_mes = await message.reply(result.content);
                     client.chat.save_context(
                         reply_mes.id,
                         new context(
