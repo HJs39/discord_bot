@@ -102,7 +102,7 @@ module.exports = {
             });
             return;
         }
-        client.battle.create_persona(
+        const unused_messages = client.chat.create_persona(
             split_commands[1],
             internal_name,
             identity_name,
@@ -130,5 +130,8 @@ module.exports = {
             content: `${split_commands[1]}建立好啦！`,
             flags: MessageFlags.Ephemeral
         });
+        for (const snowflake of unused_messages) {
+            client.chat.remove_context(snowflake);
+        }
     }
 }
