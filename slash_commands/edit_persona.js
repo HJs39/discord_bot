@@ -16,7 +16,7 @@ module.exports = {
     eval: async function (interaction) {
         const persona_id = interaction.options.getInteger('persona');
         /**@type {persona} */
-        const persona = client.battle.get_persona(persona_id);
+        const persona = client.chat.get_persona(persona_id);
         if (persona.type === type_t.system || persona.author !== interaction.user.id) {
             await interaction.reply({
                 content: '你不能修改這個！',
@@ -25,7 +25,7 @@ module.exports = {
             return;
         }
         /**@type {import('../implement/LLM/user_repository.js').user} */
-        const internal_user = client.battle.get_user(interaction.user.id);
+        const internal_user = client.chat.get_user(interaction.user.id);
         let embed = new EmbedBuilder()
             .setAuthor({
                 name: interaction.member?.displayName ?? interaction.user.displayName,
@@ -130,7 +130,7 @@ module.exports = {
                                 iconURL: interaction.user.displayAvatarURL(),
                             })
                             .setTitle('基本資訊')
-                            .setDescription(`名稱: ${persona.internal_name}\n顯示名稱: ${persona.display_name}\n當前狀態: ${persona.type}\n是否棄用: ${persona.deprecated ? '是' : '否'}`)
+                            .setDescription(`名稱: ${persona.internal_name}\n顯示名稱: ${persona.display_name}\n辨識名稱: ${persona.identity_name}\n當前狀態: ${persona.type}\n是否棄用: ${persona.deprecated ? '是' : '否'}`)
                             .setFooter({
                                 text: '概覽',
                                 iconURL: interaction.user.displayAvatarURL()
@@ -2116,6 +2116,18 @@ module.exports = {
                             )
                             .addLabelComponents(
                                 new LabelBuilder()
+                                    .setLabel('辨識用名稱')
+                                    .setTextInputComponent(
+                                        new TextInputBuilder()
+                                            .setCustomId('identity_name')
+                                            .setMaxLength(64)
+                                            .setStyle(TextInputStyle.Short)
+                                            .setRequired(true)
+                                            .setValue(persona.identity_name)
+                                    )
+                            )
+                            .addLabelComponents(
+                                new LabelBuilder()
                                     .setLabel('可見性')
                                     .setStringSelectMenuComponent(
                                         new StringSelectMenuBuilder()
@@ -2146,6 +2158,7 @@ module.exports = {
                             await submit.deferUpdate();
                             persona.display_name = submit.fields.getTextInputValue('display_name');
                             persona.internal_name = submit.fields.getTextInputValue('internal_name');
+                            persona.identity_name = submit.fields.getTextInputValue('identity_name');
                             persona.type = submit.fields.getStringSelectValues('visible')[0] === 'public' ? type_t.public : type_t.private;
                             persona.deprecated = submit.fields.getCheckbox('deprecated');
                             embed = new EmbedBuilder()
@@ -2840,7 +2853,7 @@ module.exports = {
     complete: async function (interaction) {
         const focus = interaction.options.getFocused();
         /**@type {import('../implement/LLM/persona_manager.js').filtered_persona_t[]} */
-        const user_seeable = client.battle.get_list_user_seeable(interaction.user.id);
+        const user_seeable = client.chat.get_persona_list_by_author(interaction.user.id);
         const idx = parseInt(focus);
         if (isNaN(idx)) {
             await interaction.respond(user_seeable.filter(p => p.persona.display_name.startsWith(focus)).map(p => ({ name: p.persona.display_name, value: p.id })));
