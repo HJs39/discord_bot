@@ -13,11 +13,17 @@ module.exports = {
                 flags: MessageFlags.Ephemeral
             });
             return;
+        } else if (!client.chat.context_exist(interaction.targetMessage.id)) {
+            await interaction.reply({
+                content: "沒有人記得這條是誰發的呢...",
+                flags: MessageFlags.Ephemeral
+            });
+            return;
         }
         /**@type {import('../implement/LLM/persona_manager.js').filtered_persona_t[]} */
-        const user_seeable = client.battle.get_list_user_seeable(interaction.user.id);
+        const user_seeable = client.chat.get_list_user_seeable(interaction.user.id);
         /**@type {context} */
-        const context = client.battle.get_message_context(interaction.targetMessage.id);
+        const context = client.chat.get_message_context(interaction.targetMessage.id);
         const persona = user_seeable.find((persona) => persona.id === context.persona_id);
         if (persona) {
             await interaction.reply({
@@ -27,7 +33,7 @@ module.exports = {
             return;
         } else {
             await interaction.reply({
-                content: "這個好像不是大家發的呢...",
+                content: "你好像不認識他呢...",
                 flags: MessageFlags.Ephemeral
             });
             return;
