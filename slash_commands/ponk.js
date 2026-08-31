@@ -13,10 +13,12 @@ module.exports = {
             .setRequired(true)
             .setAutocomplete(true)),
     eval: async function (interaction) {
+        /**@type {persona[]} */
+        const user_seeable = client.chat.get_list_user_seeable(interaction.user.id).map(fp => { return fp.persona; });
         const persona_id = interaction.options.getInteger('persona');
         /**@type {persona} */
         const persona = client.chat.get_persona(persona_id);
-        if (persona.author !== interaction.user.id) {
+        if (!user_seeable.includes(persona)) {
             await interaction.reply({
                 content: '你不能執行這個操作！',
                 flags: MessageFlags.Ephemeral
@@ -39,12 +41,12 @@ module.exports = {
     complete: async function (interaction) {
         const focus = interaction.options.getFocused();
         /**@type {import('../implement/LLM/persona_manager.js').filtered_persona_t[]} */
-        const user_created = client.chat.get_persona_list_by_author(interaction.user.id);
+        const user_seeable = client.chat.get_list_user_seeable(interaction.user.id);
         const idx = parseInt(focus);
         if (isNaN(idx)) {
-            await interaction.respond(user_created.filter(p => p.persona.display_name.startsWith(focus)).map(p => ({ name: p.persona.display_name, value: p.id })));
+            await interaction.respond(user_seeable.filter(p => p.persona.display_name.startsWith(focus)).map(p => ({ name: p.persona.display_name, value: p.id })));
         } else {
-            await interaction.respond(user_created.filter(p => p.id >= idx).map(p => ({ name: p.persona.display_name, value: p.id })));
+            await interaction.respond(user_seeable.filter(p => p.id >= idx).map(p => ({ name: p.persona.display_name, value: p.id })));
         }
     }
 }
