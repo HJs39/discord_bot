@@ -50,7 +50,7 @@ class LLM_interface {
      * 
      * @param {import("./API_interactor").API_config_t} config 
      */
-    reload_api(config){
+    reload_api(config) {
         this.#API_interactor.reload_api_config(config);
     }
 
@@ -58,7 +58,7 @@ class LLM_interface {
      * check this API allowed send image or not
      * @returns {boolean} whether current API allowed send image or not
      */
-    allowed_send_image(){
+    allowed_send_image() {
         return this.#API_interactor.allowed_image();
     }
 
@@ -322,9 +322,10 @@ class LLM_interface {
      * @param {chat_interaction[]} phony_chat fake chat history for prompt injection
      * @param {chat_interaction[]} summarize_instruction fake chat history for prompt injection in summarize mode, include placeholder
      * @param {persona_memory} memory persona's memory, see {@link persona_memory}
+     * @returns {import("./assets").snowflake[]}
      */
     create_persona(display_name, internal_name, identity_name, type, author, persona_instruction, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
-        this.#personas.create_persona(
+        return this.#personas.create_persona(
             this.#personas.search_useable_id(),
             display_name,
             internal_name,
@@ -343,7 +344,6 @@ class LLM_interface {
 
     edit_persona(id, display_name, internal_name, persona_instruction, format, reply_format, user_format, phony_chat, summarize_instruction, short_term_max, summarize_start_index) {
         if (!this.#personas.has(id)) throw new memory_error('persona_not_exit', 'cannot edit a not exist persona');
-        else if (this.#personas.has_deprecated(id)) throw new memory_error('persona_has_been_deprecated', 'cannot edit a deprecated persona');
         let persona = this.#personas.get(id);
         persona.display_name = display_name || persona.display_name;
         persona.internal_name = internal_name || persona.internal_name;
@@ -355,15 +355,6 @@ class LLM_interface {
         persona.summarize_instruction = summarize_instruction || persona.summarize_instruction;
         persona.memory.short_term_max = short_term_max || persona.memory.short_term_max;
         persona.memory.summarize_start_index = summarize_start_index || persona.memory.summarize_start_index;
-    }
-
-    export_persona(id) {
-        if (!this.#personas.has(id)) throw new memory_error('persona_not_exit', 'cannot export a not exist persona');
-        let persona = this.#personas.get(id);
-        return {
-            name: persona.display_name,
-            json: JSON.stringify(persona)
-        };
     }
 
     /**
@@ -465,7 +456,7 @@ class LLM_interface {
      * 
      * @param {import("./assets").snowflake} message_id 
      */
-    remove_context(message_id){
+    remove_context(message_id) {
         this.#messages.remove(message_id);
     }
 }
