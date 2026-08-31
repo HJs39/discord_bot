@@ -238,11 +238,11 @@ class API_interactor {
 
     /**
      * 
-     * @param {API_config_t} config 
+     * @param {API_config_t} source_config 
      */
-    reload_api_config(config) {
+    reload_api_config(source_config) {
         this.#APIs = [];
-        for (const  /**@type {API_config_t} */ config of API_config) {
+        for (const  /**@type {API_config_t} */ config of source_config) {
             this.#APIs.push({
                 openai: new OpenAI({
                     baseURL: config.url,
@@ -267,11 +267,10 @@ class API_interactor {
         this.current_rpm = this.#APIs[this.#current_API_id].rpm;
         this.chatting = 0;
         this.#concurrent_limit = this.#APIs[this.#current_API_id].concurrent_limit;
-        this.always_fetch_model_list = always_fetch_model_list;
         this.debug = debug;
         this.model_cache = [];
         this.avalible_model_cache = this.#APIs[this.#current_API_id].avalible_model;
-        if (always_fetch_model_list) {
+        if (this.always_fetch_model_list) {
             this.#update_model_list();
         }
         if (this.#rpm_timer !== undefined) clearInterval(this.#rpm_timer);

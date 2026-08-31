@@ -74,6 +74,7 @@ class persona_manager {
      * @param {chat_interaction[]} phony_chat fake chat history for prompt injection
      * @param {chat_interaction[]} summarize_instruction fake chat history for prompt injection in summarize mode, include placeholder
      * @param {persona_memory} memory persona's memory, see {@link persona_memory}
+     * @returns {import('./assets').snowflake[]}
      */
     create_persona(id, display_name, internal_name, identity_name, type, author, persona_instruction, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
         if (id === this.#personas.length) {
@@ -91,8 +92,10 @@ class persona_manager {
                 summarize_instruction,
                 memory
             ));
+            return [];
         } else {
             let persona = this.#personas[id];
+            const unused_messages = persona.memory.raw_short_term;
             persona.display_name = display_name;
             persona.internal_name = internal_name;
             persona.identity_name = identity_name;
@@ -104,6 +107,7 @@ class persona_manager {
             persona.phony_chat = phony_chat;
             persona.summarize_instruction = summarize_instruction;
             persona.memory = memory;
+            return unused_messages;
         }
     }
 
