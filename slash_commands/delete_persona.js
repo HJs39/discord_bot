@@ -15,9 +15,9 @@ module.exports = {
         /**@type {number} */
         const persona_id = interaction.options.getInteger('persona');
         /**@type {import('../implement/LLM/persona_manager.js').filtered_persona_t} */
-        const persona = list.find(p => p.id === interaction.options.getInteger('persona'));
+        const persona = list.find(p => p.id === persona_id);
         if (persona) {
-            client.battle.deprecated_persona(interaction.options.getInteger('persona'));
+            client.battle.deprecated_persona(persona_id);
             await interaction.reply({
                 content: `${persona.persona.display_name}現在處於棄用狀態啦！`,
                 flags: MessageFlags.Ephemeral

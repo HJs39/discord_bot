@@ -366,7 +366,7 @@ class LLM_interface {
         if (!this.#personas.has(persona_id)) throw new memory_error('persona_not_exit', 'try to summarize momory with a not exist persona');
         else if (this.#personas.has_deprecated(persona_id)) throw new memory_error('persona_has_been_deprecated', 'try to summarize memory with deprecated persona');
         let persona = this.#personas.get(persona_id);
-        let orignal_memory = persona.memory.summarized.at(-1) ?? '';
+        let original_memory = persona.memory.summarized.at(-1) ?? '';
 
         let user_info = '';
         for (const user of this.#users.fetch(persona.used_user)) {
@@ -384,16 +384,20 @@ class LLM_interface {
             if (instruction.role !== 'placeholder') {
                 history.push(instruction);
             } else {
-                if (persona.memory.summarized.at(-1) !== undefined) {
+                if (original_memory) {
                     history.push({
                         role: 'assistant',
-                        content: persona.memory.summarized.at(-1)
+                        content: original_memory
                     });
                 }
-                history.push(interaction_processor.flat_context(this.#messages.fetch(snowflake).filter(/**@type {context} */context => !context.summarized)));
+                const unprocessed_history = this.#messages.fetch(persona.memory.raw_short_term);
+                if (unprocessed_history.length < persona.memory.summarize_start_index) throw new memory_error('do_not_have_enough_history', 'history less than required count');
+                const stop_index = unprocessed_history.length - 1 - persona.memory.summarize_start_index;
+                history.push(...interaction_processor.flat_context(unprocessed_history.filter(/**@type {context} */(c, index, array) => index < stop_index && !c.summarized)));
             }
         }
         let lastest = history.pop();
+        if (lastest.role === 'assistant') throw new memory_error('unexpected_role', 'the role of the latest input instruction cannot be "assistant"');
         return new response_receiver(
             this.#API_interactor,
             system_instruction,
@@ -445,6 +449,24 @@ class LLM_interface {
 
     /**
      * 
+     * @param {import("./assets").snowflake[]} snowflakes 
+     * @returns {context}
+     */
+    fetch_contexts(snowflakes) {
+        return this.#messages.fetch(snowflakes);
+    }
+
+    /**
+     * 
+     * @param {import("./assets").snowflake} snowflake 
+     * @returns {boolean}
+     */
+    context_exist(snowflake) {
+        return this.#messages.include(snowflake);
+    }
+
+    /**
+     * 
      * @param {import("./assets").snowflake} message_id 
      * @param {context} context 
      */
@@ -467,4 +489,7 @@ process.on('exit', (code) => {
     global_user_repository.save();
 });
 
-module.exports = LLM_interface;
+module.exports = {
+    LLM_interface: LLM_interface,
+    memory_error: memory_error
+};

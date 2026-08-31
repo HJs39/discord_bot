@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags, ActionRowBuilder, ModalBuilder, StringSelectMenuBuilder, APISelectMenuOption } = require('discord.js');
-const LLM_interface = require('../implement/LLM/LLM_interface.js');
+const { LLM_interface } = require('../implement/LLM/LLM_interface.js');
 const path = require('path');
 const { colors } = require('../assets/embed_color.js');
 const { client } = require('../assets/client.js');

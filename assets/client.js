@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
-const LLM_interface = require('../implement/LLM/LLM_interface');
+const { LLM_interface } = require('../implement/LLM/LLM_interface');
 const cooldown = require('./cooldown.json');
 const bot_assets = require('./bot_assets.json');
 const battle_API_config = require('./private-battle_API_config.json');
