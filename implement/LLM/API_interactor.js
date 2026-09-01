@@ -267,7 +267,6 @@ class API_interactor {
         this.current_rpm = this.#APIs[this.#current_API_id].rpm;
         this.chatting = 0;
         this.#concurrent_limit = this.#APIs[this.#current_API_id].concurrent_limit;
-        this.debug = debug;
         this.model_cache = [];
         this.avalible_model_cache = this.#APIs[this.#current_API_id].avalible_model;
         if (this.always_fetch_model_list) {

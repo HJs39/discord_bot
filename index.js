@@ -202,7 +202,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
 
         try {
             ref_mes = await message.fetchReference();
-            placeholder.push(['target_message', ref_mes]);
+            placeholder.push(['target_message', ref_mes.content]);
             if (ref_mes.author.id === client.user.id) {
                 /**@type {context} */
                 const self_send = client.chat.get_message_context(ref_mes.id);
@@ -313,6 +313,10 @@ client.on(discord.Events.MessageCreate, async (message) => {
                         input = '';
                     }
                 } else {
+                    if (result.content.length === 0) {
+                        await message.reply('generate failed:\nAPI returns an empty response');
+                        return;
+                    }
                     const reply_mes = await message.reply(result.content);
                     client.chat.save_context(
                         reply_mes.id,
@@ -437,6 +441,10 @@ client.on(discord.Events.MessageCreate, async (message) => {
                         input = '';
                     }
                 } else {
+                    if (result.content.length === 0) {
+                        await message.reply('generate failed:\nAPI returns an empty response');
+                        return;
+                    }
                     const reply_mes = await message.reply(result.content);
                     client.chat.save_context(
                         reply_mes.id,
