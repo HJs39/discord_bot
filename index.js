@@ -57,13 +57,18 @@ async function try_reply(interaction) {
 
 
 client.once(discord.Events.ClientReady, async (readyClient) => {
-    console.log(`Alice is login as ${readyClient.user.tag}!`);
+    console.log(`Alice has login as ${readyClient.user.tag}!`);
     try {
         const channel = await client.channels.fetch(bot_assets.opening_channel);
         channel.send('愛麗絲睡醒拉!');
         client.user.setStatus('idle');
         client.user.setActivity('正在偷懶...', { type: discord.ActivityType.Playing });
         client.debug_channel = await client.channels.fetch(bot_assets.debug_channel);
+        let guild_list = '[info]: Alice has joined:\n';
+        client.guilds.cache.forEach(guild => {
+            guild_list += `    ${guild.name}\n`;
+        });
+        console.log(guild_list.trim());
     } catch (error) {
         console.log(`[Error]: failed to send opening message\n  Details: ${error}`);
     }
@@ -199,6 +204,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
         if (!reference) return;
         let input = '';
         let ref_mes = undefined;
+        let additional_profile = '';
 
         try {
             ref_mes = await message.fetchReference();
@@ -219,7 +225,10 @@ client.on(discord.Events.MessageCreate, async (message) => {
             return;
         }
 
-        if (mention_regex.test(message.content)) used_persona = client.chat.get_persona(user.current_use);
+        if (mention_regex.test(message.content)) {
+            used_persona = client.chat.get_persona(user.current_use);
+            additional_profile = client.chat.expand_profile(user.current_use, client.chat.get_message_context(ref_mes.id).persona_id);
+        }
         else used_persona = client.chat.get_persona(client.chat.get_message_context(ref_mes.id).persona_id);
 
         if (!used_persona.used_user.includes(user.snowflake)) used_persona.used_user.push(user.snowflake);
@@ -277,7 +286,8 @@ client.on(discord.Events.MessageCreate, async (message) => {
                     name: user.name
                 },
                 image_buffer,
-                image_type);
+                image_type,
+                additional_profile);
 
             let result = await receiver.get_result();
 
@@ -332,8 +342,10 @@ client.on(discord.Events.MessageCreate, async (message) => {
                 }
                 try {
                     const channel = await client.channels.fetch(bot_assets.COT_channel);
-                    for (const split_mes of message_spliter.split(result.COT)) {
-                        await channel.send(split_mes);
+                    if (result.COT.length !== 0) {
+                        for (const split_mes of message_spliter.split(result.COT)) {
+                            await channel.send(split_mes);
+                        }
                     }
                     if (result.token_usage) await channel.send(`-# prompt: ${result.token_usage.prompt}\n-# output: ${result.token_usage.output}\n-# total: ${result.token_usage.total}`);
                 } catch (error) {
@@ -460,8 +472,10 @@ client.on(discord.Events.MessageCreate, async (message) => {
                 }
                 try {
                     const channel = await client.channels.fetch(bot_assets.COT_channel);
-                    for (const split_mes of message_spliter.split(result.COT)) {
-                        await channel.send(split_mes);
+                    if (result.COT.length !== 0) {
+                        for (const split_mes of message_spliter.split(result.COT)) {
+                            await channel.send(split_mes);
+                        }
                     }
                     if (result.token_usage) await channel.send(`-# prompt: ${result.token_usage.prompt}\n-# output: ${result.token_usage.output}\n-# total: ${result.token_usage.total}`);
                 } catch (error) {

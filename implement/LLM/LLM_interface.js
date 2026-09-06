@@ -69,11 +69,13 @@ class LLM_interface {
      * @param {chat_interaction} lastest lastest user input
      * @param {ArrayBuffer} image an {@link ArrayBuffer} of image
      * @param {string} image_type images MIME type
+     * @param {string} additional_user_setting formatted user profile
      * @returns {response_receiver} response receiver
      */
-    chat_oneshot_by_default(id, lastest, image, image_type) {
+    chat_oneshot_by_default(id, lastest, image, image_type, additional_user_setting) {
         let persona = this.#personas.get(id);
         let user_info = '';
+        if (additional_user_setting) user_info += additional_user_setting;
         for (const user of this.#users.fetch(persona.used_user)) {
             let replacer = new placeholder_replacer([
                 ['name', user.internal_name],
@@ -127,11 +129,13 @@ class LLM_interface {
      * @param {chat_interaction} lastest lastest user input
      * @param {ArrayBuffer} image an {@link ArrayBuffer} of image
      * @param {string} image_type images MIME type
+     * @param {string} additional_user_setting formatted user profile
      * @returns {response_receiver} response receiver
      */
-    chat_oneshot_by_specific(name, id, lastest, image, image_type) {
+    chat_oneshot_by_specific(name, id, lastest, image, image_type, additional_user_setting) {
         let persona = this.#personas.get(id);
         let user_info = '';
+        if (additional_user_setting) user_info += additional_user_setting;
         for (const user of this.#users.fetch(persona.used_user)) {
             let replacer = new placeholder_replacer([
                 ['name', user.internal_name],
@@ -316,6 +320,7 @@ class LLM_interface {
      * @param {type_t} type current stats of this persona
      * @param {snowflake} author - who create this persona
      * @param {string} persona_instruction AI's persona setting
+     * @param {string} profile user like profile
      * @param {string} format format of user input at normal style(mention with no reply)
      * @param {string} reply_format format of user input at reply style(mention with reply, reply to bot in specific channel)
      * @param {string} user_format how to format user profile when process prompt
@@ -324,7 +329,7 @@ class LLM_interface {
      * @param {persona_memory} memory persona's memory, see {@link persona_memory}
      * @returns {import("./assets").snowflake[]}
      */
-    create_persona(display_name, internal_name, identity_name, type, author, persona_instruction, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
+    create_persona(display_name, internal_name, identity_name, type, author, persona_instruction, profile, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
         return this.#personas.create_persona(
             this.#personas.search_useable_id(),
             display_name,
@@ -333,6 +338,7 @@ class LLM_interface {
             type,
             author,
             persona_instruction,
+            profile,
             format,
             reply_format,
             user_format,
@@ -342,19 +348,27 @@ class LLM_interface {
         );
     }
 
-    edit_persona(id, display_name, internal_name, persona_instruction, format, reply_format, user_format, phony_chat, summarize_instruction, short_term_max, summarize_start_index) {
+    /**
+     * 
+     * @param {number} id 
+     * @param {persona} new_persona 
+     */
+    edit_persona(id, new_persona) {
         if (!this.#personas.has(id)) throw new memory_error('persona_not_exit', 'cannot edit a not exist persona');
         let persona = this.#personas.get(id);
-        persona.display_name = display_name || persona.display_name;
-        persona.internal_name = internal_name || persona.internal_name;
-        persona.persona = persona_instruction || persona.persona;
-        persona.format = format || persona.format;
-        persona.reply_format = reply_format || persona.reply_format;
-        persona.user_format = user_format || persona.user_format;
-        persona.phony_chat = phony_chat || persona.phony_chat;
-        persona.summarize_instruction = summarize_instruction || persona.summarize_instruction;
-        persona.memory.short_term_max = short_term_max || persona.memory.short_term_max;
-        persona.memory.summarize_start_index = summarize_start_index || persona.memory.summarize_start_index;
+        persona.display_name = new_persona.display_name || persona.display_name;
+        persona.internal_name = new_persona.internal_name || persona.internal_name;
+        persona.identity_name = new_persona.identity_name || persona.identity_name;
+        persona.type = new_persona.type;
+        persona.persona = new_persona.persona || persona.persona;
+        persona.profile = new_persona.profile || persona.profile;
+        persona.format = new_persona.format || persona.format;
+        persona.reply_format = new_persona.reply_format || persona.reply_format;
+        persona.user_format = new_persona.user_format || persona.user_format;
+        persona.phony_chat = new_persona.phony_chat || persona.phony_chat;
+        persona.summarize_instruction = new_persona.summarize_instruction || persona.summarize_instruction;
+        persona.memory.short_term_max = new_persona.memory.short_term_max || persona.memory.short_term_max;
+        persona.memory.summarize_start_index = new_persona.memory.summarize_start_index || persona.memory.summarize_start_index;
     }
 
     /**
@@ -404,6 +418,10 @@ class LLM_interface {
             history,
             lastest
         );
+    }
+
+    expand_profile(main, other) {
+        return this.#personas.expand_related_profile(main, other);
     }
     //#endregion
 

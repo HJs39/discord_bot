@@ -1,7 +1,7 @@
 const path = require('node:path');
 const fs = require('node:fs');
 const { persona, type_t } = require('./persona');
-const { assets_path } = require('./assets');
+const { placeholder_replacer, assets_path } = require('./assets');
 
 /**
  * @class persona_error
@@ -68,6 +68,7 @@ class persona_manager {
      * @param {type_t} type current stats of this persona
      * @param {snowflake} author - who create this persona
      * @param {string} persona_instruction AI's persona setting
+     * @param {string} profile user like profile
      * @param {string} format format of user input at normal style(mention with no reply)
      * @param {string} reply_format format of user input at reply style(mention with reply, reply to bot in specific channel)
      * @param {string} user_format how to format user profile when process prompt
@@ -76,7 +77,7 @@ class persona_manager {
      * @param {persona_memory} memory persona's memory, see {@link persona_memory}
      * @returns {import('./assets').snowflake[]}
      */
-    create_persona(id, display_name, internal_name, identity_name, type, author, persona_instruction, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
+    create_persona(id, display_name, internal_name, identity_name, type, author, persona_instruction, profile, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
         if (id === this.#personas.length) {
             this.#personas.push(new persona(
                 display_name,
@@ -85,6 +86,7 @@ class persona_manager {
                 type,
                 author,
                 persona_instruction,
+                profile,
                 format,
                 reply_format,
                 user_format,
@@ -102,6 +104,7 @@ class persona_manager {
             persona.type = type;
             persona.author = author;
             persona.persona = persona_instruction;
+            persona.profile = profile;
             persona.format = format;
             persona.reply_format = reply_format;
             persona.phony_chat = phony_chat;
@@ -189,6 +192,60 @@ class persona_manager {
      */
     get(id) {
         return this.#personas[id];
+    }
+
+    /**
+     * 
+     * @param {number} main 
+     * @param {number} other 
+     * @returns {string}
+     */
+    expand_related_profile(main, other) {
+        if (main === other) return '';
+        let main_persona = this.#personas[main];
+        let related_persona = this.#personas[other];
+        let require_profiles = new Set();
+        let result = '';
+        let profile = related_persona.profile.replace(/$\{link:(.*?)\}/g, (full_match, list) => {
+            let ps = list.split(',');
+            for (const name of ps) {
+                const find = name.trim();
+                const idx = this.#personas.findIndex(p => p.display_name === find);
+                if (idx === -1) continue;
+                const p = this.#personas[idx];
+                if (p.internal_name !== main_persona.internal_name && !require_profiles.has(idx)) {
+                    require_profiles.add(idx);
+                }
+            }
+            return '';
+        });
+        if (!profile) return '';
+        result += new placeholder_replacer([
+            ['name', related_persona.internal_name],
+            ['description', profile]
+        ]).replace(main_persona.user_format);
+        for (const profile of require_profiles) {
+            let recursive_persona = this.#personas[profile];
+            let p = recursive_persona.profile.replace(/$\{link:(.*?)\}/g, (full_match, list) => {
+                let ps = list.split(',');
+                for (const name of ps) {
+                    const find = name.trim();
+                    const idx = this.#personas.findIndex(p => p.display_name === find);
+                    if (idx === -1) continue;
+                    const p = this.#personas[idx];
+                    if (p.internal_name !== main_persona.internal_name && !require_profiles.has(idx)) {
+                        require_profiles.add(idx);
+                    }
+                }
+                return '';
+            });
+            if (!p) continue;
+            result += new placeholder_replacer([
+                ['name', recursive_persona.internal_name],
+                ['description', p]
+            ]).replace(main_persona.user_format);
+        }
+        return result;
     }
 }
 
