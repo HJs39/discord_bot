@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags, LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, CheckboxBuilder } = require('discord.js');
 const { cooldown_helper } = require('../implement/cooldown');
 const { persona, type_t } = require('../implement/LLM/persona.js');
+const bot_assets = require('../assets/bot_assets.json');
 const { client } = require('../assets/client.js');
 const { colors } = require('../assets/embed_color');
 const _ = require('lodash');
@@ -14,6 +15,19 @@ module.exports = {
             .setAutocomplete(true)
             .setRequired(true)),
     eval: async function (interaction) {
+        if (bot_assets.banned_chat.includes(interaction.user.id)) {
+            const embed = new EmbedBuilder()
+                .setTitle("無使用權限")
+                .setDescription("你沒有使用這個指令的權限！")
+                .setColor(colors.error)
+                .setFooter({
+                    text: '不能用！',
+                    iconURL: client.user.displayAvatarURL(),
+                })
+                .setTimestamp();
+            await interaction.reply({ embeds: [embed] });
+            return;
+        }
         const persona_id = interaction.options.getInteger('persona');
         /**@type {persona} */
         const persona = client.chat.get_persona(persona_id);
@@ -185,8 +199,15 @@ module.exports = {
                                 name: interaction.member?.displayName ?? interaction.user.displayName,
                                 iconURL: interaction.user.displayAvatarURL(),
                             })
-                            .setTitle('設定:')
-                            .setDescription(`\`\`\`${persona.persona.slice(0, 1000)}${persona.persona.length > 1000 ? '...' : ''}\`\`\``)
+                            .setTitle('persona設定')
+                            .addFields({
+                                name: '主設定',
+                                value: `\`\`\`${persona.persona.slice(0, 1000)}${persona.persona.length > 1000 ? '...' : ''}\`\`\``
+                            })
+                            .addFields({
+                                name: '引用設定',
+                                value: `\`\`\`${persona.profile.slice(0, 1000)}${persona.persona.length > 1000 ? '...' : ''}\`\`\``
+                            })
                             .setFooter({
                                 text: '設定',
                                 iconURL: interaction.user.displayAvatarURL()
@@ -2182,7 +2203,7 @@ module.exports = {
                             //do nothing
                         }
                     } else if (commands[1] === 'persona') {
-                        if (persona.persona.length > 4000) {
+                        if (persona.persona.length > 4000 || persona.profile.length > 4000) {
                             await i.reply({
                                 content: '設定太長啦！\n已經沒辦法在Discord編輯了喔！',
                                 flags: MessageFlags.Ephemeral
@@ -2192,7 +2213,7 @@ module.exports = {
                         const modal = new ModalBuilder().setCustomId('ignore edit_persona').setTitle('編輯');
                         modal.addLabelComponents(
                             new LabelBuilder()
-                                .setLabel('設定')
+                                .setLabel('主設定')
                                 .setTextInputComponent(
                                     new TextInputBuilder()
                                         .setCustomId('persona')
@@ -2200,7 +2221,18 @@ module.exports = {
                                         .setStyle(TextInputStyle.Paragraph)
                                         .setValue(persona.persona)
                                 )
-                        );
+                        )
+                            .addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('引用設定')
+                                    .setTextInputComponent(
+                                        new TextInputBuilder()
+                                            .setCustomId('profile')
+                                            .setMaxLength(4000)
+                                            .setStyle(TextInputStyle.Paragraph)
+                                            .setValue(persona.profile)
+                                    )
+                            );
                         await i.showModal(modal);
                         try {
                             const submit = await i.awaitModalSubmit({
@@ -2209,13 +2241,21 @@ module.exports = {
                             });
                             await submit.deferUpdate();
                             persona.persona = submit.fields.getTextInputValue('persona');
+                            persona.profile = submit.fields.getTextInputValue('profile');
                             embed = new EmbedBuilder()
                                 .setAuthor({
                                     name: interaction.member?.displayName ?? interaction.user.displayName,
                                     iconURL: interaction.user.displayAvatarURL(),
                                 })
-                                .setTitle('設定:')
-                                .setDescription(`\`\`\`${persona.persona.slice(0, 1000)}${persona.persona.length > 1000 ? '...' : ''}\`\`\``)
+                                .setTitle('persona設定')
+                                .addFields({
+                                    name: '主設定',
+                                    value: `\`\`\`${persona.persona.slice(0, 1000)}${persona.persona.length > 1000 ? '...' : ''}\`\`\``
+                                })
+                                .addFields({
+                                    name: '引用設定',
+                                    value: `\`\`\`${persona.profile.slice(0, 1000)}${persona.persona.length > 1000 ? '...' : ''}\`\`\``
+                                })
                                 .setFooter({
                                     text: '設定',
                                     iconURL: interaction.user.displayAvatarURL()

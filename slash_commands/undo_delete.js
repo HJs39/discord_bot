@@ -1,5 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
+const bot_assets = require('../assets/bot_assets.json');
 const { client } = require('../assets/client.js');
+const { colors } = require('../assets/embed_color');
 
 module.exports = {
     command: new SlashCommandBuilder()
@@ -10,6 +12,19 @@ module.exports = {
             .setRequired(true)
             .setAutocomplete(true)),
     eval: async function (interaction) {
+        if (bot_assets.banned_chat.includes(interaction.user.id)) {
+            const embed = new EmbedBuilder()
+                .setTitle("無使用權限")
+                .setDescription("你沒有使用這個指令的權限！")
+                .setColor(colors.error)
+                .setFooter({
+                    text: '不能用！',
+                    iconURL: client.user.displayAvatarURL(),
+                })
+                .setTimestamp();
+            await interaction.reply({ embeds: [embed] });
+            return;
+        }
         /**@type {import('../implement/LLM/persona_manager.js').filtered_persona_t[]} */
         const list = client.battle.get_persona_list_by_author(interaction.user.id);
         /**@type {number} */

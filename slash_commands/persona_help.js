@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
+const bot_assets = require('../assets/bot_assets.json');
 const { colors } = require('../assets/embed_color.js');
 
 module.exports = {
@@ -8,6 +9,19 @@ module.exports = {
         .addBooleanOption(option => option.setName('ephemeral')
             .setDescription('select the information would be ephemeral or not(defualt is false)')),
     eval: async function (interaction) {
+        if (bot_assets.banned_chat.includes(interaction.user.id)) {
+            const embed = new EmbedBuilder()
+                .setTitle("無使用權限")
+                .setDescription("你沒有使用這個指令的權限！")
+                .setColor(colors.error)
+                .setFooter({
+                    text: '不能用！',
+                    iconURL: client.user.displayAvatarURL(),
+                })
+                .setTimestamp();
+            await interaction.reply({ embeds: [embed] });
+            return;
+        }
         const ephemeral = interaction.options.getBoolean('ephemeral');
         const embed = new EmbedBuilder()
             .setTitle("persona撰寫說明")
