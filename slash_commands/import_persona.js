@@ -1,6 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder, MessageFlags } = require('discord.js');
-const { type_t, persona } = require('../implement/LLM/persona.js');
+const { type_t, persona, import_persona_t } = require('../implement/LLM/persona.js');
+const bot_assets = require('../assets/bot_assets.json');
 const { client } = require('../assets/client.js');
+const { colors } = require('../assets/embed_color');
+const z = require('zod');
 const _ = require('lodash');
 
 module.exports = {
@@ -11,6 +14,19 @@ module.exports = {
             .setDescription('persona file')
             .setRequired(true)),
     eval: async function (interaction) {
+        if (bot_assets.banned_chat.includes(interaction.user.id)) {
+            const embed = new EmbedBuilder()
+                .setTitle("無使用權限")
+                .setDescription("你沒有使用這個指令的權限！")
+                .setColor(colors.error)
+                .setFooter({
+                    text: '不能用！',
+                    iconURL: client.user.displayAvatarURL(),
+                })
+                .setTimestamp();
+            await interaction.reply({ embeds: [embed] });
+            return;
+        }
         const attachment = interaction.options.getAttachment('persona');
         if ((!attachment.contentType?.startsWith('application/json')) || !attachment.name.endsWith('.json')) {
             await interaction.reply({
@@ -23,85 +39,41 @@ module.exports = {
         try {
             const persona_source = await fetch(attachment.url);
             /**@type {persona} */
-            const persona = await persona_source.json();
-            if (!(
-                _.has(persona, 'display_name') ||
-                _.has(persona, 'internal_name') ||
-                _.has(persona, 'identity_name') ||
-                _.has(persona, 'type') ||
-                _.has(persona, 'author') ||
-                _.has(persona, 'deprecated') ||
-                _.has(persona, 'format') ||
-                _.has(persona, 'reply_format') ||
-                _.has(persona, 'user_format') ||
-                _.has(persona, 'phony_chat') ||
-                _.has(persona, 'summarize_instruction') ||
-                _.has(persona, 'used_user') ||
-                _.has(persona, 'memory') ||
-                _.has(persona, 'memory.short_term_max') ||
-                _.has(persona, 'memory.summarize_start_index') ||
-                _.has(persona, 'memory.raw_short_term') ||
-                _.has(persona, 'memory.summarized')
-            )) {
-                await interaction.editReply('這不是一個可用的persona檔案！');
-                return;
-            }
-            if (persona.type === type_t.system) persona.type = type_t.private;
-            for (const phony_chat of persona.phony_chat) {
-                if (!(
-                    _.has(phony_chat, 'role') ||
-                    _.has(phony_chat, 'content')
-                ) ||
-                    (_.has(phony_chat, 'name') &&
-                        !/^[a-zA-Z0-9_-]+$/.test(phony_chat.name))) {
-                    await interaction.editReply({
-                        content: '這不是一個可用的persona檔案！',
-                        flags: MessageFlags.Ephemeral
-                    });
-                    return;
-                }
-            }
-            let placeholder = false;
-            for (const summarize_instruction of persona.summarize_instruction) {
-                if (!(
-                    _.has(summarize_instruction, 'role') ||
-                    _.has(summarize_instruction, 'content')
-                ) ||
-                    (_.has(summarize_instruction, 'name') &&
-                        !/^[a-zA-Z0-9_-]+$/.test(summarize_instruction.name))) {
-                    await interaction.editReply({
-                        content: '這不是一個可用的persona檔案！',
-                        flags: MessageFlags.Ephemeral
-                    });
-                    return;
-                }
-                if (summarize_instruction.role === 'placeholder') placeholder = true;
-            }
-            if (!placeholder) {
-                await interaction.editReply('這不是一個可用的persona檔案！');
-                return;
-            }
-            persona.memory.raw_short_term = [];
+            const import_persona = await persona_source.json();
+            const p = import_persona_t.parse(import_persona);
+            p.memory.raw_short_term = [];
+
             /**@type {import('../implement/LLM/assets.js').snowflake[]} */
             const unused_messages = client.chat.create_persona(
-                persona.display_name,
-                persona.internal_name,
-                persona.identity_name,
-                persona.type,
-                persona.author,
-                persona.persona,
-                persona.format,
-                persona.reply_format,
-                persona.user_format,
-                persona.phony_chat,
-                persona.summarize_instruction,
-                persona.memory
+                p.display_name,
+                p.internal_name,
+                p.identity_name,
+                p.type,
+                p.author,
+                p.persona,
+                p.format,
+                p.reply_format,
+                p.user_format,
+                p.phony_chat,
+                p.summarize_instruction,
+                p.memory
             );
-            await interaction.editReply(`上傳成功！\n你現在可以用${persona.display_name}啦！`);
+            await interaction.editReply(`上傳成功！\n你現在可以和${p.display_name}聊天啦！`);
             for (const snowflake of unused_messages) {
                 client.chat.remove_context(snowflake);
             }
         } catch (error) {
+            if (error instanceof z.ZodError) {
+                let error_mes = '';
+                error.issues.forEach(iss => {
+                    error_mes += iss.message;
+                });
+                await interaction.editReply({
+                    content: `這不是一個可用的persona檔案！\n根據下面的說明調整吧！\n${error_mes}`,
+                    flags: MessageFlags.Ephemeral
+                });
+                return;
+            }
             await interaction.editReply('上傳失敗！\n-# 或許你應該等下再試試？');
         }
     }
