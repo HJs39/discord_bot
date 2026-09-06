@@ -15,6 +15,7 @@ Alice的`battle`功能源自`米米警察`的`aibattle`系列指令(最初用於
 - `file-type 22.0.1`
 - `moment 2.30.1`
 - `openai 6.49.0`
+- `zod 4.5.4`
 
 ## 運行前準備
 
@@ -40,7 +41,7 @@ Alice的`battle`功能源自`米米警察`的`aibattle`系列指令(最初用於
 
 ### quotes
 
-空字料夾。
+空資料夾。
 
 ### API_config
 
@@ -78,6 +79,8 @@ Alice的`battle`功能源自`米米警察`的`aibattle`系列指令(最初用於
 - `quote_command_available`: 空陣列
 - `battle_command_available`: 空陣列
 - `chatable_channel`: 空陣列
+- `banned_global`: 空陣列
+- `banned_chat`: 空陣列
 
 ### cats.json
 
