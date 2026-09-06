@@ -33,7 +33,7 @@ module.exports = {
         if (add_on === 0) {
             process = process.trimEnd();
         } else {
-            process += `${total}+${add_on}`;
+            process += `${total}${add_on > 0 ? `+${add_on}` : `${add_on}`}`;
         }
         const embed = new EmbedBuilder();
         if (get_process) {
