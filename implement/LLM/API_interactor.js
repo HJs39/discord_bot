@@ -385,7 +385,7 @@ class API_interactor {
                     stream: true
                 });
                 for await (const chunk of response) {
-                    if (_.has(chunk.choices[0], 'delta.reasoning_content') || _.has(chunk.choices[0], 'delta.reasoning')) COT += _.get(chunk.choices[0], 'delta.reasoning_content', null) ?? _.get(chunk.choices[0], 'delta.reasoning_content', null) ?? '';
+                    if (_.has(chunk.choices[0], 'delta.reasoning_content') || _.has(chunk.choices[0], 'delta.reasoning')) COT += _.get(chunk.choices[0], 'delta.reasoning_content', null) ?? _.get(chunk.choices[0], 'delta.reasoning', null) ?? '';
                     /**@see {@link https://github.com/jasonkao402/PyDiscordBot/blob/master/cog/llmAgentAPI.py#L119} 180,181 */
                     if (_.has(chunk.choices[0], 'delta.content')) content += _.get(chunk.choices[0], 'delta.content', '');
                     if (chunk.usage) token_usage = chunk.usage;
