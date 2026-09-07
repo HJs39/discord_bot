@@ -206,7 +206,7 @@ class persona_manager {
         let related_persona = this.#personas[other];
         let require_profiles = new Set();
         let result = '';
-        let profile = related_persona.profile.replace(/$\{link:(.*?)\}/g, (full_match, list) => {
+        let profile = related_persona.profile.replace(/\$\{link:(.*?)\}/g, (full_match, list) => {
             let ps = list.split(',');
             for (const name of ps) {
                 const find = name.trim();
