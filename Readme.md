@@ -71,7 +71,7 @@ Alice的`battle`功能源自`米米警察`的`aibattle`系列指令(最初用於
 
 - `token`: 機器人的token
 - `clientId`: 機器人的client id
-- `owner`: 傭有者的discord id
+- `owner`: 擁有者的discord id
 - `test_server_guildId`: 測試伺服器的伺服器id
 - `opening_channel`: 用於在機器人上線時發送提醒訊息的頻道id
 - `debug_channel`: 用於在程式報錯時直接發送錯誤訊息的頻道id
