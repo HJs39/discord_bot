@@ -48,6 +48,11 @@ module.exports = {
                     inline: false
                 },
                 {
+                    name: "profile",
+                    value: "該persona的簡短人設，用於其他persona了解此persona，基本上與使用者的profile一致。\n只在回覆一個persona發送的訊息並mention機器人時才會被使用(即，讓你當前使用的persona觀看其他persona發送的訊息時使用)。\n\n可用宏\n- `${link:[persona name]}`: 用於在profile中有使用到其他persona時使用，會被替換成以`user_format`格式格式化後的`[persona name]`的`profile`內容，支援以`,`分割多個persona的簡化寫法。\n\n**link宏的替換規則如下**:\n1. 以`,`作為分割符獲取persona的名稱並放入列表。(註: 獲取的名稱始終假設是`display_name`)\n2. 由第一個被抓取的persona的名稱開始逐一抓取`profile`內容，如果被抓取的persona的本身或`internal_name`已經出現過，則跳過\n3. 如果persona的`profile`也使用了`${link:...}`宏，則解析後將名稱放入列表末尾並移除`${link:...}`宏。\n4. 以主persona的`user_format`格式格式化依賴的`profile`並繼續處理下一個。\n5. 處理完成後加入到`${user}`宏內容的最前方。",
+                    inline: false
+                },
+                {
                     name: "format",
                     value: "向系統說明當使用者透過mention與persona聊天時應該怎麼處理使用者發送的訊息。\n\n使用時機:\n- 機器人被提及(mention)時。\n\n註: mention優先級很低，只有在你不回覆訊息時這個格式才會被套用，但mention可以用來決定你使用什麼persona(有mention時會使用你默認的，只有回覆時則會使用你回覆的那個訊息的persona)\n\n可用宏:\n- `${user}`: 發送訊息的使用者的暱稱(用`/create_profile`或`/edit_profile`設定的那個)。\n-  `${time:[code]}`: 以`[code]`進行格式化的訊息發送時間。注意！**`time:`前綴是必要的！`[code]`才是你要改的地方！**支援的代碼可以參照[這個](https://momentjs.cn/docs/#/parsing/string-format/)(對，我是用moment做的)。\n- `${message}`: 訊息的內容。",
                     inline: false
