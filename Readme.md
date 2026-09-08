@@ -88,7 +88,7 @@ Alice的`battle`功能源自`米米警察`的`aibattle`系列指令(最初用於
 
 ### defined_function.json
 
-空陣列
+空物件
 
 ### message_repository.json
 
