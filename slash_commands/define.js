@@ -21,7 +21,7 @@ module.exports = {
             .setMaxLength(100)),
     eval: async function (interaction) {
         await interaction.deferReply();
-        const function_name = interaction.options.getString('funtion_name');
+        const function_name = interaction.options.getString('function_name');
         const process = interaction.options.getString('process');
         const argument_list = interaction.options.getString('argument_list') ?? "";
         const description = interaction.options.getString("description") ?? "";
