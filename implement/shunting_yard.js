@@ -1,6 +1,7 @@
 const { Collection } = require('discord.js');
 const { defined_function } = require('../assets/defined_function.js');
 const _ = require('lodash');
+const { fa } = require('zod/locales');
 
 const operator = ['+', '-', '*', '/', '%', '^', '!'];
 
@@ -263,7 +264,7 @@ function shunting_yard(statement) {
                     // "," after left bracket with no identifier is vaild
                     var add_arg_list = false;
                     if (full_content.length !== 0) {
-                        if (is_all_num(full_content)) {
+                        if (is_all_num(full_content) || full_content.startsWith('0')) {
                             output_stack.push(new shunting_yard_obj(stats.number, full_content));
                         } else {
                             output_stack.push(new shunting_yard_obj(stats.identifier, full_content));
@@ -272,6 +273,7 @@ function shunting_yard(statement) {
                     while (!operator_stack.is_empty() && operator_stack.peek().content !== '(') {
                         output_stack.push(operator_stack.pop());
                         add_arg_list = true;
+                        add_additional_arg = false;
                     }
                     if (operator_stack.is_empty()) throw new mismatchBarket("mismatch left bracket");
                     // argument list is not over, do not discard left bracket
@@ -310,7 +312,8 @@ function shunting_yard(statement) {
                         continue;
                     }
                     if (full_content.length != 0) {
-                        output_stack.push(new shunting_yard_obj(stats.number, full_content));
+                        if (is_all_num(full_content) || full_content.startsWith('0')) output_stack.push(new shunting_yard_obj(stats.number, full_content));
+                        else output_stack.push(new shunting_yard_obj(stats.identifier, full_content));
                         full_content = '';
                     }
                     while (!operator_stack.is_empty() &&
@@ -327,7 +330,7 @@ function shunting_yard(statement) {
                     // end of argument list
                     var add_arg_list = false;
                     if (full_content.length !== 0) {
-                        if (is_all_num(full_content)) {
+                        if (is_all_num(full_content) || full_content.startsWith('0')) {
                             output_stack.push(new shunting_yard_obj(stats.number, full_content));
                         } else {
                             output_stack.push(new shunting_yard_obj(stats.identifier, full_content));
@@ -358,9 +361,11 @@ function shunting_yard(statement) {
                         is_function = false;
                     } else {
                         add_additional_arg = add_additional_arg_list.pop();
+                        add_additional_arg = true;
                     }
                     full_content = '';
                     last_char = c;
+                    is_first = true;
                     is_identifier = false;
                     continue;
                 } else {
@@ -399,7 +404,6 @@ function shunting_yard(statement) {
                             continue;
                         } else {
                             while (!operator_stack.is_empty() && operator_stack.peek().content !== '(') {
-                                add_additional_arg = false;
                                 output_stack.push(operator_stack.pop());
                             }
                             if (operator_stack.is_empty()) throw new mismatchBarket("mismatch left bracket");
@@ -427,10 +431,34 @@ function shunting_yard(statement) {
                                 is_function = false;
                             } else {
                                 add_additional_arg = add_additional_arg_list.pop();
+                                add_additional_arg = true;
                             }
                             last_char = c;
                             continue;
                         }
+                    } else if (c === ',') {
+                        // split argument list
+                        // "," after left bracket with no identifier is vaild
+                        var add_arg_list = false;
+                        if (full_content.length !== 0) {
+                            if (is_all_num(full_content) || full_content.startsWith('0')) output_stack.push(new shunting_yard_obj(stats.number, full_content));
+                            else output_stack.push(new shunting_yard_obj(stats.identifier, full_content));
+                            add_arg_list = true;
+                        }
+                        while (!operator_stack.is_empty() && operator_stack.peek().content !== '(') {
+                            output_stack.push(operator_stack.pop());
+                            add_arg_list = true;
+                            add_additional_arg = false;
+                        }
+                        if (operator_stack.is_empty()) throw new mismatchBarket("mismatch left bracket");
+                        // argument list is not over, do not discard left bracket
+                        if (add_arg_list) {
+                            argument_list[function_call - 1].push(full_content);
+                        }
+                        full_content = '';
+                        last_char = c;
+                        is_first = true;
+                        continue;
                     } else {
                         is_first = false;
                         full_content += c;
@@ -454,13 +482,12 @@ function shunting_yard(statement) {
                         // "," after left bracket with no identifier is vaild
                         var add_arg_list = false;
                         if (full_content.length !== 0) {
-                            if (is_all_num(full_content)) {
-                                output_stack.push(new shunting_yard_obj(stats.number, full_content));
-                            } else {
-                                output_stack.push(new shunting_yard_obj(stats.identifier, full_content));
-                            } add_arg_list = true;
+                            if (is_all_num(full_content) || full_content.startsWith('0')) output_stack.push(new shunting_yard_obj(stats.number, full_content));
+                            else output_stack.push(new shunting_yard_obj(stats.identifier, full_content));
+                            add_arg_list = true;
                         }
                         while (!operator_stack.is_empty() && operator_stack.peek().content !== '(') {
+                            add_additional_arg = false;
                             output_stack.push(operator_stack.pop());
                             add_arg_list = true;
                         }
@@ -482,7 +509,8 @@ function shunting_yard(statement) {
                             continue;
                         }
                         if (full_content.length != 0) {
-                            output_stack.push(new shunting_yard_obj(stats.number, full_content));
+                            if (is_all_num(full_content) || full_content.startsWith('0')) output_stack.push(new shunting_yard_obj(stats.number, full_content));
+                            else output_stack.push(new shunting_yard_obj(stats.identifier, full_content));
                             full_content = '';
                         }
                         while (!operator_stack.is_empty() &&
@@ -503,15 +531,11 @@ function shunting_yard(statement) {
                         } else {
                             var add_arg_list = false;
                             if (full_content.length !== 0) {
-                                if (is_all_num(full_content)) {
-                                    output_stack.push(new shunting_yard_obj(stats.number, full_content));
-                                } else {
-                                    output_stack.push(new shunting_yard_obj(stats.identifier, full_content));
-                                }
+                                if (is_all_num(full_content) || full_content.startsWith('0')) output_stack.push(new shunting_yard_obj(stats.number, full_content));
+                                else output_stack.push(new shunting_yard_obj(stats.identifier, full_content));
                                 add_arg_list = true;
                             }
                             while (!operator_stack.is_empty() && operator_stack.peek().content !== '(') {
-                                add_additional_arg = false;
                                 output_stack.push(operator_stack.pop());
                             }
                             if (operator_stack.is_empty()) throw new mismatchBarket("mismatch left bracket");
@@ -540,6 +564,7 @@ function shunting_yard(statement) {
                                 add_additional_arg = false;
                             } else {
                                 add_additional_arg = add_additional_arg_list.pop();
+                                add_additional_arg = true;
                             }
                             last_char = c;
                             is_first = true;
@@ -591,7 +616,8 @@ function shunting_yard(statement) {
                     continue;
                 }
                 if (full_content.length != 0) {
-                    output_stack.push(new shunting_yard_obj(stats.number, full_content));
+                    if (is_all_num(full_content) || full_content.startsWith('0')) output_stack.push(new shunting_yard_obj(stats.number, full_content));
+                    else output_stack.push(new shunting_yard_obj(stats.identifier, full_content));
                     full_content = '';
                 }
                 while (!operator_stack.is_empty() &&
@@ -634,7 +660,7 @@ function shunting_yard(statement) {
         }
     }
     if (full_content.length != 0) {
-        if (is_all_num(full_content)) output_stack.push(new shunting_yard_obj(stats.number, full_content));
+        if (is_all_num(full_content) || full_content.startsWith('0')) output_stack.push(new shunting_yard_obj(stats.number, full_content));
         else output_stack.push(new shunting_yard_obj(stats.identifier, full_content));
     }
     while (!operator_stack.is_empty()) {
@@ -792,7 +818,7 @@ function find_func(source, val) {
  */
 function check_func(source, val) {
     for (let key of source) {
-        if (key.name == val.name) {
+        if (key.name == val.name && key.param_count == val.param_count) {
             return true;
         }
     }
@@ -825,7 +851,7 @@ function execution(shunting_yard_statement) {
             if (check_func(builtin_function_list, check)) {
                 register.push(find_func(builtin_function, check)(warp_param(register, op.argument_count)));
             } else {
-                register.push(execution_function(check, warp_param(register, op.argument_count)));
+                register.push(execution_function(check, warp_param(register, op.argument_count).reverse()));
             }
         } else if (op.type == stats.identifier) {
             throw new IdentifierError("cannot use identifier at top statement", op.content);
@@ -837,15 +863,15 @@ function execution(shunting_yard_statement) {
 /**
  * execute a statement of a function
  * @param {function_object} tag the identifier of the function
- * @param  {...number} args the param list to call this function
+ * @param  {number[]} args the param list to call this function
  * @returns {number} the result of this function return
  * @throws {ExecutionError} throw when the function is not exit
  * @throws {ParseError} throw when the "number" state element cannot be parsed
  */
-function execution_function(tag, ...args) {
+function execution_function(tag, args) {
     var register = new Array();
     var shunting_yard_statement;
-    var arg_list = { ...args };
+    var arg_list = args;
     var map;
     if (_.has(defined_function, `${tag.name}.${tag.param_count}`)) {
         shunting_yard_statement = _.get(defined_function, `${tag.name}.${tag.param_count}.statement`);
@@ -856,9 +882,7 @@ function execution_function(tag, ...args) {
     for (var op of shunting_yard_statement) {
         if (op.type == stats.number) {
             const cahce = Number(op.content);
-            if (Number.isNaN(cahce)) {
-                throw new ParseError(`${op.content} is not a vaild number`, op.content);
-            }
+            if (Number.isNaN(cahce)) throw new ParseError(`${op.content} is not a vaild number`, op.content);
             register.push(cahce);
         } else if (op.type == stats.operator) {
             register.push(call_operator.get(op.content)(warp_param(register, op.argument_count)));
@@ -870,10 +894,12 @@ function execution_function(tag, ...args) {
             if (check_func(builtin_function_list, check)) {
                 register.push((find_func(builtin_function, check)(warp_param(register, op.argument_count))));
             } else {
-                register.push(execution_function(check, warp_param(register, op.argument_count)));
+                register.push(execution_function(check, warp_param(register, op.argument_count).reverse()));
             }
         } else if (op.type == stats.identifier) {
-            register.push(_.get(map, op.content));
+            const idx = _.indexOf(map, op.content);
+            if (idx == -1) throw new ParseError(`${op.content} is not a vaild number`, op.content);
+            register.push(arg_list[idx]);
         }
     }
     return register.pop();
