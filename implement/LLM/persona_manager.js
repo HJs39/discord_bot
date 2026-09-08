@@ -205,6 +205,8 @@ class persona_manager {
         let main_persona = this.#personas[main];
         let related_persona = this.#personas[other];
         let require_profiles = new Set();
+        /**@type {Set<string>} */
+        let unique_persona = new Set();
         let result = '';
         let profile = related_persona.profile.replace(/\$\{link:(.*?)\}/g, (full_match, list) => {
             let ps = list.split(',');
@@ -213,8 +215,9 @@ class persona_manager {
                 const idx = this.#personas.findIndex(p => p.display_name === find);
                 if (idx === -1) continue;
                 const p = this.#personas[idx];
-                if (p.internal_name !== main_persona.internal_name && !require_profiles.has(idx)) {
+                if (p.internal_name !== main_persona.internal_name && !require_profiles.has(idx) && !unique_persona.has(p.internal_name)) {
                     require_profiles.add(idx);
+                    unique_persona.add(p.internal_name);
                 }
             }
             return '';
@@ -233,8 +236,9 @@ class persona_manager {
                     const idx = this.#personas.findIndex(p => p.display_name === find);
                     if (idx === -1) continue;
                     const p = this.#personas[idx];
-                    if (p.internal_name !== main_persona.internal_name && !require_profiles.has(idx)) {
+                    if (p.internal_name !== main_persona.internal_name && !require_profiles.has(idx) && !unique_persona.has(p.internal_name)) {
                         require_profiles.add(idx);
+                        unique_persona.add(p.internal_name);
                     }
                 }
                 return '';
