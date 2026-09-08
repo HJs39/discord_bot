@@ -493,6 +493,7 @@ function shunting_yard(statement) {
                         }
                         operator_stack.push(new shunting_yard_obj(stats.operator, c, operator_arg(c)));
                         last_char = c;
+                        is_first = true;
                         continue;
                     } else if (is_bracket(c)) {
                         if (c === '(') {
