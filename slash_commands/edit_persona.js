@@ -206,7 +206,7 @@ module.exports = {
                             })
                             .addFields({
                                 name: '引用設定',
-                                value: `\`\`\`${persona.profile.slice(0, 1000)}${persona.persona.length > 1000 ? '...' : ''}\`\`\``
+                                value: `\`\`\`${persona.profile.slice(0, 1000)}${persona.profile.length > 1000 ? '...' : ''}\`\`\``
                             })
                             .setFooter({
                                 text: '設定',
