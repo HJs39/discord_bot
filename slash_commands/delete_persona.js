@@ -35,7 +35,7 @@ module.exports = {
                 flags: MessageFlags.Ephemeral
             });
             return;
-        } else if (persona.author !== interaction.user.id) {
+        } else if (persona.author === interaction.user.id) {
             client.chat.deprecated_persona(persona_id);
             await interaction.reply({
                 content: `${persona.display_name}現在處於棄用狀態啦！`,

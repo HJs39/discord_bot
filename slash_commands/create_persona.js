@@ -124,6 +124,7 @@ module.exports = {
             type_t.private,
             interaction.user.id,
             persona,
+            '',
             default_format,
             default_reply_format,
             default_user_format,

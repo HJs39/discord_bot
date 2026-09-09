@@ -51,6 +51,7 @@ module.exports = {
                 p.type,
                 p.author,
                 p.persona,
+                p.profile,
                 p.format,
                 p.reply_format,
                 p.user_format,
