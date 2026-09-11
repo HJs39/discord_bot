@@ -64,11 +64,13 @@ module.exports = {
         const focus = interaction.options.getFocused();
         /**@type {import('../implement/LLM/persona_manager.js').filtered_persona_t[]} */
         const user_seeable = client.chat.get_list_user_seeable(interaction.user.id);
+        /**@type {import('../implement/LLM/user_repository.js').user} */
+        const user = client.chat.get_user(interaction.user.id);
         const idx = parseInt(focus);
         if (isNaN(idx)) {
-            await interaction.respond(user_seeable.filter(p => p.persona.display_name.startsWith(focus)).map(p => ({ name: p.persona.display_name, value: p.id })));
+            await interaction.respond(user_seeable.filter(p => p.persona.display_name.startsWith(focus)).map(p => ({ name: user?.current_use === p.id ? p.persona.display_name + '(using)' : p.persona.display_name, value: p.id })));
         } else {
-            await interaction.respond(user_seeable.filter(p => p.id >= idx).map(p => ({ name: p.persona.display_name, value: p.id })));
+            await interaction.respond(user_seeable.filter(p => p.id >= idx).map(p => ({ name: user?.current_use === p.id ? p.persona.display_name + '(using)' : p.persona.display_name, value: p.id })));
         }
     }
 }
