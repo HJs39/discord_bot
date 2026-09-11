@@ -5,11 +5,13 @@ const persona_manager = require('./persona_manager');
 const message_repository = require('./message_repository');
 const user_repository = require('./user_repository');
 const context = require("./context");
+const format_parser = require('./format_parser');
 const { persona, type_t } = require("./persona");
 const { placeholder_replacer } = require("./assets");
 const logged_messages = require('../../assets/message_repository.json');
 const logged_persona = require('../../assets/personas.json');
 const logged_user = require('../../assets/user_repository.json');
+const moment = require('moment');
 const _ = require('lodash');
 
 const global_message_repository = new message_repository(logged_messages);
@@ -83,7 +85,7 @@ class LLM_interface {
             ]);
             user_info += replacer.replace(persona.user_format);
         }
-        let system_instruction = new placeholder_replacer([['user', user_info]]).replace(persona.persona);
+        let system_instruction = new placeholder_replacer([['user', user_info]]).replace(persona.persona).replace(/\$\{link:(.*?)\}/g, '');
 
         /**@type {chat_interaction[]} */
         let history = new Array();
@@ -143,7 +145,7 @@ class LLM_interface {
             ]);
             user_info += replacer.replace(persona.user_format);
         }
-        let system_instruction = new placeholder_replacer([['user', user_info]]).replace(persona.persona);
+        let system_instruction = new placeholder_replacer([['user', user_info]]).replace(persona.persona).replace(/\$\{link:(.*?)\}/g, '');
 
         /**@type {chat_interaction[]} */
         let history = new Array();
@@ -175,7 +177,7 @@ class LLM_interface {
         }
         return new response_receiver(
             this.#API_interactor,
-            persona.persona,
+            system_instruction,
             history,
             lastest,
             useable_image,
@@ -394,9 +396,24 @@ class LLM_interface {
 
         /**@type {chat_interaction[]} */
         let history = new Array();
+        const current = moment(new Date());
         for (const instruction of persona.summarize_instruction) {
             if (instruction.role !== 'placeholder') {
-                history.push(instruction);
+                if (instruction.role === 'assistant') {
+                    history.push(instruction);
+
+                } else {
+                    const placeholder = [];
+                    const format = format_parser.parse(instruction.content);
+                    for (const time of format.time_macro) {
+                        placeholder.push([time, current.format(time)]);
+                    }
+                    history.push({
+                        role: instruction.role,
+                        content: new placeholder_replacer(placeholder).replace(format.result),
+                        name: instruction.name
+                    });
+                }
             } else {
                 if (original_memory) {
                     history.push({
@@ -407,7 +424,11 @@ class LLM_interface {
                 const unprocessed_history = this.#messages.fetch(persona.memory.raw_short_term);
                 if (unprocessed_history.length < persona.memory.summarize_start_index) throw new memory_error('do_not_have_enough_history', 'history less than required count');
                 const stop_index = unprocessed_history.length - 1 - persona.memory.summarize_start_index;
-                history.push(...interaction_processor.flat_context(unprocessed_history.filter(/**@type {context} */(c, index, array) => index < stop_index && !c.summarized)));
+                const to_summarize = unprocessed_history.filter(/**@type {context} */(c, index, array) => index < stop_index && !c.summarized);
+                history.push(...interaction_processor.flat_context(this.#users, to_summarize));
+                to_summarize.forEach((c) => {
+                    c.summarized = true;
+                });
             }
         }
         let lastest = history.pop();
