@@ -81,6 +81,7 @@ Alice的`battle`功能源自`米米警察`的`aibattle`系列指令(最初用於
 - `chatable_channel`: 空陣列
 - `banned_global`: 空陣列
 - `banned_chat`: 空陣列
+- `chat_closed`: `true`或`false`，代表當前chat功能是否被關閉。
 
 ### cats.json
 
@@ -101,7 +102,7 @@ Alice的`battle`功能源自`米米警察`的`aibattle`系列指令(最初用於
 
 ### quotes.json
 
-空陣列
+空物件
 
 ### user_repository.json
 
