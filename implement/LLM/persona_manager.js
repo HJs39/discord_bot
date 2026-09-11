@@ -208,6 +208,20 @@ class persona_manager {
         /**@type {Set<string>} */
         let unique_persona = new Set();
         let result = '';
+        const main_rely = main_persona.persona.matchAll(/\$\{link:(.*?)\}/g);
+        for (const rely of main_rely) {
+            let ps = rely[1].split(',');
+            for (const name of ps) {
+                const find = name.trim();
+                const idx = this.#personas.findIndex(p => p.display_name === find);
+                if (idx === -1) continue;
+                const p = this.#personas[idx];
+                if (p.internal_name !== main_persona.internal_name && !require_profiles.has(idx) && !unique_persona.has(p.internal_name)) {
+                    require_profiles.add(idx);
+                    unique_persona.add(p.internal_name);
+                }
+            }
+        }
         let profile = related_persona.profile.replace(/\$\{link:(.*?)\}/g, (full_match, list) => {
             let ps = list.split(',');
             for (const name of ps) {
