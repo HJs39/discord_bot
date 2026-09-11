@@ -20,7 +20,7 @@ module.exports = {
     eval: async function (interaction) {
         const user_to_ban = interaction.options.getUser('target');
         if (!client.is_owner(interaction.user.id)) {
-            interaction.reply({
+            await interaction.reply({
                 content: '你不能這麼做!',
                 flags: MessageFlags.Ephemeral
             });
