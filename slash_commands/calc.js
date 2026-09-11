@@ -12,13 +12,13 @@ module.exports = {
             .setDescription("the expression to calculate")
             .setRequired(true))
         .addBooleanOption(option => option.setName('ephemeral')
-            .setDescription('select the result is ephemeral or not(default is true)')),
+            .setDescription('select the result is ephemeral or not(default is false)')),
     eval: async function (interaction) {
-        await interaction.deferReply();
         const embed = new EmbedBuilder();
         const statement = interaction.options.getString('expression');
         const ephemeral = interaction.options.getBoolean('ephemeral') ?? false;
         const channel_name = _.get(interaction, 'channel.name', '未知');
+        await interaction.deferReply({ flags: ephemeral ? [MessageFlags.Ephemeral] : undefined });
         try {
             let result = execution(shunting_yard(statement));
             embed.setTitle("我算出來啦！")
