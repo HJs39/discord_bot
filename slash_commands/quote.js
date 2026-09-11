@@ -2,17 +2,24 @@ const { SlashCommandBuilder, EmbedBuilder, MessageFlags, AttachmentBuilder } = r
 const { cooldown_helper } = require('../implement/cooldown.js');
 const { client } = require('../assets/client.js');
 const quotes = require('../assets/quotes.json');
-const { quote_command_available } = require('../assets/bot_assets.json');
+const bot_assets = require('../assets/bot_assets.json');
 const { colors } = require('../assets/embed_color.js');
+const _ = require('lodash');
 
 module.exports = {
     command: new SlashCommandBuilder()
         .setName("quote")
         .setDescription("get a random quote"),
     eval: async function (interaction) {
-        if (!interaction.guild || !quote_command_available.includes(interaction.guild.id)) {
+        if (!interaction.guild) {
             await interaction.reply({
                 content: "你不能在這裡用！",
+                flags: MessageFlags.Ephemeral
+            });
+            return;
+        } else if (!bot_assets.quote_command_available.includes(interaction.guild.id)) {
+            await interaction.reply({
+                content: "你們還沒有專屬的紀錄！\n嘗試去申請一個吧！",
                 flags: MessageFlags.Ephemeral
             });
             return;
@@ -30,7 +37,25 @@ module.exports = {
             return;
         }
         await interaction.deferReply();
-        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        const quote_list = _.get(quotes, interaction.guild.id);
+        if (quote_list.length === 0) {
+            const embed = new EmbedBuilder()
+                .addFields({
+                    name: "",
+                    value: `什麼有趣的東西都沒有找到呢...`,
+                    inline: false
+                })
+                .setColor("#b3e9ff")
+                .setFooter({
+                    text: `你們真無趣...`,
+                    iconURL: client.user.avatarURL(),
+                })
+                .setTimestamp();
+            cooldown_helper.set('quote', interaction.user.id, Date.now());
+            await interaction.editReply({ embeds: [embed] });
+            return;
+        }
+        const quote = quote_list[Math.floor(Math.random() * quote_list.length)];
         var attachment = undefined;
         const embed = new EmbedBuilder()
             .addFields({

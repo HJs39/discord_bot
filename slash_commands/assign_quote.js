@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js'
 const { client } = require('../assets/client.js');
 const { quotes } = require('./quote.js');
 const { assets_path } = require('../assets/assets_path.js');
+const bot_assets = require('../assets/bot_assets.json');
 const fs = require("node:fs");
 const path = require('node:path');
 const _ = require('lodash');
@@ -22,21 +23,35 @@ module.exports = {
             .setDescription("the image of this quote")),
     eval: async function (interaction) {
         await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+        if (!interaction.guild) {
+            await interaction.editReply({
+                content: "你不能在這裡用！",
+                flags: MessageFlags.Ephemeral
+            });
+            return;
+        } else if (!bot_assets.quote_command_available.includes(interaction.guild.id)) {
+            await interaction.editReply({
+                content: "你們還沒有專屬的紀錄！\n嘗試去申請一個吧！",
+                flags: MessageFlags.Ephemeral
+            });
+            return;
+        }
         const image = interaction.options.getAttachment('image');
         const text = interaction.options.getString('text');
         const author = interaction.options.getString('author') ?? '';
         const link = interaction.options.getString('link');
         const has_image = (image !== null) || (link !== null);
         const embed = new EmbedBuilder();
+        const quote_list = _.get(quotes, interaction.guild.id);
         if (author.length != 0) embed.setAuthor({ name: author });
         if (has_image) {
             if (image !== null) {
                 if (image.contentType?.startsWith('image/')) {
-                    var save_path = path.join(assets_path, 'quotes', image.name);
+                    let save_path = path.join(assets_path, 'quotes', interaction.guild.id, image.name);
                     const download_image = await fetch(image.url);
                     const byte_image = await download_image.arrayBuffer();
                     fs.writeFileSync(save_path, Buffer.from(byte_image));
-                    quotes.push({
+                    quote_list.push({
                         quote: save_path,
                         file_name: image.name,
                         author: author,
@@ -70,13 +85,13 @@ module.exports = {
             } else {
                 const download_image = await fetch(link);
                 var file_name = path.basename((new URL(input_link)).pathname);
-                var save_path = path.join(assets_path, 'quotes', file_name);
+                let save_path = path.join(assets_path, 'quotes', interaction.guild.id, file_name);
                 const byte_image = await download_image.arrayBuffer();
                 const check = await file_type.fileTypeFromBuffer(byte_image);
                 if (check.mime.startsWith('image/')) {
                     fs.writeFileSync(save_path, Buffer.from(byte_image));
-                    quotes.push({
-                        quote: link,
+                    quote_list.push({
+                        quote: save_path,
                         file_name: file_name,
                         author: author,
                         text: text
@@ -93,7 +108,7 @@ module.exports = {
                             iconURL: client.user.avatarURL(),
                         })
                         .setTimestamp();
-                }else{
+                } else {
                     embed.addFields({
                         name: "上傳失敗",
                         value: `上傳的檔案並不是圖片或動圖`,
@@ -109,7 +124,7 @@ module.exports = {
 
             }
         } else {
-            quotes.push({
+            quote_list.push({
                 quote: "",
                 author: author,
                 text: text
