@@ -2231,6 +2231,7 @@ module.exports = {
                                             .setMaxLength(4000)
                                             .setStyle(TextInputStyle.Paragraph)
                                             .setValue(persona.profile)
+                                            .setRequired(false)
                                     )
                             );
                         await i.showModal(modal);
@@ -2241,7 +2242,7 @@ module.exports = {
                             });
                             await submit.deferUpdate();
                             persona.persona = submit.fields.getTextInputValue('persona');
-                            persona.profile = submit.fields.getTextInputValue('profile');
+                            persona.profile = submit.fields.getTextInputValue('profile') ?? '';
                             embed = new EmbedBuilder()
                                 .setAuthor({
                                     name: interaction.member?.displayName ?? interaction.user.displayName,
