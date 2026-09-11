@@ -60,6 +60,7 @@ module.exports = {
                 for (const c of cache) {
                     c.summarized = false;
                 }
+                return;
             } else if (result.content.length === 0) {
                 await interaction.editReply({
                     content: `summarize faild:\nAPI returns an empty response`
@@ -80,6 +81,18 @@ module.exports = {
                     });
                 }
             }
+            try {
+                const channel = await client.channels.fetch(bot_assets.COT_channel);
+                if (result.COT.length !== 0) {
+                    await channel.send(`${persona.display_name}的總結思維鏈:`);
+                    for (const split_mes of message_spliter.split(result.COT)) {
+                        await channel.send(split_mes);
+                    }
+                }
+                if (result.token_usage) await channel.send(`-# prompt: ${result.token_usage.prompt}\n-# output: ${result.token_usage.output}\n-# total: ${result.token_usage.total}`);
+            } catch (error) {
+                console.log(`[Error]: failed to send response COT in memo\n  Details: ${error}`);
+            }
         } catch (error) {
             for (const c of cache) {
                 c.summarized = false;
@@ -94,6 +107,7 @@ module.exports = {
                 });
                 throw error;
             }
+            return;
         }
     },
     complete: async function (interaction) {
