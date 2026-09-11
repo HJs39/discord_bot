@@ -7,7 +7,7 @@ const placeholder_replacer = require('./implement/placeholder_replacer');
 const format_parser = require('./implement/LLM/format_parser');
 const response_receiver = require('./implement/LLM/response_reciver');
 const { cooldown_helper } = require('./implement/cooldown.js');
-const { persona } = require('./implement/LLM/persona');
+const { persona, type_t } = require('./implement/LLM/persona');
 const { client } = require('./assets/client.js');
 const bot_assets = require('./assets/bot_assets.json');
 const moment = require('moment');
@@ -180,6 +180,7 @@ client.on(discord.Events.InteractionCreate, async (interaction) => {
 });
 
 client.on(discord.Events.MessageCreate, async (message) => {
+    if (bot_assets.chat_closed) return;
     const mention_regex = new RegExp(`<@${client.user.id}>`, 'g');
     if (message.author.bot) return;
     else if (!bot_assets.chatable_channel.includes(message.channel.id)) return;
@@ -191,10 +192,12 @@ client.on(discord.Events.MessageCreate, async (message) => {
         });
         return;
     }
-    /**@type {import('../implement/LLM/user_repository').user} */
+    /**@type {import('./implement/LLM/user_repository.js').user} */
     const user = client.chat.get_user(message.author.id);
     /**@type {persona} */
     let used_persona = undefined;
+    /**@type {number} */
+    let used_persona_id = undefined;
     const placeholder = [];
     const user_send_at = moment(new Date());
     /**@type {import('./implement/LLM/persona_manager.js').filtered_persona_t} */
@@ -226,11 +229,14 @@ client.on(discord.Events.MessageCreate, async (message) => {
         }
 
         if (mention_regex.test(message.content)) {
-            used_persona = client.chat.get_persona(user.current_use);
-            additional_profile = client.chat.expand_profile(user.current_use, client.chat.get_message_context(ref_mes.id).persona_id);
+            used_persona_id = user.current_use;
+        } else {
+            used_persona_id = client.chat.get_message_context(ref_mes.id).persona_id;
         }
-        else used_persona = client.chat.get_persona(client.chat.get_message_context(ref_mes.id).persona_id);
+        used_persona = client.chat.get_persona(used_persona_id);
+        additional_profile = client.chat.expand_profile(used_persona_id, client.chat.get_message_context(ref_mes.id).persona_id);
 
+        if (used_persona.author !== user.snowflake && used_persona.type === type_t.private) return;
         if (!used_persona.used_user.includes(user.snowflake)) used_persona.used_user.push(user.snowflake);
         format = format_parser.parse(used_persona.reply_format);
 
@@ -279,7 +285,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
         try {
             /**@type {response_receiver} */
             const receiver = client.chat.chat_oneshot_by_default(
-                user.current_use,
+                used_persona_id,
                 {
                     role: 'user',
                     content: (new placeholder_replacer([['user', user.internal_name]])).replace(input),
@@ -360,6 +366,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
     } else {
         used_persona = client.chat.get_persona(user.current_use);
 
+        if (used_persona.author !== user.snowflake && used_persona.type === type_t.private) return;
         if (!used_persona.used_user.includes(user.snowflake)) used_persona.used_user.push(user.snowflake);
 
         format = format_parser.parse(used_persona.format);
