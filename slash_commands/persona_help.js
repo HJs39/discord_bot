@@ -28,8 +28,8 @@ module.exports = {
             .setDescription("也可以在想要直接寫json檔時參照這個說明。\n-# 我覺得我寫high了，實在是加太多功能了...")
             .addFields(
                 {
-                    name: "display_name、internal_name與identity_name",
-                    value: "- display_name: 在`/list_persona`命令中使用的名稱，這著名稱只用來辨別persona的差異，AI不會讀到這個。\n- internal_name: 實際使用的名稱，也應該是AI自我認知的名稱，在你回覆Alice發送的其他訊息時會被用到，詳見`reply_format`欄位。\n- identity_name: 發送請求時的`name`欄位，理論上同一個`identity_name`應該會被視為同一個人，但實際上影響沒有那麼大，要配合`internal_name`才能做到不同設定但在其他persona眼中是同一個人的效果。",
+                    name: "display_name與internal_name",
+                    value: "- display_name: 在`/list_persona`命令中使用的名稱，這著名稱只用來辨別persona的差異，AI不會讀到這個。\n- internal_name: 實際使用的名稱，也應該是AI自我認知的名稱，在你回覆Alice發送的其他訊息時會被用到，詳見`reply_format`欄位。",
                     inline: false
                 },
                 {

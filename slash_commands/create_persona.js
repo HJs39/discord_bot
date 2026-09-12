@@ -55,18 +55,6 @@ module.exports = {
         )
             .addLabelComponents(
                 new LabelBuilder()
-                    .setLabel('識別名稱')
-                    .setTextInputComponent(
-                        new TextInputBuilder()
-                            .setCustomId('identity_name')
-                            .setPlaceholder('被引用時使用的識別符(只能使用大小寫字母、數字、底線、連字號)')
-                            .setMaxLength(64)
-                            .setRequired(true)
-                            .setStyle(TextInputStyle.Short)
-                    )
-            )
-            .addLabelComponents(
-                new LabelBuilder()
                     .setLabel('設定')
                     .setTextInputComponent(
                         new TextInputBuilder()
@@ -79,13 +67,26 @@ module.exports = {
             )
             .addLabelComponents(
                 new LabelBuilder()
+                    .setLabel('引用設定')
+                    .setTextInputComponent(
+                        new TextInputBuilder()
+                            .setCustomId('profile')
+                            .setPlaceholder('此persona的profile')
+                            .setMaxLength(4000)
+                            .setRequired(false)
+                            .setStyle(TextInputStyle.Paragraph)
+                    )
+            )
+            .addLabelComponents(
+                new LabelBuilder()
                     .setLabel('發送訊息數')
                     .setTextInputComponent(
                         new TextInputBuilder()
                             .setCustomId('short_term')
                             .setPlaceholder('應該從對話歷史中抓取多少倫發送？(即短期記憶)')
                             .setMaxLength(10)
-                            .setRequired(true)
+                            .setRequired(false)
+                            .setValue('10')
                             .setStyle(TextInputStyle.Short)
                     )
             )
@@ -97,7 +98,8 @@ module.exports = {
                             .setCustomId('summarize_position')
                             .setPlaceholder('總結時從多遠的地方開始？')
                             .setMaxLength(10)
-                            .setRequired(true)
+                            .setRequired(false)
+                            .setValue('10')
                             .setStyle(TextInputStyle.Short)
                     )
             );
@@ -106,13 +108,13 @@ module.exports = {
     },
     handle_modal: async function (interaction, split_commands) {
         const internal_name = interaction.fields.getTextInputValue('internal_name');
-        const identity_name = interaction.fields.getTextInputValue('identity_name');
         const persona = interaction.fields.getTextInputValue('persona');
-        const short_term = parseInt(interaction.fields.getTextInputValue('short_term'));
-        const summarize_position = parseInt(interaction.fields.getTextInputValue('summarize_position'));
-        if (!(/^[a-zA-Z0-9_-]+$/.test(identity_name)) || isNaN(short_term) || isNaN(summarize_position)) {
+        const profile = interaction.fields.getTextInputValue('profile') ?? '';
+        const short_term = parseInt(interaction.fields.getTextInputValue('short_term') ?? '10');
+        const summarize_position = parseInt(interaction.fields.getTextInputValue('summarize_position') ?? '10');
+        if (!isNaN(short_term) || isNaN(summarize_position)) {
             await interaction.reply({
-                content: `資料不合格！\n出局的都在這下面啦！\n${!(/^[a-zA-Z0-9_-]+$/.test(identity_name)) ? '- 違法的識別名稱\n' : ''}${isNaN(short_term) ? "'- 發送訊息數'並非數字\n" : ''}${isNaN(summarize_position) ? "- '總結位置'並非數字\n" : ''}`.trimEnd(),
+                content: `資料不合格！\n出局的都在這下面啦！\n${isNaN(short_term) ? "'- 發送訊息數'並非數字\n" : ''}${isNaN(summarize_position) ? "- '總結位置'並非數字\n" : ''}`.trimEnd(),
                 flags: MessageFlags.Ephemeral
             });
             return;
@@ -120,11 +122,10 @@ module.exports = {
         const unused_messages = client.chat.create_persona(
             split_commands[1],
             internal_name,
-            identity_name,
             type_t.private,
             interaction.user.id,
             persona,
-            '',
+            profile,
             default_format,
             default_reply_format,
             default_user_format,

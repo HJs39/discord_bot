@@ -144,7 +144,7 @@ module.exports = {
                                 iconURL: interaction.user.displayAvatarURL(),
                             })
                             .setTitle('基本資訊')
-                            .setDescription(`名稱: ${persona.internal_name}\n顯示名稱: ${persona.display_name}\n辨識名稱: ${persona.identity_name}\n當前狀態: ${persona.type}\n是否棄用: ${persona.deprecated ? '是' : '否'}`)
+                            .setDescription(`名稱: ${persona.internal_name}\n顯示名稱: ${persona.display_name}\n當前狀態: ${persona.type}\n是否棄用: ${persona.deprecated ? '是' : '否'}`)
                             .setFooter({
                                 text: '概覽',
                                 iconURL: interaction.user.displayAvatarURL()
@@ -2137,18 +2137,6 @@ module.exports = {
                             )
                             .addLabelComponents(
                                 new LabelBuilder()
-                                    .setLabel('辨識用名稱')
-                                    .setTextInputComponent(
-                                        new TextInputBuilder()
-                                            .setCustomId('identity_name')
-                                            .setMaxLength(64)
-                                            .setStyle(TextInputStyle.Short)
-                                            .setRequired(true)
-                                            .setValue(persona.identity_name)
-                                    )
-                            )
-                            .addLabelComponents(
-                                new LabelBuilder()
                                     .setLabel('可見性')
                                     .setStringSelectMenuComponent(
                                         new StringSelectMenuBuilder()
@@ -2179,7 +2167,6 @@ module.exports = {
                             await submit.deferUpdate();
                             persona.display_name = submit.fields.getTextInputValue('display_name');
                             persona.internal_name = submit.fields.getTextInputValue('internal_name');
-                            persona.identity_name = submit.fields.getTextInputValue('identity_name');
                             persona.type = submit.fields.getStringSelectValues('visible')[0] === 'public' ? type_t.public : type_t.private;
                             persona.deprecated = submit.fields.getCheckbox('deprecated');
                             embed = new EmbedBuilder()

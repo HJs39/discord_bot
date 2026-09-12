@@ -318,7 +318,6 @@ class LLM_interface {
      * create a persona
      * @param {string} display_name this persona's display name, used in user's select list and list command
      * @param {string} internal_name this persona's internal name, used in macro and reference
-     * @param {string} identity_name  this persona's name used in "name" parameter in request message
      * @param {type_t} type current stats of this persona
      * @param {snowflake} author - who create this persona
      * @param {string} persona_instruction AI's persona setting
@@ -331,12 +330,11 @@ class LLM_interface {
      * @param {persona_memory} memory persona's memory, see {@link persona_memory}
      * @returns {import("./assets").snowflake[]}
      */
-    create_persona(display_name, internal_name, identity_name, type, author, persona_instruction, profile, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
+    create_persona(display_name, internal_name, type, author, persona_instruction, profile, format, reply_format, user_format, phony_chat, summarize_instruction, memory) {
         return this.#personas.create_persona(
             this.#personas.search_useable_id(),
             display_name,
             internal_name,
-            identity_name,
             type,
             author,
             persona_instruction,
@@ -360,7 +358,6 @@ class LLM_interface {
         let persona = this.#personas.get(id);
         persona.display_name = new_persona.display_name || persona.display_name;
         persona.internal_name = new_persona.internal_name || persona.internal_name;
-        persona.identity_name = new_persona.identity_name || persona.identity_name;
         persona.type = new_persona.type;
         persona.persona = new_persona.persona || persona.persona;
         persona.profile = new_persona.profile || persona.profile;

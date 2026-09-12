@@ -47,7 +47,6 @@ module.exports = {
             const unused_messages = client.chat.create_persona(
                 p.display_name,
                 p.internal_name,
-                p.identity_name,
                 p.type,
                 p.author,
                 p.persona,
