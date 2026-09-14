@@ -9,8 +9,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('latest_interaction')
         .setDescription('check the nearest interaction of persona')
+        .setDescriptionLocalization('zh-TW', '獲取指定persona的最新互動紀錄')
         .addIntegerOption(option => option.setName('persona')
             .setDescription('the persona to check')
+            .setDescriptionLocalization('zh-TW', '目標')
             .setRequired(true)
             .setAutocomplete(true)),
     eval: async function (interaction) {

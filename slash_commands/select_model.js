@@ -7,8 +7,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName("select_model")
         .setDescription("select a avalible model for AI function")
+        .setDescriptionLocalization('zh-TW', '選擇AI相關功能的底層模型')
         .addStringOption(option => option.setName('api')
             .setDescription("API for choose")
+            .setDescriptionLocalization('zh-TW', 'API類型')
             .setChoices(
                 { name: 'battle', value: 'battle' },
                 { name: 'chat', value: 'chat' }

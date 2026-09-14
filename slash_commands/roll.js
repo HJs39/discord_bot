@@ -6,17 +6,22 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName("roll")
         .setDescription("roll dice")
+        .setDescriptionLocalization('zh-TW', '骰顆骰子')
         .addIntegerOption(option => option.setName('count')
             .setDescription('number of dice you want to roll')
+            .setDescriptionLocalization('zh-TW', '一次丟幾顆骰子')
             .setMinValue(1)
             .setMaxValue(100))
         .addIntegerOption(option => option.setName('face')
             .setDescription('face of dice you want to roll')
+            .setDescriptionLocalization('zh-TW', '骰子的面數')
             .setMinValue(4))
         .addIntegerOption(option => option.setName('add_on')
-            .setDescription('the value be added on the result'))
+            .setDescription('the value be added on the result')
+            .setDescriptionLocalization('zh-TW', '最後結果的加值'))
         .addBooleanOption(option => option.setName('process')
-            .setDescription('set true to get the roll process(default is false)')),
+            .setDescription('set true to get the roll process(default is false)')
+            .setDescriptionLocalization('zh-TW', '是否展示過程(默認不展示)')),
     eval: async function (interaction) {
         await interaction.deferReply();
         const count = interaction.options.getInteger('count') ?? 1;

@@ -7,8 +7,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName("undo_delete")
         .setDescription('undo deprecated action')
+        .setDescriptionLocalization('zh-TW', '撤銷一個persona的棄用狀態')
         .addIntegerOption(option => option.setName('persona')
             .setDescription('the deprecated persona to recover')
+            .setDescriptionLocalization('zh-TW', '目標')
             .setRequired(true)
             .setAutocomplete(true)),
     eval: async function (interaction) {

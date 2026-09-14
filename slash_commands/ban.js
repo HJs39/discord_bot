@@ -7,11 +7,14 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName("ban")
         .setDescription("ban a user")
+        .setDescriptionLocalization('zh-TW', 'ban掉一個使用者')
         .addUserOption(option => option.setName('target')
             .setDescription("your target")
+            .setDescriptionLocalization('zh-TW', '目標對象')
             .setRequired(true))
         .addStringOption(option => option.setName('range')
             .setDescription("the range of this action")
+            .setDescriptionLocalization('zh-TW', 'ban的效力範圍')
             .setChoices(
                 { name: 'global', value: 'global' },
                 { name: 'chat', value: 'chat' }

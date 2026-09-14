@@ -10,8 +10,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName("edit_persona")
         .setDescription("edit the persona you created")
+        .setDescriptionLocalization('zh-TW', '編輯一個你創建的persona')
         .addIntegerOption(option => option.setName('persona')
             .setDescription('the persona to edit')
+            .setDescriptionLocalization('zh-TW', '目標')
             .setAutocomplete(true)
             .setRequired(true)),
     eval: async function (interaction) {

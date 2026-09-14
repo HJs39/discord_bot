@@ -12,7 +12,8 @@ const stats_regex = /<record>\s*(?<content>[\s\S]*?)\s*<\/?record>[\s\S]*?<stats
 module.exports = {
     command: new SlashCommandBuilder()
         .setName('battle')
-        .setDescription('experimental AI battle function'),
+        .setDescription('experimental AI battle function')
+        .setDescriptionLocalization('zh-TW', '實驗性的AI battle功能'),
     eval: async function (interaction) {
         if (!(interaction.member.roles.cache.has('1514211757374312458')) && !client.is_owner(interaction.user.id) && !battle_command_available.includes(interaction.user.id)) {
             const embed = new EmbedBuilder()

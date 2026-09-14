@@ -6,9 +6,11 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('server_info')
         .setDescription('get current server information')
+        .setDescriptionLocalization('zh-TW', '或取當前的伺服器資訊')
         .setContexts(InteractionContextType.Guild)
         .addBooleanOption(option => option.setName('ephemeral')
-            .setDescription('select the information of server is ephemeral or not(default is false)')),
+            .setDescription('select the information of server is ephemeral or not(default is false)')
+            .setDescriptionLocalization('zh-TW', '此資訊是否只有你可見(默認公開)')),
     eval: async function (interaction) {
         const guild_owner = await interaction.guild.members.fetch(interaction.guild.ownerId);
         const ephemeral = interaction.options.getBoolean('ephemeral') ?? false;

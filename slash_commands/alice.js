@@ -6,7 +6,8 @@ const { test_server_guildId } = require('../assets/bot_assets.json');
 module.exports = {
     command: new SlashCommandBuilder()
         .setName("alice")
-        .setDescription("get current bot information"),
+        .setDescription("get current bot information")
+        .setDescriptionLocalization('zh-TW', '或取當前機器人的狀態'),
     eval: async function (interaction) {
         const test_server = client.guilds.cache.get(test_server_guildId);
         const commands = await client.application.commands.fetch();
@@ -24,7 +25,7 @@ module.exports = {
             .setColor(0xb3e9ff).setColor("#b3e9ff")
             .setFooter({
                 text: "Alice",
-                iconURL: client.user.displayAvatarURL({size:64}),
+                iconURL: client.user.displayAvatarURL({ size: 64 }),
             })
             .setTimestamp();
         await interaction.reply({

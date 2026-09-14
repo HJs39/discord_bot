@@ -8,16 +8,21 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('define')
         .setDescription('add a custom function to "calc" command(everyone can use it)')
+        .setDescriptionLocalization('zh-TW', '定義一個可用於\"calc\"命令的函數')
         .addStringOption(option => option.setName("function_name")
             .setDescription("the identifier for your function")
+            .setDescriptionLocalization('zh-TW', '函數的識別名稱')
             .setRequired(true))
         .addStringOption(option => option.setName('process')
-            .setDescription('what will this function actually do when it be called.')
+            .setDescription('what will this function actually do when it be called')
+            .setDescriptionLocalization('zh-TW', '調用此函數時執行的算式')
             .setRequired(true))
         .addStringOption(option => option.setName("argument_list")
-            .setDescription("a list of argument you can use in this function.(use \",\" to split element)."))
+            .setDescription("a list of argument you can use in this function.(use \",\" to split element).")
+            .setDescriptionLocalization('zh-TW', '函數內可用的參數列表(以,分割)'))
         .addStringOption(option => option.setName("description")
             .setDescription("describe what will your function do")
+            .setDescriptionLocalization('zh-TW', '向其他使用者解釋此函數會做什麼')
             .setMaxLength(100)),
     eval: async function (interaction) {
         await interaction.deferReply();

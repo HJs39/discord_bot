@@ -8,11 +8,14 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('calc')
         .setDescription("calculate a math expression")
+        .setDescriptionLocalization('zh-TW', '運算一個數學算式')
         .addStringOption(option => option.setName("expression")
             .setDescription("the expression to calculate")
+            .setDescriptionLocalization('zh-TW', '算式')
             .setRequired(true))
         .addBooleanOption(option => option.setName('ephemeral')
-            .setDescription('select the result is ephemeral or not(default is false)')),
+            .setDescription('select the result is ephemeral or not(default is false)')
+            .setDescriptionLocalization('zh-TW', '計算結果是否只有你可見(默認公開)')),
     eval: async function (interaction) {
         const embed = new EmbedBuilder();
         const statement = interaction.options.getString('expression');

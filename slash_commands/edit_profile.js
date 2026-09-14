@@ -6,7 +6,8 @@ const { colors } = require('../assets/embed_color');
 module.exports = {
     command: new SlashCommandBuilder()
         .setName('edit_profile')
-        .setDescription('edit your chat profile'),
+        .setDescription('edit your chat profile')
+        .setDescriptionLocalization('zh-TW', '修改你用於chat個人資料'),
     eval: async function (interaction) {
         if (bot_assets.banned_chat.includes(interaction.user.id)) {
             const embed = new EmbedBuilder()

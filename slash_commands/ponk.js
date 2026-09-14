@@ -9,8 +9,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('ponk')
         .setDescription('remove the nearest interaction')
+        .setDescriptionLocalization('zh-TW', '刪除指定persona的最新互動紀錄')
         .addIntegerOption(option => option.setName('persona')
             .setDescription('the persona to remove interaction')
+            .setDescriptionLocalization('zh-TW', '目標')
             .setRequired(true)
             .setAutocomplete(true)),
     eval: async function (interaction) {

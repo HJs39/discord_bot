@@ -8,8 +8,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('battle_white_list')
         .setDescription('add user to white list')
+        .setDescriptionLocalization('zh-TW', '將一個使用者加到battle白名單中')
         .addUserOption(option => option.setName('user')
             .setDescription('user to add')
+            .setDescriptionLocalization('zh-TW', '目標')
             .setRequired(true)),
     eval: async function (interaction) {
         const user_id = interaction.options.getUser('user').id;

@@ -9,7 +9,8 @@ const _ = require('lodash');
 module.exports = {
     command: new SlashCommandBuilder()
         .setName("quote")
-        .setDescription("get a random quote"),
+        .setDescription("get a random quote")
+        .setDescriptionLocalization('zh-TW', '從伺服器紀錄中獲取一張隨機quote'),
     eval: async function (interaction) {
         if (!interaction.guild) {
             await interaction.reply({

@@ -5,7 +5,7 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('sleep')
         .setDescription('shutdown Alice')
-        .setDefaultMemberPermissions(0),
+        .setDescriptionLocalization('zh-TW', '關閉愛麗絲'),
     eval: async function (interaction) {
         if (!client.is_owner(interaction.user.id)) {
             interaction.reply({

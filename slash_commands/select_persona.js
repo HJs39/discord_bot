@@ -9,8 +9,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('select_persona')
         .setDescription('select a persona to use in default')
+        .setDescriptionLocalization('zh-TW', '選擇你默認使用的persona')
         .addIntegerOption(option => option.setName('persona')
             .setDescription('the persona to use')
+            .setDescriptionLocalization('zh-TW', '目標')
             .setRequired(true)
             .setAutocomplete(true)),
     eval: async function (interaction) {

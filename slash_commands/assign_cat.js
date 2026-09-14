@@ -10,12 +10,16 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('assign_cat')
         .setDescription('append a cat image to database')
+        .setDescriptionLocalization('zh-TW', '向後台新增一張貓圖')
         .addAttachmentOption(option => option.setName('image')
-            .setDescription('a cat image file'))
+            .setDescription('a cat image file')
+            .setDescriptionLocalization('zh-TW', '貓圖檔案'))
         .addStringOption(option => option.setName('link')
-            .setDescription('a image link links to a cat image'))
+            .setDescription('a image link links to a cat image')
+            .setDescriptionLocalization('zh-TW', '貓圖連結'))
         .addStringOption(option => option.setName('provider')
             .setDescription('the name of image provider(default is your username)')
+            .setDescriptionLocalization('zh-TW', '此圖片的提供者')
             .setAutocomplete(true)),
     eval: async function (interaction) {
         const input_image = interaction.options.getAttachment('image');
@@ -48,18 +52,18 @@ module.exports = {
                     file_name: file_name,
                     provider: provider
                 });
-            }else{
+            } else {
                 embed.addFields({
-                        name: "上傳失敗",
-                        value: `上傳的檔案並不是圖片或動圖`,
-                        inline: false
+                    name: "上傳失敗",
+                    value: `上傳的檔案並不是圖片或動圖`,
+                    inline: false
+                })
+                    .setColor("#ff0000")
+                    .setFooter({
+                        text: `上傳失敗`,
+                        iconURL: client.user.avatarURL(),
                     })
-                        .setColor("#ff0000")
-                        .setFooter({
-                            text: `上傳失敗`,
-                            iconURL: client.user.avatarURL(),
-                        })
-                        .setTimestamp();
+                    .setTimestamp();
                 await interaction.editReply({ embeds: [embed] });
                 return;
             }

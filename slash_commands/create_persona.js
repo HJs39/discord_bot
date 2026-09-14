@@ -12,8 +12,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('create_persona')
         .setDescription('create a new persona')
+        .setDescriptionLocalization('zh-TW', '創建一個新的persona')
         .addStringOption(option => option.setName('display_name')
             .setDescription('a name for display in list_persona')
+            .setDescriptionLocalization('zh-TW', '此persona用於展示的名稱')
             .setRequired(true)),
     eval: async function (interaction) {
         if (bot_assets.banned_chat.includes(interaction.user.id)) {

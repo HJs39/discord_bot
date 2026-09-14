@@ -7,8 +7,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('unset_chatable')
         .setDescription('disable a chatable channel')
+        .setDescriptionLocalization('zh-TW', '將一個頻道移出愛麗絲的可聊天頻道')
         .addChannelOption(option => option.setName('channel')
             .setDescription('the target channel')
+            .setDescriptionLocalization('zh-TW', '目標頻道')
             .setRequired(true)),
     eval: async function (interaction) {
         if (!client.is_owner(interaction.user.id)) {

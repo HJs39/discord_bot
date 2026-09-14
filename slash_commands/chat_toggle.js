@@ -5,7 +5,8 @@ const bot_assets = require('../assets/bot_assets.json');
 module.exports = {
     command: new SlashCommandBuilder()
         .setName("chat_toggle")
-        .setDescription("switch global chattable status"),
+        .setDescription("switch global chattable status")
+        .setDescriptionLocalization('zh-TW', '切換全局的可聊天狀態'),
     eval: async function (interaction) {
         if (!client.is_owner(interaction.user.id)) {
             await interaction.reply({

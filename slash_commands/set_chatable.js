@@ -6,8 +6,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('set_chatable')
         .setDescription('add a text channel into chatable list')
+        .setDescriptionLocalization('zh-TW', '將一個文字頻道納入愛麗絲的可聊天列表')
         .addChannelOption(option => option.setName('channel')
             .setDescription('the channel to add')
+            .setDescriptionLocalization('zh-TW', '目標頻道')
             .setRequired(true)),
     eval: async function (interaction) {
         if (!client.is_owner(interaction.user.id)) {

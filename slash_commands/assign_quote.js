@@ -12,15 +12,20 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName("assign_quote")
         .setDescription("add a new quote to Alice's quote list")
+        .setDescriptionLocalization('zh-TW', '新增一張quote到此伺服器')
         .addStringOption(option => option.setName("text")
             .setDescription("the content of the quote")
+            .setDescriptionLocalization('zh-TW', 'quote的文字')
             .setRequired(true))
         .addStringOption(option => option.setName("author")
-            .setDescription("the name of user said this"))
+            .setDescription("the name of user said this")
+            .setDescriptionLocalization('zh-TW', '誰說了這個'))
         .addStringOption(option => option.setName("link")
-            .setDescription("a image link of this quote"))
+            .setDescription("a image link of this quote")
+            .setDescriptionLocalization('zh-TW', '圖片連結'))
         .addAttachmentOption(option => option.setName("image")
-            .setDescription("the image of this quote")),
+            .setDescription("the image of this quote")
+            .setDescriptionLocalization('zh-TW', '圖片檔案')),
     eval: async function (interaction) {
         await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
         if (!interaction.guild) {

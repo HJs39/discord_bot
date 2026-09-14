@@ -8,8 +8,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('bonk')
         .setDescription('remove the summarized memory on top')
+        .setDescriptionLocalization('zh-TW', '移除一個persona最新被總結的記憶')
         .addIntegerOption(option => option.setName('persona')
             .setDescription('the persona to remove memory')
+            .setDescriptionLocalization('zh-TW', '目標')
             .setRequired(true)
             .setAutocomplete(true)),
     eval: async function (interaction) {

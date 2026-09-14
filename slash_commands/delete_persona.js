@@ -7,8 +7,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName("delete_persona")
         .setDescription('turn a persona into deprecated state')
+        .setDescriptionLocalization('zh-TW', '將一個persona轉為棄用狀態')
         .addIntegerOption(option => option.setName('persona')
             .setDescription('the persona to deprecated')
+            .setDescriptionLocalization('zh-TW', '目標')
             .setRequired(true)
             .setAutocomplete(true)),
     eval: async function (interaction) {

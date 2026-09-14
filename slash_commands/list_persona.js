@@ -6,9 +6,11 @@ const { colors } = require('../assets/embed_color');
 module.exports = {
     command: new SlashCommandBuilder()
         .setName('list_persona')
-        .setDescription('list existed personas')
+        .setDescription('list personas you can use')
+        .setDescriptionLocalization('zh-TW', '列出你可見的persona')
         .addBooleanOption(option => option.setName('ephemeral')
-            .setDescription('select the list would be ephemeral or not(defualt is false)')),
+            .setDescription('select the list would be ephemeral or not(defualt is false)')
+            .setDescriptionLocalization('zh-TW', '列表是否是否只有你可見(默認公開)')),
     eval: async function (interaction) {
         if (bot_assets.banned_chat.includes(interaction.user.id)) {
             const embed = new EmbedBuilder()

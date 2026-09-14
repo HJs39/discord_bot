@@ -6,8 +6,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('persona_help')
         .setDescription('get information of create a persona')
+        .setDescriptionLocalization('zh-TW', '獲取與創建persona相關的協助資訊')
         .addBooleanOption(option => option.setName('ephemeral')
-            .setDescription('select the information would be ephemeral or not(defualt is false)')),
+            .setDescription('select the information would be ephemeral or not(defualt is false)')
+            .setDescriptionLocalization('zh-TW', '資訊是否只有你可見(默認公開)')),
     eval: async function (interaction) {
         if (bot_assets.banned_chat.includes(interaction.user.id)) {
             const embed = new EmbedBuilder()

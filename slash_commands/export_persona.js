@@ -8,8 +8,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName("export_persona")
         .setDescription('export a persona as json')
+        .setDescriptionLocalization('zh-TW', '將persona導出為json檔')
         .addIntegerOption(option => option.setName('persona')
             .setDescription('the persona to export')
+            .setDescriptionLocalization('zh-TW', '目標')
             .setRequired(true)
             .setAutocomplete(true)),
     eval: async function (interaction) {

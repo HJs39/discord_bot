@@ -6,9 +6,11 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName('top')
         .setDescription('get a link of the first message in current channel')
+        .setDescriptionLocalization('zh-TW', '回頂')
         .setContexts(InteractionContextType.Guild)
         .addBooleanOption(option => option.setName('ephemeral')
-            .setDescription('select link Alice returned is ephemeral or not(default is false)')),
+            .setDescription('select link Alice returned is ephemeral or not(default is false)')
+            .setDescriptionLocalization('zh-TW', '回頂訊息是否只有你可見(默認公開)')),
     eval: async function (interaction) {
         const embed = new EmbedBuilder();
         if (interaction.channel) {

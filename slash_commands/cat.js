@@ -7,7 +7,8 @@ const { colors } = require('../assets/embed_color.js');
 module.exports = {
     command: new SlashCommandBuilder()
         .setName('cat')
-        .setDescription('get a random cat image from database'),
+        .setDescription('get a random cat image from database')
+        .setDescriptionLocalization('zh-TW', '從後台獲取一張貓圖'),
     eval: async function (interaction) {
         if (!cooldown_helper.check('cat', interaction.user.id, Date.now(), cooldown_helper.from_second(20))) {
             const embed = new EmbedBuilder()

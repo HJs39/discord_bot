@@ -11,8 +11,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName("add_quote_folder")
         .setDescription("add a new quote folder for Alice to save quote")
+        .setDescriptionLocalization('zh-TW', '為伺服器新增一個用於存放quote的資料夾')
         .addStringOption(option => option.setName("guild")
-            .setDescription("the guild folder belong to")),
+            .setDescription("the guild folder belong to")
+            .setDescriptionLocalization('zh-TW', '目標伺服器')),
     eval: async function (interaction) {
         if (!client.is_owner(interaction.user.id)) {
             await interaction.reply({

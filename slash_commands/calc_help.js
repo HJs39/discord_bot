@@ -8,8 +8,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName("calc_help")
         .setDescription("get information about \"calc\" command")
+        .setDescriptionLocalization('zh-TW', '獲取有關\"calc\"命令的資訊')
         .addBooleanOption(option => option.setName("custom_function")
-            .setDescription("whether the result is about custom function or not")),
+            .setDescription("whether the result is about custom function or not")
+            .setDescriptionLocalization('zh-TW', '是否獲取使用者定義的函數資訊')),
     eval: async function (interaction) {
         const custom_func = interaction.options.getBoolean("custom_function") ?? false;
         const embed = new EmbedBuilder();

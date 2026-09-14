@@ -8,9 +8,11 @@ const { assets_path } = require('../assets/assets_path');
 module.exports = {
     command: new SlashCommandBuilder()
         .setName("reload_api_config")
-        .setDescription("dynamic reload api setting")
+        .setDescription("dynamic reload API setting")
+        .setDescriptionLocalization('zh-TW', '熱加載最新的API設定檔')
         .addStringOption(option => option.setName('api')
             .setDescription("API for choose")
+            .setDescriptionLocalization('zh-TW', 'API類型')
             .setChoices(
                 { name: 'battle', value: 'battle' },
                 { name: 'chat', value: 'chat' }

@@ -11,8 +11,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName("memo")
         .setDescription('summarize memory')
+        .setDescriptionLocalization('zh-TW', '為指定persona總結記憶')
         .addIntegerOption(option => option.setName('persona')
             .setDescription('the persona to summarize')
+            .setDescriptionLocalization('zh-TW', '目標')
             .setRequired(true)
             .setAutocomplete(true)),
     eval: async function (interaction) {

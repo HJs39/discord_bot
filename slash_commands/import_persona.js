@@ -10,8 +10,10 @@ module.exports = {
     command: new SlashCommandBuilder()
         .setName("import_persona")
         .setDescription('create a persona by json')
+        .setDescriptionLocalization('zh-TW', '以json檔創建新的persona')
         .addAttachmentOption(option => option.setName('persona')
             .setDescription('persona file')
+            .setDescriptionLocalization('zh-TW', 'persona檔案')
             .setRequired(true)),
     eval: async function (interaction) {
         if (bot_assets.banned_chat.includes(interaction.user.id)) {
