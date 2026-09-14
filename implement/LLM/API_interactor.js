@@ -59,6 +59,7 @@
 
 /**
  * @typedef API_result
+ * @property {number} API_id - which API was used in this request
  * @property {string} COT - COT of this chat
  * @property {string} content - content of response that API returned
  * @property {token_usage_t} [token_usage] - see {@link token_usage_t}
@@ -231,9 +232,7 @@ class API_interactor {
             this.#current_quota = 0;
             this.#concurrent_limit = this.#APIs[this.#current_API_id].concurrent_limit;
             this.avalible_model_cache = this.#APIs[this.#current_API_id].avalible_model;
-            return true;
         }
-        return false;
     }
 
     /**
@@ -292,7 +291,7 @@ class API_interactor {
     async call_api(current_use_API, name, stream, system_instruction, history, lastest, image) {
         this.chatting += 1;
         this.#rpm_count += 1;
-        var API_switch = false;
+        const id_cache = this.#current_API_id;
         console.log(`[info]: ${this.debug ? 'debug mode' : 'nomal mode'}`);
         try {
             const message = interaction_processor.combine([
@@ -322,12 +321,11 @@ class API_interactor {
             this.#current_quota += 1;
             if (this.#current_quota >= current_use_API.round_robin_quota) {
                 console.log(`[info]: switch API`);
-                API_switch = this.#update_api();
+                this.#update_api();
             }
             if (stream) {
                 // handle streaming chat
                 if (this.debug) {
-                    if (!API_switch) this.chatting -= 1;
                     console.log(`[info]: debug stream request`);
                     console.log(`[info]: request data:\n${JSON.stringify(
                         {
@@ -345,6 +343,7 @@ class API_interactor {
                         4
                     )}`);
                     return {
+                        API_id: id_cache,
                         COT: '',
                         content: 'debug response from stream chatting',
                         token_usage: {
@@ -390,8 +389,8 @@ class API_interactor {
                     if (_.has(chunk.choices[0], 'delta.content')) content += _.get(chunk.choices[0], 'delta.content', '');
                     if (chunk.usage) token_usage = chunk.usage;
                 }
-                if (!API_switch) this.chatting -= 1;
                 return {
+                    API_id: id_cache,
                     COT: COT,
                     content: content,
                     token_usage: {
@@ -403,7 +402,6 @@ class API_interactor {
                 };
             }
             if (this.debug) {
-                if (!API_switch) this.chatting -= 1;
                 console.log(`[info]: request data:\n${JSON.stringify(
                     {
                         model: name,
@@ -420,6 +418,7 @@ class API_interactor {
                     4
                 )}`);
                 return {
+                    API_id: id_cache,
                     COT: '',
                     content: 'debug response from normal chatting',
                     token_usage: {
@@ -456,9 +455,9 @@ class API_interactor {
                 extra_body: current_use_API.extra_body,
                 stream: false
             });
-            if (!API_switch) this.chatting -= 1;
             return {
-                COT: _.get(response.choices[0], 'message.reasoning_content', null) ?? _.get(response.choices[0], 'message.reasoning_content', null) ?? '',
+                API_id: id_cache,
+                COT: _.get(response.choices[0], 'message.reasoning_content', null) ?? _.get(response.choices[0], 'message.reasoning', null) ?? '',
                 /**@see {@link https://github.com/jasonkao402/PyDiscordBot/blob/master/cog/llmAgentAPI.py#L119} 180,181 */
                 content: _.get(response.choices[0], 'message.content', ''),
                 token_usage: {
@@ -469,8 +468,8 @@ class API_interactor {
                 failed: false
             };
         } catch (error) {
-            if (!API_switch) this.chatting -= 1;
             return {
+                API_id: id_cache,
                 COT: '',
                 content: error.message,
                 token_usage: {},
@@ -554,6 +553,14 @@ class API_interactor {
      */
     allowed_image() {
         return this.#APIs[this.#current_API_id].allowed_image;
+    }
+
+    /**
+     * reduce concurrent count if API is same
+     * @param {number} API_id 
+     */
+    report_request_complete(API_id) {
+        if (API_id === this.#current_API_id) this.chatting -= 1;
     }
 }
 

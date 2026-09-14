@@ -3,6 +3,7 @@ const { timer } = require('./assets');
 
 /**@type {import('./API_interactor').API_result} */
 const bad_data = {
+    API_id: 0,
     COT: '',
     content: 'REQUEST TIMEOUT',
     token_usage: {
@@ -15,6 +16,8 @@ const bad_data = {
 
 class response_receiver {
 
+    /**@type {API_interactor} */
+    #base_API;
     /**@type {import('./API_interactor').API_result|undefined} */
     #result;
     /**@type {NodeJS.Timeout} */
@@ -54,11 +57,14 @@ class response_receiver {
                 this.#result = bad_data;
             }
         }, 10000);
+        this.#base_API = API;
     }
 
     async get_result() {
         if (!this.#generate) await timer.wait_until(() => this.#generate);
-        return this.#result;
+        const cache = await this.#result;
+        this.#base_API.report_request_complete(cache.API_id);
+        return cache;
     }
 
     is_generating() {
