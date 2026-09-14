@@ -503,7 +503,7 @@ client.on(discord.Events.ShardDisconnect, (event, id) => {
 
 process.on('exit', code => {
     if (code === 0) console.log('[info]: Alice exit successfully!');
-    else console.log(`[Info]: Alice is been force shutdown!\n  exit code: ${code}`);
+    else console.log(`[Info]: Alice has been forced shutdown!\n  exit code: ${code}`);
 });
 
 client.login(bot_assets.token);
