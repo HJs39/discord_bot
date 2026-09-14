@@ -1489,7 +1489,7 @@ module.exports = {
                                         .setDisabled(false)
                                 );
                         }
-                        index -= 1;
+                        index += 1;
                         if (persona.summarize_instruction[index].role === 'placeholder') {
                             edit_button = new ActionRowBuilder()
                                 .addComponents(
