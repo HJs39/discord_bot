@@ -1769,7 +1769,7 @@ module.exports = {
                                     name: role === 'user' ? (name ?? internal_user.internal_name) : undefined,
                                     content: content
                                 });
-                                temp.push(_.takeRight(persona.phony_chat, persona.phony_chat.length - index));
+                                temp.push(..._.takeRight(persona.phony_chat, persona.phony_chat.length - index));
                                 persona.phony_chat = temp;
                             } else {
                                 const temp = _.take(persona.phony_chat, index + 2);
@@ -1778,7 +1778,7 @@ module.exports = {
                                     name: role === 'user' ? (name ?? internal_user.internal_name) : undefined,
                                     content: content
                                 });
-                                temp.push(_.takeRight(persona.phony_chat, persona.phony_chat.length - index - 2));
+                                temp.push(..._.takeRight(persona.phony_chat, persona.phony_chat.length - index - 2));
                                 persona.phony_chat = temp;
                             }
                             if (page == 1) {
@@ -1958,7 +1958,7 @@ module.exports = {
                                     role: 'assistant',
                                     content: ''
                                 });
-                                temp.push(_.takeRight(persona.phony_chat, persona.phony_chat.length - index));
+                                temp.push(..._.takeRight(persona.phony_chat, persona.phony_chat.length - index));
                                 persona.phony_chat = temp;
                             } else {
                                 const temp = _.take(persona.phony_chat, index + 1);
@@ -1970,7 +1970,7 @@ module.exports = {
                                     role: 'assistant',
                                     content: ''
                                 });
-                                temp.push(_.takeRight(persona.phony_chat, persona.phony_chat.length - index));
+                                temp.push(..._.takeRight(persona.phony_chat, persona.phony_chat.length - index));
                                 persona.phony_chat = temp;
                             }
                             if (page == 1) {
