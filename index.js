@@ -5,7 +5,7 @@ const message_spliter = require('./implement/massage_spliter');
 const context = require('./implement/LLM/context');
 const placeholder_replacer = require('./implement/placeholder_replacer');
 const format_parser = require('./implement/LLM/format_parser');
-const response_receiver = require('./implement/LLM/response_reciver');
+const response_receiver = require('./implement/LLM/response_receiver.js');
 const { cooldown_helper } = require('./implement/cooldown.js');
 const { persona, type_t } = require('./implement/LLM/persona');
 const { client } = require('./assets/client.js');
@@ -307,7 +307,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
                 if (result.content.length > 1800) {
                     let reply = true;
                     for (const split_mes of message_spliter.split(result.content)) {
-                        /**@type {Promise<discord.OmitPartialGroupDMChannel<discord.Message<boolean>>>} */
+                        /**@type {discord.OmitPartialGroupDMChannel<discord.Message<boolean>>} */
                         let reply_mes;
                         if (reply) {
                             reply_mes = await message.reply(split_mes);
@@ -438,7 +438,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
                 if (result.content.length > 1800) {
                     let reply = true;
                     for (const split_mes of message_spliter.split(result.content)) {
-                        /**@type {Promise<discord.OmitPartialGroupDMChannel<discord.Message<boolean>>>} */
+                        /**@type {discord.OmitPartialGroupDMChannel<discord.Message<boolean>>} */
                         let reply_mes;
                         if (reply) {
                             reply_mes = await message.reply(split_mes);
@@ -502,7 +502,8 @@ client.on(discord.Events.ShardDisconnect, (event, id) => {
 });
 
 process.on('exit', code => {
-    console.log(`[Info]: Alice is shutdown by exit program!\n  code: ${code}`);
+    if (code === 0) console.log('[info]: Alice exit successfully!');
+    else console.log(`[Info]: Alice is been force shutdown!\n  exit code: ${code}`);
 });
 
 client.login(bot_assets.token);
