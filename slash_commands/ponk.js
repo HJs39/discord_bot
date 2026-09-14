@@ -40,7 +40,7 @@ module.exports = {
             return;
         }
         await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-        while (true) {
+        while (persona.memory.raw_short_term.length > 0) {
             const id = persona.memory.raw_short_term.pop();
             /**@type {context} */
             const c = client.chat.get_message_context(id);
