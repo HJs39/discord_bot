@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 const message_spliter = require('../implement/massage_spliter.js');
-const response_receiver = require('../implement/LLM/response_reciver.js');
+const response_receiver = require('../implement/LLM/response_receiver.js');
 const { persona } = require('../implement/LLM/persona.js');
 const { memory_error } = require('../implement/LLM/LLM_interface.js');
 const bot_assets = require('../assets/bot_assets.json');

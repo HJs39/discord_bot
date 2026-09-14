@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags, LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const placeholder_replacer = require('../implement/placeholder_replacer');
-const response_receiver = require('../implement/LLM/response_reciver.js');
+const response_receiver = require('../implement/LLM/response_receiver.js');
 const timer = require('../implement/timer');
 const { client } = require('../assets/client.js');
 const { colors } = require('../assets/embed_color');

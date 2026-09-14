@@ -1,5 +1,5 @@
 const API_interactor = require("./API_interactor");
-const response_receiver = require('./response_reciver');
+const response_receiver = require('./response_receiver');
 const interaction_processor = require('./interaction_processor');
 const persona_manager = require('./persona_manager');
 const message_repository = require('./message_repository');
