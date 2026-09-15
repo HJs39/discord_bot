@@ -31,8 +31,8 @@ module.exports = {
             return;
         }
         const range = interaction.options.getString('range');
-        if (range === 'global' && bot_assets.banned_global.includes(user_to_unban.id)) _.remove(bot_assets.banned_global, id => id === user_to_ban.id);
-        else if (range === 'chat' && bot_assets.banned_chat.includes(user_to_unban.id)) _.remove(bot_assets.banned_chat, id => id === user_to_ban.id);
+        if (range === 'global' && bot_assets.banned_global.includes(user_to_unban.id)) _.remove(bot_assets.banned_global, id => id === user_to_unban.id);
+        else if (range === 'chat' && bot_assets.banned_chat.includes(user_to_unban.id)) _.remove(bot_assets.banned_chat, id => id === user_to_unban.id);
         await interaction.reply({
             content: '現在他已經被從小本本上擦掉啦!',
             flags: MessageFlags.Ephemeral
