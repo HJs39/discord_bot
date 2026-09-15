@@ -46,7 +46,7 @@ module.exports = {
                     value: `什麼有趣的東西都沒有找到呢...`,
                     inline: false
                 })
-                .setColor("#b3e9ff")
+                .setColor(colors.normal)
                 .setFooter({
                     text: `你們真無趣...`,
                     iconURL: client.user.avatarURL(),
@@ -64,7 +64,7 @@ module.exports = {
                 value: `｢${quote.text}｣`,
                 inline: false
             })
-            .setColor("#b3e9ff")
+            .setColor(colors.normal)
             .setFooter({
                 text: `由愛麗絲挑選`,
                 iconURL: client.user.avatarURL(),

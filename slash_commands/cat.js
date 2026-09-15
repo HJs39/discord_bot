@@ -28,7 +28,7 @@ module.exports = {
         const attachment = new AttachmentBuilder(cat.image);
         const embed = new EmbedBuilder()
             .setImage(`attachment://${cat.file_name}`)
-            .setColor("#b3e9ff")
+            .setColor(colors.normal)
             .setFooter({
                 text: `由${cat.provider}提供`,
                 iconURL: client.user.avatarURL(),
