@@ -1,5 +1,5 @@
 module.exports.colors = Object.freeze({
-    normal: "#b3e9ff",
-    error: "#ff0000",
-    battle_success: "#00b0f4",
+    normal: 0xb3e9ff,
+    error: 0xff0000,
+    battle_success: 0x00b0f4,
 });
