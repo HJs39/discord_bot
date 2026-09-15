@@ -320,7 +320,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
                             new context(
                                 new Date(),
                                 split_mes,
-                                user.current_use,
+                                used_persona_id,
                                 user.snowflake,
                                 input
                             )
@@ -339,7 +339,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
                         new context(
                             new Date(),
                             result.content,
-                            user.current_use,
+                            used_persona_id,
                             user.snowflake,
                             input
                         )
