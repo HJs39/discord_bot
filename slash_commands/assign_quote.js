@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js'
 const { client } = require('../assets/client.js');
 const { quotes } = require('./quote.js');
 const { assets_path } = require('../assets/assets_path.js');
+const { colors } = require('../assets/embed_color.js');
 const bot_assets = require('../assets/bot_assets.json');
 const fs = require("node:fs");
 const path = require('node:path');
@@ -53,6 +54,13 @@ module.exports = {
             if (image !== null) {
                 if (image.contentType?.startsWith('image/')) {
                     let save_path = path.join(assets_path, 'quotes', interaction.guild.id, image.name);
+                    if (fs.existsSync(save_path)) {
+                        await interaction.editReply({
+                            content: "這個名稱已經被佔用了！\n幫圖片換一個名字F吧！",
+                            flags: MessageFlags.Ephemeral
+                        });
+                        return;
+                    }
                     const download_image = await fetch(image.url);
                     const byte_image = await download_image.arrayBuffer();
                     fs.writeFileSync(save_path, Buffer.from(byte_image));
@@ -68,7 +76,7 @@ module.exports = {
                         inline: false
                     })
                         .setImage(image.url)
-                        .setColor("#b3e9ff")
+                        .setColor(colors.normal)
                         .setFooter({
                             text: `由愛麗絲挑選`,
                             iconURL: client.user.avatarURL(),
@@ -80,7 +88,7 @@ module.exports = {
                         value: `上傳的檔案並不是圖片或動圖`,
                         inline: false
                     })
-                        .setColor("#ff0000")
+                        .setColor(colors.error)
                         .setFooter({
                             text: `上傳失敗`,
                             iconURL: client.user.avatarURL(),
@@ -91,6 +99,13 @@ module.exports = {
                 const download_image = await fetch(link);
                 var file_name = path.basename((new URL(input_link)).pathname);
                 let save_path = path.join(assets_path, 'quotes', interaction.guild.id, file_name);
+                if (fs.existsSync(save_path)) {
+                    await interaction.editReply({
+                        content: "這個名稱已經被佔用了！\n幫圖片換一個名字F吧！",
+                        flags: MessageFlags.Ephemeral
+                    });
+                    return;
+                }
                 const byte_image = await download_image.arrayBuffer();
                 const check = await file_type.fileTypeFromBuffer(byte_image);
                 if (check.mime.startsWith('image/')) {
@@ -107,7 +122,7 @@ module.exports = {
                         inline: false
                     })
                         .setImage(link)
-                        .setColor("#b3e9ff")
+                        .setColor(colors.normal)
                         .setFooter({
                             text: `由愛麗絲挑選`,
                             iconURL: client.user.avatarURL(),
@@ -119,7 +134,7 @@ module.exports = {
                         value: `上傳的檔案並不是圖片或動圖`,
                         inline: false
                     })
-                        .setColor("#ff0000")
+                        .setColor(colors.error)
                         .setFooter({
                             text: `上傳失敗`,
                             iconURL: client.user.avatarURL(),
@@ -139,7 +154,7 @@ module.exports = {
                 value: `｢${text}｣`,
                 inline: false
             })
-                .setColor("#b3e9ff")
+                .setColor(colors.normal)
                 .setFooter({
                     text: `由愛麗絲挑選`,
                     iconURL: client.user.avatarURL(),

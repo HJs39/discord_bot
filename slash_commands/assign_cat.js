@@ -4,6 +4,7 @@ const path = require('node:path');
 const file_type = require('file-type');
 const { client } = require('../assets/client.js');
 const { cats, providers } = require('../assets/cats.js');
+const { colors } = require('../assets/embed_color.js');
 const { assets_path } = require('../assets/assets_path.js');
 
 module.exports = {
@@ -46,6 +47,13 @@ module.exports = {
             const byte_image = await download_image.arrayBuffer();
             const check = await file_type.fileTypeFromBuffer(byte_image);
             if (check.mime.startsWith('image/')) {
+                if (fs.existsSync(save_path)) {
+                    await interaction.editReply({
+                        content: "這個名稱已經被佔用了！\n幫圖片換一個名字F吧！",
+                        flags: MessageFlags.Ephemeral
+                    });
+                    return;
+                }
                 fs.writeFileSync(save_path, Buffer.from(byte_image));
                 cats.push({
                     image: save_path,
@@ -58,7 +66,7 @@ module.exports = {
                     value: `上傳的檔案並不是圖片或動圖`,
                     inline: false
                 })
-                    .setColor("#ff0000")
+                    .setColor(colors.error)
                     .setFooter({
                         text: `上傳失敗`,
                         iconURL: client.user.avatarURL(),
@@ -75,7 +83,7 @@ module.exports = {
         if (!providers.includes(provider)) providers.push(provider);
         const embed = new EmbedBuilder()
             .setImage(image)
-            .setColor("#b3e9ff")
+            .setColor(colors.normal)
             .setFooter({
                 text: `由${provider}提供`,
                 iconURL: client.user.avatarURL(),
