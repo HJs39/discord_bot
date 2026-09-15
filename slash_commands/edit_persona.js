@@ -380,14 +380,14 @@ module.exports = {
                                         .setCustomId('to_next phony_chat')
                                         .setLabel('>')
                                         .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
+                                        .setDisabled(Math.round(persona.phony_chat.length / 2) <= 1)
                                 )
                                 .addComponents(
                                     new ButtonBuilder()
                                         .setCustomId('to_last phony_chat')
                                         .setLabel('>>')
                                         .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
+                                        .setDisabled(Math.round(persona.phony_chat.length / 2) <= 1)
                                 );
                         }
                         embed = new EmbedBuilder()
@@ -430,14 +430,14 @@ module.exports = {
                                     .setCustomId('to_first summarize')
                                     .setLabel('<<')
                                     .setStyle(ButtonStyle.Success)
-                                    .setDisabled(false)
+                                    .setDisabled(true)
                             )
                             .addComponents(
                                 new ButtonBuilder()
                                     .setCustomId('to_previous summarize')
                                     .setLabel('<')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(false)
+                                    .setDisabled(true)
                             )
                             .addComponents(
                                 new ButtonBuilder()
@@ -451,14 +451,14 @@ module.exports = {
                                     .setCustomId('to_next summarize')
                                     .setLabel('>')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(false)
+                                    .setDisabled(persona.summarize_instruction.length <= 1)
                             )
                             .addComponents(
                                 new ButtonBuilder()
                                     .setCustomId('to_last summarize')
                                     .setLabel('>>')
                                     .setStyle(ButtonStyle.Success)
-                                    .setDisabled(false)
+                                    .setDisabled(persona.summarize_instruction.length <= 1)
                             );
                         embed = new EmbedBuilder()
                             .setAuthor({
@@ -1951,7 +1951,7 @@ module.exports = {
                             await submit.deferUpdate();
                             const position = submit.fields.getStringSelectValues('position')[0];
                             if (position === 'front') {
-                                const temp = _.take(persona.phony_chat, index);
+                                const temp = _.take(persona.summarize_instruction, index);
                                 temp.push(submit.fields.getStringSelectValues('role')[0] === 'user' ? {
                                     role: 'user',
                                     name: internal_user.name,
@@ -1960,10 +1960,10 @@ module.exports = {
                                     role: 'assistant',
                                     content: ''
                                 });
-                                temp.push(..._.takeRight(persona.phony_chat, persona.phony_chat.length - index));
-                                persona.phony_chat = temp;
+                                temp.push(..._.takeRight(persona.summarize_instruction, persona.summarize_instruction.length - index));
+                                persona.summarize_instruction = temp;
                             } else {
-                                const temp = _.take(persona.phony_chat, index + 1);
+                                const temp = _.take(persona.summarize_instruction, index + 1);
                                 temp.push(submit.fields.getStringSelectValues('role')[0] === 'user' ? {
                                     role: 'user',
                                     name: internal_user.name,
@@ -1972,8 +1972,8 @@ module.exports = {
                                     role: 'assistant',
                                     content: ''
                                 });
-                                temp.push(..._.takeRight(persona.phony_chat, persona.phony_chat.length - index));
-                                persona.phony_chat = temp;
+                                temp.push(..._.takeRight(persona.summarize_instruction, persona.summarize_instruction.length - index));
+                                persona.summarize_instruction = temp;
                             }
                             if (page == 1) {
                                 switch_page = new ActionRowBuilder()
