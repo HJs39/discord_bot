@@ -1972,7 +1972,7 @@ module.exports = {
                                     role: 'assistant',
                                     content: ''
                                 });
-                                temp.push(..._.takeRight(persona.summarize_instruction, persona.summarize_instruction.length - index));
+                                temp.push(..._.takeRight(persona.summarize_instruction, persona.summarize_instruction.length - index - 1));
                                 persona.summarize_instruction = temp;
                             }
                             if (page == 1) {
@@ -2101,6 +2101,27 @@ module.exports = {
                                     iconURL: interaction.user.displayAvatarURL()
                                 })
                                 .setTimestamp();
+                            edit_button = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('create summarize')
+                                        .setLabel('新增')
+                                        .setStyle(ButtonStyle.Success)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('edit summarize')
+                                        .setLabel('編輯')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(persona.summarize_instruction[index].role === 'placeholder')
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('delete summarize')
+                                        .setLabel('刪除')
+                                        .setStyle(ButtonStyle.Danger)
+                                        .setDisabled(persona.summarize_instruction[index].role === 'placeholder')
+                                );
                             await submit.editReply({
                                 embeds: [embed],
                                 components: [select_list, switch_page, edit_button]
@@ -2544,12 +2565,16 @@ module.exports = {
                                 return;
                             }
                             await submit.deferUpdate();
-                            _.remove(persona.phony_chat, (obj, idx) => {
-                                return idx === index || idx === index + 1;
-                            });
                             if (page == Math.round(persona.phony_chat.length / 2)) {
-                                page = Math.round(persona.phony_chat.length / 2);
+                                page -= 1;
+                                _.remove(persona.phony_chat, (obj, idx) => {
+                                    return idx === index || idx === index + 1;
+                                });
                                 index = 2 * (page - 1);
+                            } else {
+                                _.remove(persona.phony_chat, (obj, idx) => {
+                                    return idx === index || idx === index + 1;
+                                });
                             }
                             if (page == 1) {
                                 switch_page = new ActionRowBuilder()
@@ -2729,12 +2754,16 @@ module.exports = {
                                 return;
                             }
                             await submit.deferUpdate();
-                            _.remove(persona.phony_chat, (obj, idx) => {
-                                return idx === index;
-                            });
                             if (page == persona.summarize_instruction.length) {
-                                page = persona.summarize_instruction.length;
+                                _.remove(persona.summarize_instruction, (obj, idx) => {
+                                    return idx === index;
+                                });
+                                page -= 1;
                                 index = page - 1;
+                            } else {
+                                _.remove(persona.summarize_instruction, (obj, idx) => {
+                                    return idx === index;
+                                });
                             }
                             if (page == 1) {
                                 switch_page = new ActionRowBuilder()
@@ -2764,14 +2793,14 @@ module.exports = {
                                             .setCustomId('to_next summarize')
                                             .setLabel('>')
                                             .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
+                                            .setDisabled(persona.summarize_instruction.length == 1)
                                     )
                                     .addComponents(
                                         new ButtonBuilder()
                                             .setCustomId('to_last summarize')
                                             .setLabel('>>')
                                             .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
+                                            .setDisabled(persona.summarize_instruction.length == 1)
                                     );
                             } else if (page == persona.summarize_instruction.length) {
                                 switch_page = new ActionRowBuilder()
@@ -2847,21 +2876,42 @@ module.exports = {
                                             .setStyle(ButtonStyle.Success)
                                             .setDisabled(false)
                                     );
-                                embed = new EmbedBuilder()
-                                    .setAuthor({
-                                        name: interaction.member?.displayName ?? interaction.user.displayName,
-                                        iconURL: interaction.user.displayAvatarURL(),
-                                    })
-                                    .setTitle('\u200b')
-                                    .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
-                                        persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
-                                            `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
-                                    .setFooter({
-                                        text: '總結',
-                                        iconURL: interaction.user.displayAvatarURL()
-                                    })
-                                    .setTimestamp();
                             }
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
+                                    persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
+                                        `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
+                                .setFooter({
+                                    text: '總結',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                            edit_button = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('create summarize')
+                                        .setLabel('新增')
+                                        .setStyle(ButtonStyle.Success)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('edit summarize')
+                                        .setLabel('編輯')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(persona.summarize_instruction[index].role === 'placeholder')
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('delete summarize')
+                                        .setLabel('刪除')
+                                        .setStyle(ButtonStyle.Danger)
+                                        .setDisabled(persona.summarize_instruction[index].role === 'placeholder')
+                                );
                         }
 
                         await submit.editReply({

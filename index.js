@@ -234,7 +234,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
             used_persona_id = client.chat.get_message_context(ref_mes.id).persona_id;
         }
         used_persona = client.chat.get_persona(used_persona_id);
-        additional_profile = client.chat.expand_profile(used_persona_id, client.chat.get_message_context(ref_mes.id).persona_id);
+        additional_profile = client.chat.expand_profile(used_persona_id, client.chat.get_message_context(ref_mes.id)?.persona_id ?? used_persona_id);
 
         if (used_persona.author !== user.snowflake && used_persona.type === type_t.private) return;
         if (!used_persona.used_user.includes(user.snowflake)) used_persona.used_user.push(user.snowflake);

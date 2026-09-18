@@ -114,7 +114,7 @@ module.exports = {
         const profile = interaction.fields.getTextInputValue('profile') ?? '';
         const short_term = parseInt(interaction.fields.getTextInputValue('short_term') ?? '10');
         const summarize_position = parseInt(interaction.fields.getTextInputValue('summarize_position') ?? '10');
-        if (!isNaN(short_term) || isNaN(summarize_position)) {
+        if (isNaN(short_term) || isNaN(summarize_position)) {
             await interaction.reply({
                 content: `資料不合格！\n出局的都在這下面啦！\n${isNaN(short_term) ? "'- 發送訊息數'並非數字\n" : ''}${isNaN(summarize_position) ? "- '總結位置'並非數字\n" : ''}`.trimEnd(),
                 flags: MessageFlags.Ephemeral
