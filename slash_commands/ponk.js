@@ -14,7 +14,11 @@ module.exports = {
             .setDescription('the persona to remove interaction')
             .setDescriptionLocalization('zh-TW', '目標')
             .setRequired(true)
-            .setAutocomplete(true)),
+            .setAutocomplete(true))
+        .addIntegerOption(option => option.setName('count')
+            .setDescription("number of interaction to remove")
+            .setDescriptionLocalization('zh-TW', '要移除的互動數量')
+            .setMinValue(1)),
     eval: async function (interaction) {
         if (bot_assets.banned_chat.includes(interaction.user.id)) {
             const embed = new EmbedBuilder()
@@ -42,15 +46,18 @@ module.exports = {
             return;
         }
         await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-        while (persona.memory.raw_short_term.length > 0) {
-            const id = persona.memory.raw_short_term.pop();
-            /**@type {context} */
-            const c = client.chat.get_message_context(id);
-            client.chat.remove_context(id);
-            if (c.user_input.length !== 0) break;
+        let count = interaction.options.getInteger('count') ?? 1;
+        for (; count > 0; --count) {
+            while (persona.memory.raw_short_term.length > 0) {
+                const id = persona.memory.raw_short_term.pop();
+                /**@type {context} */
+                const c = client.chat.get_message_context(id);
+                client.chat.remove_context(id);
+                if (c.user_input.length !== 0) break;
+            }
         }
         await interaction.editReply({
-            content: `現在${persona.display_name}已經忘掉剛剛發生的事啦！`,
+            content: `現在${persona.display_name}已經忘掉之前發生的${interaction.options.getInteger('count') ?? 1}件事啦！`,
             flags: MessageFlags.Ephemeral
         });
     },
