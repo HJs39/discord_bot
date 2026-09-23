@@ -11,7 +11,7 @@ const client = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent
     ],
-    rest:{
+    rest: {
         timeout: 20000,
         retries: 10
     }

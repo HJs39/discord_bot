@@ -72,9 +72,10 @@ class LLM_interface {
      * @param {ArrayBuffer} image an {@link ArrayBuffer} of image
      * @param {string} image_type images MIME type
      * @param {string} additional_user_setting formatted user profile
+     * @param {string} current_user_name the user's internal name who send this request
      * @returns {response_receiver} response receiver
      */
-    chat_oneshot_by_default(id, lastest, image, image_type, additional_user_setting) {
+    chat_oneshot_by_default(id, lastest, image, image_type, additional_user_setting, current_user_name) {
         let persona = this.#personas.get(id);
         let user_info = '';
         if (additional_user_setting) user_info += additional_user_setting;
@@ -85,7 +86,11 @@ class LLM_interface {
             ]);
             user_info += replacer.replace(persona.user_format);
         }
-        let system_instruction = new placeholder_replacer([['user', user_info]]).replace(persona.persona).replace(/\$\{link:(.*?)\}/g, '');
+        let system_instruction = new placeholder_replacer([
+            ['user', user_info],
+            ['user_name:creator', this.#users.get(persona.author)],
+            ['user_name:using', current_user_name]
+        ]).replace(persona.persona).replace(/\$\{link:(.*?)\}/g, '');
 
         /**@type {chat_interaction[]} */
         let history = new Array();
@@ -132,9 +137,10 @@ class LLM_interface {
      * @param {ArrayBuffer} image an {@link ArrayBuffer} of image
      * @param {string} image_type images MIME type
      * @param {string} additional_user_setting formatted user profile
+     * @param {string} current_user_name the user's internal name who send this request
      * @returns {response_receiver} response receiver
      */
-    chat_oneshot_by_specific(name, id, lastest, image, image_type, additional_user_setting) {
+    chat_oneshot_by_specific(name, id, lastest, image, image_type, additional_user_setting, current_user_name) {
         let persona = this.#personas.get(id);
         let user_info = '';
         if (additional_user_setting) user_info += additional_user_setting;
@@ -145,7 +151,11 @@ class LLM_interface {
             ]);
             user_info += replacer.replace(persona.user_format);
         }
-        let system_instruction = new placeholder_replacer([['user', user_info]]).replace(persona.persona).replace(/\$\{link:(.*?)\}/g, '');
+        let system_instruction = new placeholder_replacer([
+            ['user', user_info],
+            ['user_name:creator', this.#users.get(persona.author)],
+            ['user_name:using', current_user_name]
+        ]).replace(persona.persona).replace(/\$\{link:(.*?)\}/g, '');
 
         /**@type {chat_interaction[]} */
         let history = new Array();

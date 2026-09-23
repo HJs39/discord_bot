@@ -60,7 +60,7 @@ module.exports = {
                     .setSpacing(SeparatorSpacingSize.Small)
             )
             .addTextDisplayComponents(
-                new TextDisplayBuilder().setContent("### persona\n\n這個persona的主要設定，上限4000字。\n會用`system`的`role`注入到聊天開頭。\n\n可用宏:\n- `${user}`: 會被取代為格式化過的user設定，詳見`user_format`欄位。\n- `${link:[persona name]}`: 用於在profile中有使用到其他persona時使用，會被替換成以`user_format`格式格式化後的`[persona name]`的`profile`內容，支援以`,`分割多個persona的簡化寫法。\n\n**link宏的替換規則如下**:\n1. 以`,`作為分割符獲取persona的名稱並放入列表。(註: 獲取的名稱始終假設是`display_name`)\n2. 由第一個被抓取的persona的名稱開始逐一抓取`profile`內容，如果被抓取的persona的本身或`internal_name`已經出現過，則跳過\n3. 如果persona的`profile`也使用了`${link:...}`宏，則解析後將名稱放入列表末尾並移除`${link:...}`宏。\n4. 以主persona的`user_format`格式格式化依賴的`profile`並繼續處理下一個。\n5. 處理完成後加入到`${user}`宏內容的最前方。")
+                new TextDisplayBuilder().setContent("### persona\n\n這個persona的主要設定，上限4000字。\n會用`system`的`role`注入到聊天開頭。\n\n可用宏:\n- `${user}`: 會被取代為格式化過的user設定，詳見`user_format`欄位。\n- `${user:[creator|using]}`: `${user}`宏的變體，只擷取使用者的名稱，參數的`creator`代表抓取persona創建者的名稱，`using`則是當前與這個persona對話的使用者的名稱。\n- `${link:[persona name]}`: 用於在profile中有使用到其他persona時使用，會被替換成以`user_format`格式格式化後的`[persona name]`的`profile`內容，支援以`,`分割多個persona的簡化寫法。\n\n**link宏的替換規則如下**:\n1. 以`,`作為分割符獲取persona的名稱並放入列表。(註: 獲取的名稱始終假設是`display_name`)\n2. 由第一個被抓取的persona的名稱開始逐一抓取`profile`內容，如果被抓取的persona的本身或`internal_name`已經出現過，則跳過\n3. 如果persona的`profile`也使用了`${link:...}`宏，則解析後將名稱放入列表末尾並移除`${link:...}`宏。\n4. 以主persona的`user_format`格式格式化依賴的`profile`並繼續處理下一個。\n5. 處理完成後加入到`${user}`宏內容的最前方。")
             )
             .addSeparatorComponents(
                 new SeparatorBuilder()
