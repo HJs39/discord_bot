@@ -97,7 +97,7 @@ module.exports = {
                 }
             } else {
                 const download_image = await fetch(link);
-                var file_name = path.basename((new URL(input_link)).pathname);
+                var file_name = path.basename((new URL(link)).pathname);
                 let save_path = path.join(assets_path, 'quotes', interaction.guild.id, file_name);
                 if (fs.existsSync(save_path)) {
                     await interaction.editReply({
