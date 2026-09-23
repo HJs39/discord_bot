@@ -15,7 +15,7 @@ const _ = require('lodash');
 
 async function try_send_message_to_debug_channel(message) {
     if (client.debug_channel === null) {
-        console.log('[error]: mismatch debug channel!');
+        console.log('[Error]: mismatch debug channel!');
     } else {
         for (const split_mes of message_spliter.split(message)) {
             if (/^\s/.test(split_mes)) await client.debug_channel.send('.' + split_mes);
@@ -202,303 +202,322 @@ client.on(discord.Events.MessageCreate, async (message) => {
     const user_send_at = moment(new Date());
     /**@type {import('./implement/LLM/persona_manager.js').filtered_persona_t} */
     let format = undefined;
-    if (message.type === discord.MessageType.Reply) {
-        const reference = message.reference;
-        if (!reference) return;
-        let input = '';
-        let ref_mes = undefined;
-        let additional_profile = '';
+    try {
+        if (message.type === discord.MessageType.Reply) {
+            const reference = message.reference;
+            if (!reference) return;
+            let input = '';
+            let ref_mes = undefined;
+            let additional_profile = '';
 
-        try {
-            ref_mes = await message.fetchReference();
-            placeholder.push(['target_message', ref_mes.content]);
-            if (ref_mes.author.id === client.user.id) {
-                /**@type {context} */
-                const self_send = client.chat.get_message_context(ref_mes.id);
-                if (!self_send) return;
-                placeholder.push(['target_user', client.chat.get_persona(self_send.persona_id).internal_name]);
-            } else if (client.chat.user_exist(ref_mes.author.id)) {
-                placeholder.push(['target_user', client.chat.get_user(ref_mes.author.id).internal_name]);
-            } else {
-                placeholder.push(['target_user', ref_mes.author.displayName]);
-            }
-        } catch (error) {
-            console.error(error);
-            await handle_error(error);
-            return;
-        }
-
-        if (mention_regex.test(message.content)) {
-            used_persona_id = user.current_use;
-        } else {
-            used_persona_id = client.chat.get_message_context(ref_mes.id).persona_id;
-        }
-        used_persona = client.chat.get_persona(used_persona_id);
-        additional_profile = client.chat.expand_profile(used_persona_id, client.chat.get_message_context(ref_mes.id)?.persona_id ?? used_persona_id);
-
-        if (used_persona.author !== user.snowflake && used_persona.type === type_t.private) return;
-        if (!used_persona.used_user.includes(user.snowflake)) used_persona.used_user.push(user.snowflake);
-        format = format_parser.parse(used_persona.reply_format);
-
-        for (const time of format.time_macro) {
-            placeholder.push([time, user_send_at.format(time)]);
-        }
-        const content = message.content.replace(/<@(\d+)>/g, (full_match, id) => {
-            if (client.chat.user_exist(id)) {
-                return `@${client.chat.get_user(id).internal_name}`;
-            } else if (id === client.user.id) {
-                return `@${used_persona.internal_name}`;
-            } else {
-                const user = client.users.cache.get(userId);
-                if (user) return `@${user.displayName}`;
-                else return `@未知使用者`;
-            }
-        });
-        placeholder.push(['message', content]);
-        input = new placeholder_replacer(placeholder).replace(format.result);
-
-        /**@type {ArrayBuffer} */
-        let image_buffer = undefined;
-        /**@type {string} */
-        let image_type = undefined;
-        if (message.attachments.size > 0) {
-            if (!message.attachments.first().contentType?.startsWith('image/')) {
-                await message.reply({
-                    content: 'request blocked:\nsystem do not implement not image attachment'
-                });
+            try {
+                ref_mes = await message.fetchReference();
+                placeholder.push(['target_message', ref_mes.content]);
+                if (ref_mes.author.id === client.user.id) {
+                    /**@type {context} */
+                    const self_send = client.chat.get_message_context(ref_mes.id);
+                    if (!self_send) return;
+                    placeholder.push(['target_user', client.chat.get_persona(self_send.persona_id).internal_name]);
+                } else if (client.chat.user_exist(ref_mes.author.id)) {
+                    placeholder.push(['target_user', client.chat.get_user(ref_mes.author.id).internal_name]);
+                } else {
+                    placeholder.push(['target_user', ref_mes.author.displayName]);
+                }
+            } catch (error) {
+                console.error(error);
+                await handle_error(error);
                 return;
             }
-            if (!client.chat.allowed_send_image()) {
-                await message.reply({
-                    content: 'request blocked:\ncurrent API do not allowed image, please try again later'
-                });
-                return;
-            }
-            const download_image = await fetch(message.attachments.first().url);
-            const byte_image = await download_image.arrayBuffer();
-            image_buffer = Buffer.from(byte_image);
-            image_type = message.attachments.first().contentType.slice(6);
-        }
-        const typing = setInterval(() => {
-            message.channel.sendTyping();
-        }, cooldown_helper.from_second(8));
-        try {
-            /**@type {response_receiver} */
-            const receiver = client.chat.chat_oneshot_by_default(
-                used_persona_id,
-                {
-                    role: 'user',
-                    content: (new placeholder_replacer([['user', user.internal_name]])).replace(input),
-                    name: user.name
-                },
-                image_buffer,
-                image_type,
-                additional_profile);
 
-            let result = await receiver.get_result();
-
-            if (result.failed) {
-                clearInterval(typing);
-                await message.reply({
-                    content: `generate failed:\n${result.content}`
-                });
+            if (mention_regex.test(message.content)) {
+                used_persona_id = user.current_use;
             } else {
-                clearInterval(typing);
-                if (result.content.length > 1800) {
-                    let reply = true;
-                    for (const split_mes of message_spliter.split(result.content)) {
-                        /**@type {discord.OmitPartialGroupDMChannel<discord.Message<boolean>>} */
-                        let reply_mes;
-                        if (reply) {
-                            reply_mes = await message.reply(split_mes);
-                            reply = false;
-                        } else {
-                            ref_mes = await message.channel.send(split_mes);
+                used_persona_id = client.chat.get_message_context(ref_mes.id).persona_id;
+            }
+            used_persona = client.chat.get_persona(used_persona_id);
+            additional_profile = client.chat.expand_profile(used_persona_id, client.chat.get_message_context(ref_mes.id)?.persona_id ?? used_persona_id);
+
+            if (used_persona.author !== user.snowflake && used_persona.type === type_t.private) return;
+            if (!used_persona.used_user.includes(user.snowflake)) used_persona.used_user.push(user.snowflake);
+            format = format_parser.parse(used_persona.reply_format);
+
+            for (const time of format.time_macro) {
+                placeholder.push([time, user_send_at.format(time)]);
+            }
+            const content = message.content.replace(/<@(\d+)>/g, (full_match, id) => {
+                if (client.chat.user_exist(id)) {
+                    return `@${client.chat.get_user(id).internal_name}`;
+                } else if (id === client.user.id) {
+                    return `@${used_persona.internal_name}`;
+                } else {
+                    const user = client.users.cache.get(userId);
+                    if (user) return `@${user.displayName}`;
+                    else return `@未知使用者`;
+                }
+            });
+            placeholder.push(['message', content]);
+            input = new placeholder_replacer(placeholder).replace(format.result);
+
+            /**@type {ArrayBuffer} */
+            let image_buffer = undefined;
+            /**@type {string} */
+            let image_type = undefined;
+            if (message.attachments.size > 0) {
+                if (!message.attachments.first().contentType?.startsWith('image/')) {
+                    await message.reply({
+                        content: 'request blocked:\nsystem do not implement not image attachment'
+                    });
+                    return;
+                }
+                if (!client.chat.allowed_send_image()) {
+                    await message.reply({
+                        content: 'request blocked:\ncurrent API do not allowed image, please try again later'
+                    });
+                    return;
+                }
+                const download_image = await fetch(message.attachments.first().url);
+                const byte_image = await download_image.arrayBuffer();
+                image_buffer = Buffer.from(byte_image);
+                image_type = message.attachments.first().contentType.slice(6);
+            }
+            const typing = setInterval(() => {
+                message.channel.sendTyping();
+            }, cooldown_helper.from_second(8));
+            try {
+                /**@type {response_receiver} */
+                const receiver = client.chat.chat_oneshot_by_default(
+                    used_persona_id,
+                    {
+                        role: 'user',
+                        content: (new placeholder_replacer([['user', user.internal_name]])).replace(input),
+                        name: user.name
+                    },
+                    image_buffer,
+                    image_type,
+                    additional_profile,
+                    user.internal_name);
+
+                let result = await receiver.get_result();
+
+                if (result.failed) {
+                    clearInterval(typing);
+                    await message.reply({
+                        content: `generate failed:\n${result.content}`
+                    });
+                } else {
+                    clearInterval(typing);
+                    if (result.content.length > 1800) {
+                        let reply = true;
+                        for (const split_mes of message_spliter.split(result.content)) {
+                            /**@type {discord.OmitPartialGroupDMChannel<discord.Message<boolean>>} */
+                            let reply_mes;
+                            if (reply) {
+                                reply_mes = await message.reply(split_mes);
+                                reply = false;
+                            } else {
+                                ref_mes = await message.channel.send(split_mes);
+                            }
+                            client.chat.save_context(
+                                reply_mes.id,
+                                new context(
+                                    new Date(),
+                                    split_mes,
+                                    used_persona_id,
+                                    user.snowflake,
+                                    input
+                                )
+                            );
+                            used_persona.memory.raw_short_term.push(reply_mes.id);
+                            input = '';
                         }
+                    } else {
+                        if (result.content.length === 0) {
+                            await message.reply('generate failed:\nAPI returns an empty response');
+                            return;
+                        }
+                        const reply_mes = await message.reply(result.content);
                         client.chat.save_context(
                             reply_mes.id,
                             new context(
                                 new Date(),
-                                split_mes,
+                                result.content,
                                 used_persona_id,
                                 user.snowflake,
                                 input
                             )
                         );
                         used_persona.memory.raw_short_term.push(reply_mes.id);
-                        input = '';
                     }
+                    try {
+                        const channel = await client.channels.fetch(bot_assets.COT_channel);
+                        if (result.COT.length !== 0) {
+                            for (const split_mes of message_spliter.split(result.COT)) {
+                                await channel.send(split_mes);
+                            }
+                        }
+                        if (result.token_usage) await channel.send(`-# prompt: ${result.token_usage.prompt}\n-# output: ${result.token_usage.output}\n-# total: ${result.token_usage.total}`);
+                    } catch (error) {
+                        console.log(`[Error]: failed to send response COT\n  Details: ${error}`);
+                    }
+                }
+            } catch (error) {
+                clearInterval(typing);
+                console.error(error);
+                await handle_error(error);
+            }
+        } else {
+            used_persona = client.chat.get_persona(user.current_use);
+
+            if (used_persona.author !== user.snowflake && used_persona.type === type_t.private) return;
+            if (!used_persona.used_user.includes(user.snowflake)) used_persona.used_user.push(user.snowflake);
+
+            format = format_parser.parse(used_persona.format);
+
+            for (const time of format.time_macro) {
+                placeholder.push([time, user_send_at.format(time)]);
+            }
+            const content = message.content.replace(/<@(\d+)>/g, (full_match, id) => {
+                if (client.chat.user_exist(id)) {
+                    return `@${client.chat.get_user(id).internal_name}`;
+                } else if (id === client.user.id) {
+                    return `@${used_persona.internal_name}`;
                 } else {
-                    if (result.content.length === 0) {
-                        await message.reply('generate failed:\nAPI returns an empty response');
-                        return;
-                    }
-                    const reply_mes = await message.reply(result.content);
-                    client.chat.save_context(
-                        reply_mes.id,
-                        new context(
-                            new Date(),
-                            result.content,
-                            used_persona_id,
-                            user.snowflake,
-                            input
-                        )
-                    );
-                    used_persona.memory.raw_short_term.push(reply_mes.id);
+                    const user = client.users.cache.get(userId);
+                    if (user) return `@${user.displayName}`;
+                    else return `@未知使用者`;
                 }
-                try {
-                    const channel = await client.channels.fetch(bot_assets.COT_channel);
-                    if (result.COT.length !== 0) {
-                        for (const split_mes of message_spliter.split(result.COT)) {
-                            await channel.send(split_mes);
-                        }
-                    }
-                    if (result.token_usage) await channel.send(`-# prompt: ${result.token_usage.prompt}\n-# output: ${result.token_usage.output}\n-# total: ${result.token_usage.total}`);
-                } catch (error) {
-                    console.log(`[Error]: failed to send response COT\n  Details: ${error}`);
+            });
+            placeholder.push(['message', content]);
+            input = new placeholder_replacer(placeholder).replace(format.result);
+
+            /**@type {ArrayBuffer} */
+            let image_buffer = undefined;
+            /**@type {string} */
+            let image_type = undefined;
+            if (message.attachments.size > 0) {
+                if (!message.attachments.first().contentType?.startsWith('image/')) {
+                    await message.reply({
+                        content: 'request blocked:\nsystem do not implement not image attachment'
+                    });
+                    return;
                 }
+                if (!client.chat.allowed_send_image()) {
+                    await message.reply({
+                        content: 'request blocked:\ncurrent API do not allowed image, please try again later'
+                    });
+                    return;
+                }
+                const download_image = await fetch(message.attachments.first().url);
+                const byte_image = await download_image.arrayBuffer();
+                image_buffer = Buffer.from(byte_image);
+                image_type = message.attachments.first().contentType.slice(6);
             }
-        } catch (error) {
-            clearInterval(typing);
-            console.error(error);
-            await handle_error(error);
-        }
-    } else {
-        used_persona = client.chat.get_persona(user.current_use);
 
-        if (used_persona.author !== user.snowflake && used_persona.type === type_t.private) return;
-        if (!used_persona.used_user.includes(user.snowflake)) used_persona.used_user.push(user.snowflake);
+            const typing = setInterval(() => {
+                message.channel.sendTyping();
+            }, cooldown_helper.from_second(8));
+            try {
+                /**@type {response_receiver} */
+                const receiver = client.chat.chat_oneshot_by_default(
+                    user.current_use,
+                    {
+                        role: 'user',
+                        content: (new placeholder_replacer([['user', user.internal_name]])).replace(input),
+                        name: user.name
+                    },
+                    image_buffer,
+                    image_type,
+                    '',
+                    user.internal_name);
 
-        format = format_parser.parse(used_persona.format);
+                let result = await receiver.get_result();
 
-        for (const time of format.time_macro) {
-            placeholder.push([time, user_send_at.format(time)]);
-        }
-        const content = message.content.replace(/<@(\d+)>/g, (full_match, id) => {
-            if (client.chat.user_exist(id)) {
-                return `@${client.chat.get_user(id).internal_name}`;
-            } else if (id === client.user.id) {
-                return `@${used_persona.internal_name}`;
-            } else {
-                const user = client.users.cache.get(userId);
-                if (user) return `@${user.displayName}`;
-                else return `@未知使用者`;
-            }
-        });
-        placeholder.push(['message', content]);
-        input = new placeholder_replacer(placeholder).replace(format.result);
-
-        /**@type {ArrayBuffer} */
-        let image_buffer = undefined;
-        /**@type {string} */
-        let image_type = undefined;
-        if (message.attachments.size > 0) {
-            if (!message.attachments.first().contentType?.startsWith('image/')) {
-                await message.reply({
-                    content: 'request blocked:\nsystem do not implement not image attachment'
-                });
-                return;
-            }
-            if (!client.chat.allowed_send_image()) {
-                await message.reply({
-                    content: 'request blocked:\ncurrent API do not allowed image, please try again later'
-                });
-                return;
-            }
-            const download_image = await fetch(message.attachments.first().url);
-            const byte_image = await download_image.arrayBuffer();
-            image_buffer = Buffer.from(byte_image);
-            image_type = message.attachments.first().contentType.slice(6);
-        }
-
-        const typing = setInterval(() => {
-            message.channel.sendTyping();
-        }, cooldown_helper.from_second(8));
-        try {
-            /**@type {response_receiver} */
-            const receiver = client.chat.chat_oneshot_by_default(
-                user.current_use,
-                {
-                    role: 'user',
-                    content: (new placeholder_replacer([['user', user.internal_name]])).replace(input),
-                    name: user.name
-                },
-                image_buffer,
-                image_type);
-
-            let result = await receiver.get_result();
-
-            if (result.failed) {
-                clearInterval(typing);
-                await message.reply({
-                    content: `generate failed:\n${result.content}`
-                });
-            } else {
-                clearInterval(typing);
-                if (result.content.length > 1800) {
-                    let reply = true;
-                    for (const split_mes of message_spliter.split(result.content)) {
-                        /**@type {discord.OmitPartialGroupDMChannel<discord.Message<boolean>>} */
-                        let reply_mes;
-                        if (reply) {
-                            reply_mes = await message.reply(split_mes);
-                            reply = false;
-                        } else {
-                            ref_mes = await message.channel.send(split_mes);
+                if (result.failed) {
+                    clearInterval(typing);
+                    await message.reply({
+                        content: `generate failed:\n${result.content}`
+                    });
+                } else {
+                    clearInterval(typing);
+                    if (result.content.length > 1800) {
+                        let reply = true;
+                        for (const split_mes of message_spliter.split(result.content)) {
+                            /**@type {discord.OmitPartialGroupDMChannel<discord.Message<boolean>>} */
+                            let reply_mes;
+                            if (reply) {
+                                reply_mes = await message.reply(split_mes);
+                                reply = false;
+                            } else {
+                                ref_mes = await message.channel.send(split_mes);
+                            }
+                            client.chat.save_context(
+                                reply_mes.id,
+                                new context(
+                                    new Date(),
+                                    split_mes,
+                                    user.current_use,
+                                    user.snowflake,
+                                    input
+                                )
+                            );
+                            used_persona.memory.raw_short_term.push(reply_mes.id);
+                            input = '';
                         }
+                    } else {
+                        if (result.content.length === 0) {
+                            await message.reply('generate failed:\nAPI returns an empty response');
+                            return;
+                        }
+                        const reply_mes = await message.reply(result.content);
                         client.chat.save_context(
                             reply_mes.id,
                             new context(
                                 new Date(),
-                                split_mes,
+                                result.content,
                                 user.current_use,
                                 user.snowflake,
                                 input
                             )
                         );
                         used_persona.memory.raw_short_term.push(reply_mes.id);
-                        input = '';
                     }
-                } else {
-                    if (result.content.length === 0) {
-                        await message.reply('generate failed:\nAPI returns an empty response');
-                        return;
-                    }
-                    const reply_mes = await message.reply(result.content);
-                    client.chat.save_context(
-                        reply_mes.id,
-                        new context(
-                            new Date(),
-                            result.content,
-                            user.current_use,
-                            user.snowflake,
-                            input
-                        )
-                    );
-                    used_persona.memory.raw_short_term.push(reply_mes.id);
-                }
-                try {
-                    const channel = await client.channels.fetch(bot_assets.COT_channel);
-                    if (result.COT.length !== 0) {
-                        for (const split_mes of message_spliter.split(result.COT)) {
-                            await channel.send(split_mes);
+                    try {
+                        const channel = await client.channels.fetch(bot_assets.COT_channel);
+                        if (result.COT.length !== 0) {
+                            for (const split_mes of message_spliter.split(result.COT)) {
+                                await channel.send(split_mes);
+                            }
                         }
+                        if (result.token_usage) await channel.send(`-# prompt: ${result.token_usage.prompt}\n-# output: ${result.token_usage.output}\n-# total: ${result.token_usage.total}`);
+                    } catch (error) {
+                        console.log(`[Error]: failed to send response COT\n  Details: ${error}`);
                     }
-                    if (result.token_usage) await channel.send(`-# prompt: ${result.token_usage.prompt}\n-# output: ${result.token_usage.output}\n-# total: ${result.token_usage.total}`);
-                } catch (error) {
-                    console.log(`[Error]: failed to send response COT\n  Details: ${error}`);
                 }
+            } catch (error) {
+                clearInterval(typing);
+                console.error(error);
+                await handle_error(error);
             }
+        }
+    } catch (error) {
+        try {
+            await message.reply({
+                content: 'request shut down:\nDiscord API asynchronous action is suddenly failed, you can try again later.'
+            });
         } catch (error) {
-            clearInterval(typing);
-            console.error(error);
+            await try_send_message_to_debug_channel('failed to send error message for user when chatting!\ncause:\n');
             await handle_error(error);
         }
+        await handle_error(error);
     }
 });
 
 client.on(discord.Events.ShardDisconnect, (event, id) => {
     console.log(`[Info]: Alice is disconnect from discord!\n  id: ${id}\n  event code: ${event.code}`);
+});
+
+client.on(discord.Events.Error, (err) => {
+    console.log(`[Error]: caught an error without processed, more detail delow\n${err.message}`);
 });
 
 process.on('exit', code => {
