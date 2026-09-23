@@ -10,7 +10,11 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent
-    ]
+    ],
+    rest:{
+        timeout: 20000,
+        retries: 10
+    }
 });
 /**@type {Collection} */
 client.commands = new Collection();
