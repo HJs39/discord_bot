@@ -36,7 +36,7 @@ module.exports = {
             fs.writeFileSync(save_path, Buffer.from(byte_image));
             cats.push({
                 image: save_path,
-                file_name: image.name,
+                file_name: input_image.name,
                 provider: provider
             });
         } else if (input_link !== '') {
