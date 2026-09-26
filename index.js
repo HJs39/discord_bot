@@ -315,7 +315,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
                                 reply_mes = await message.reply(split_mes);
                                 reply = false;
                             } else {
-                                ref_mes = await message.channel.send(split_mes);
+                                reply_mes = await message.channel.send(split_mes);
                             }
                             client.chat.save_context(
                                 reply_mes.id,
@@ -448,7 +448,7 @@ client.on(discord.Events.MessageCreate, async (message) => {
                                 reply_mes = await message.reply(split_mes);
                                 reply = false;
                             } else {
-                                ref_mes = await message.channel.send(split_mes);
+                                reply_mes = await message.channel.send(split_mes);
                             }
                             client.chat.save_context(
                                 reply_mes.id,
