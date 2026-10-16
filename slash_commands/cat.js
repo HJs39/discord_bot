@@ -16,7 +16,7 @@ module.exports = {
                 .setDescription("用的太急拉！\n稍微冷靜一下吧~")
                 .setColor(colors.error)
                 .setFooter({
-                    text: `等下在來！`,
+                    text: `等下再來！`,
                     iconURL: client.user.avatarURL(),
                 })
                 .setTimestamp();
