@@ -12,15 +12,9 @@ module.exports = {
         .setDescription("get a random quote")
         .setDescriptionLocalization('zh-TW', '從伺服器紀錄中獲取一張隨機quote'),
     eval: async function (interaction) {
-        if (!interaction.guild) {
+        if (!interaction.channel || !bot_assets.quote_command_available.includes(interaction.channel.id)) {
             await interaction.reply({
                 content: "你不能在這裡用！",
-                flags: MessageFlags.Ephemeral
-            });
-            return;
-        } else if (!bot_assets.quote_command_available.includes(interaction.guild.id)) {
-            await interaction.reply({
-                content: "你們還沒有專屬的紀錄！\n嘗試去申請一個吧！",
                 flags: MessageFlags.Ephemeral
             });
             return;
@@ -30,7 +24,7 @@ module.exports = {
                 .setDescription("用的太急拉！\n稍微冷靜一下吧~")
                 .setColor(colors.error)
                 .setFooter({
-                    text: `等下在來！`,
+                    text: `等下再來！`,
                     iconURL: client.user.avatarURL(),
                 })
                 .setTimestamp();
@@ -38,8 +32,7 @@ module.exports = {
             return;
         }
         await interaction.deferReply();
-        const quote_list = _.get(quotes, interaction.guild.id);
-        if (quote_list.length === 0) {
+        if (quotes.length === 0) {
             const embed = new EmbedBuilder()
                 .addFields({
                     name: "",
@@ -56,7 +49,7 @@ module.exports = {
             await interaction.editReply({ embeds: [embed] });
             return;
         }
-        const quote = quote_list[Math.floor(Math.random() * quote_list.length)];
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
         var attachment = undefined;
         const embed = new EmbedBuilder()
             .addFields({

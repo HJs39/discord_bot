@@ -29,15 +29,9 @@ module.exports = {
             .setDescriptionLocalization('zh-TW', '圖片檔案')),
     eval: async function (interaction) {
         await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-        if (!interaction.guild) {
+        if (!interaction.channel || !bot_assets.quote_command_available.includes(interaction.channel.id)) {
             await interaction.editReply({
                 content: "你不能在這裡用！",
-                flags: MessageFlags.Ephemeral
-            });
-            return;
-        } else if (!bot_assets.quote_command_available.includes(interaction.guild.id)) {
-            await interaction.editReply({
-                content: "你們還沒有專屬的紀錄！\n嘗試去申請一個吧！",
                 flags: MessageFlags.Ephemeral
             });
             return;
@@ -48,12 +42,11 @@ module.exports = {
         const link = interaction.options.getString('link');
         const has_image = (image !== null) || (link !== null);
         const embed = new EmbedBuilder();
-        const quote_list = _.get(quotes, interaction.guild.id);
         if (author.length != 0) embed.setAuthor({ name: author });
         if (has_image) {
             if (image !== null) {
                 if (image.contentType?.startsWith('image/')) {
-                    let save_path = path.join(assets_path, 'quotes', interaction.guild.id, image.name);
+                    let save_path = path.join(assets_path, 'quotes', image.name);
                     if (fs.existsSync(save_path)) {
                         await interaction.editReply({
                             content: "這個名稱已經被佔用了！\n幫圖片換一個名字F吧！",
@@ -64,7 +57,7 @@ module.exports = {
                     const download_image = await fetch(image.url);
                     const byte_image = await download_image.arrayBuffer();
                     fs.writeFileSync(save_path, Buffer.from(byte_image));
-                    quote_list.push({
+                    quotes.push({
                         quote: save_path,
                         file_name: image.name,
                         author: author,
@@ -98,7 +91,7 @@ module.exports = {
             } else {
                 const download_image = await fetch(link);
                 var file_name = path.basename((new URL(link)).pathname);
-                let save_path = path.join(assets_path, 'quotes', interaction.guild.id, file_name);
+                let save_path = path.join(assets_path, 'quotes', file_name);
                 if (fs.existsSync(save_path)) {
                     await interaction.editReply({
                         content: "這個名稱已經被佔用了！\n幫圖片換一個名字F吧！",
@@ -110,7 +103,7 @@ module.exports = {
                 const check = await file_type.fileTypeFromBuffer(byte_image);
                 if (check.mime.startsWith('image/')) {
                     fs.writeFileSync(save_path, Buffer.from(byte_image));
-                    quote_list.push({
+                    quotes.push({
                         quote: save_path,
                         file_name: file_name,
                         author: author,
@@ -144,7 +137,7 @@ module.exports = {
 
             }
         } else {
-            quote_list.push({
+            quotes.push({
                 quote: "",
                 author: author,
                 text: text
