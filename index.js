@@ -209,10 +209,14 @@ client.on(discord.Events.MessageCreate, async (message) => {
             let input = '';
             let ref_mes = undefined;
             let additional_profile = '';
+            let has_ref = false;
+            /**@type {string} */
+            let ref_mes_content = '';
 
             try {
                 ref_mes = await message.fetchReference();
-                placeholder.push(['target_message', ref_mes.content]);
+                ref_mes_content = ref_mes.content;
+                has_ref = true;
                 if (ref_mes.author.id === client.user.id) {
                     /**@type {context} */
                     const self_send = client.chat.get_message_context(ref_mes.id);
@@ -250,11 +254,28 @@ client.on(discord.Events.MessageCreate, async (message) => {
                 } else if (id === client.user.id) {
                     return `@${used_persona.internal_name}`;
                 } else {
-                    const user = client.users.cache.get(userId);
-                    if (user) return `@${user.displayName}`;
+                    const user = client.users.cache.get(id);
+                    if (user) {
+                        if (!used_persona.used_user.includes(id)) used_persona.used_user.push(id);
+                        return `@${user.displayName}`;
+                    }
                     else return `@未知使用者`;
                 }
             });
+            if (has_ref) placeholder.push(['target_message', ref_mes_content.replace(/<@(\d+)>/g, (full_match, id) => {
+                if (client.chat.user_exist(id)) {
+                    return `@${client.chat.get_user(id).internal_name}`;
+                } else if (id === client.user.id) {
+                    return `@${used_persona.internal_name}`;
+                } else {
+                    const user = client.users.cache.get(id);
+                    if (user) {
+                        if (!used_persona.used_user.includes(id)) used_persona.used_user.push(id);
+                        return `@${user.displayName}`;
+                    }
+                    else return `@未知使用者`;
+                }
+            })]);
             placeholder.push(['message', content]);
             input = new placeholder_replacer(placeholder).replace(format.result);
 
@@ -382,8 +403,11 @@ client.on(discord.Events.MessageCreate, async (message) => {
                 } else if (id === client.user.id) {
                     return `@${used_persona.internal_name}`;
                 } else {
-                    const user = client.users.cache.get(userId);
-                    if (user) return `@${user.displayName}`;
+                    const user = client.users.cache.get(id);
+                    if (user) {
+                        if (!used_persona.used_user.includes(id)) used_persona.used_user.push(id);
+                        return `@${user.displayName}`;
+                    }
                     else return `@未知使用者`;
                 }
             });
@@ -522,7 +546,7 @@ client.on(discord.Events.Error, (err) => {
 
 process.on('exit', code => {
     if (code === 0) console.log('[info]: Alice exit successfully!');
-    else console.log(`[Info]: Alice has been forced shutdown!\n  exit code: ${code}`);
+    else console.log(`[Info]: Alice has been forced shutdown!\n  exit code: ${code}\n exit when: ${new Date()}`);
 });
 
 client.login(bot_assets.token);
