@@ -126,858 +126,197 @@ module.exports = {
                 idle: cooldown_helper.from_second(600)
             });
             collector.on('collect', async (i) => {
-                if (i.user.id !== interaction.user.id) {
-                    await i.reply({
-                        content: '你不能使用這個！',
-                        flags: MessageFlags.Ephemeral
-                    });
-                    return;
-                }
-                /**@type {string[]} */
-                const commands = i.customId.split(' ');
-                if (commands[0] === 'select_edit') {
-                    await i.deferUpdate();
-                    page = 1;
-                    index = 0;
-                    if (i.values[0] === 'opening') {
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('基本資訊')
-                            .setDescription(`名稱: ${persona.internal_name}\n顯示名稱: ${persona.display_name}\n當前狀態: ${persona.type}\n是否棄用: ${persona.deprecated ? '是' : '否'}`)
-                            .setFooter({
-                                text: '概覽',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                        switch_page = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_first')
-                                    .setLabel('<<')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_previous')
-                                    .setLabel('<')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('display_number')
-                                    .setLabel('-/-')
-                                    .setStyle(ButtonStyle.Secondary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_next')
-                                    .setLabel('>')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_last')
-                                    .setLabel('>>')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            );
-                        edit_button = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('edit opening')
-                                    .setLabel('編輯')
-                                    .setStyle(ButtonStyle.Primary)
-                            );
-                    } else if (i.values[0] === 'persona') {
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('persona設定')
-                            .addFields({
-                                name: '主設定',
-                                value: `\`\`\`${persona.persona.slice(0, 1000)}${persona.persona.length > 1000 ? '...' : ''}\`\`\``
-                            })
-                            .addFields({
-                                name: '引用設定',
-                                value: `\`\`\`${persona.profile.slice(0, 1000)}${persona.profile.length > 1000 ? '...' : ' '}\`\`\``
-                            })
-                            .setFooter({
-                                text: '設定',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                        switch_page = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_first')
-                                    .setLabel('<<')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_previous')
-                                    .setLabel('<')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('display_number')
-                                    .setLabel('-/-')
-                                    .setStyle(ButtonStyle.Secondary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_next')
-                                    .setLabel('>')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_last')
-                                    .setLabel('>>')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            );
-                        edit_button = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('edit persona')
-                                    .setLabel('編輯')
-                                    .setStyle(ButtonStyle.Primary)
-                            );
-                    } else if (i.values[0] === 'format') {
-                        switch_page = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_first')
-                                    .setLabel('<<')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_previous')
-                                    .setLabel('<')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('display_number')
-                                    .setLabel('-/-')
-                                    .setStyle(ButtonStyle.Secondary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_next')
-                                    .setLabel('>')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_last')
-                                    .setLabel('>>')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            );
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('\u200b')
-                            .setDescription(`普通訊息:\n\`\`\`${persona.format || ' '}\`\`\`\n回覆:\n\`\`\`${persona.reply_format || ' '}\`\`\`\n使用者:\n\`\`\`${persona.user_format || ' '}\`\`\``)
-                            .setFooter({
-                                text: '格式',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                        edit_button = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('edit format')
-                                    .setLabel('編輯')
-                                    .setStyle(ButtonStyle.Primary)
-                            );
-                    } else if (i.values[0] === 'phony_chat') {
-                        if (persona.phony_chat.length == 0) {
-                            switch_page = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_first phony_chat')
-                                        .setLabel('<<')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(true)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_previous phony_chat')
-                                        .setLabel('<')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(true)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('display_number phony_chat')
-                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                        .setStyle(ButtonStyle.Secondary)
-                                        .setDisabled(true)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_next phony_chat')
-                                        .setLabel('>')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(true)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_last phony_chat')
-                                        .setLabel('>>')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(true)
-                                );
-                        } else {
-                            switch_page = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_first phony_chat')
-                                        .setLabel('<<')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_previous phony_chat')
-                                        .setLabel('<')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('display_number phony_chat')
-                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                        .setStyle(ButtonStyle.Secondary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_next phony_chat')
-                                        .setLabel('>')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(Math.round(persona.phony_chat.length / 2) <= 1)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_last phony_chat')
-                                        .setLabel('>>')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(Math.round(persona.phony_chat.length / 2) <= 1)
-                                );
-                        }
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('\u200b')
-                            .setDescription(`${persona.phony_chat.at(0)
-                                ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
-                                : '沒有注入的對話歷史'}`)
-                            .setFooter({
-                                text: '偽造對話',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                        edit_button = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('create phony_chat')
-                                    .setLabel('新增')
-                                    .setStyle(ButtonStyle.Success)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('edit phony_chat')
-                                    .setLabel('編輯')
-                                    .setStyle(ButtonStyle.Primary)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('delete phony_chat')
-                                    .setLabel('刪除')
-                                    .setStyle(ButtonStyle.Danger)
-                            );
-                    } else if (i.values[0] === 'summarize') {
-                        switch_page = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_first summarize')
-                                    .setLabel('<<')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_previous summarize')
-                                    .setLabel('<')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('display_number summarize')
-                                    .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                    .setStyle(ButtonStyle.Secondary)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_next summarize')
-                                    .setLabel('>')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(persona.summarize_instruction.length <= 1)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_last summarize')
-                                    .setLabel('>>')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(persona.summarize_instruction.length <= 1)
-                            );
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('\u200b')
-                            .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
-                                persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
-                                    `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
-                            .setFooter({
-                                text: '總結',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                        if (persona.summarize_instruction[index].role === 'placeholder') {
-                            edit_button = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('create summarize')
-                                        .setLabel('新增')
-                                        .setStyle(ButtonStyle.Success)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('edit summarize')
-                                        .setLabel('編輯')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(true)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('delete summarize')
-                                        .setLabel('刪除')
-                                        .setStyle(ButtonStyle.Danger)
-                                        .setDisabled(true)
-                                );
-                        } else {
-                            edit_button = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('create summarize')
-                                        .setLabel('新增')
-                                        .setStyle(ButtonStyle.Success)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('edit summarize')
-                                        .setLabel('編輯')
-                                        .setStyle(ButtonStyle.Primary)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('delete summarize')
-                                        .setLabel('刪除')
-                                        .setStyle(ButtonStyle.Danger)
-                                );
-                        }
-                    } else {
-                        switch_page = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_first')
-                                    .setLabel('<<')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_previous')
-                                    .setLabel('<')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('display_number')
-                                    .setLabel('-/-')
-                                    .setStyle(ButtonStyle.Secondary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_next')
-                                    .setLabel('>')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_last')
-                                    .setLabel('>>')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            );
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('\u200b')
-                            .setDescription(`發送${persona.memory.short_term_max}倫對話\n總結${persona.memory.summarize_start_index}前的所有對話\n${persona.internal_name}最新的記憶:\n${persona.memory.summarized.length > 0 ? `\`\`\`${persona.memory.summarized.at(-1)}\`\`\`` : '尚未總結'}`)
-                            .setFooter({
-                                text: '記憶處理',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                        edit_button = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('edit memory')
-                                    .setLabel('編輯')
-                                    .setStyle(ButtonStyle.Primary)
-                            );
+                try {
+                    if (i.user.id !== interaction.user.id) {
+                        await i.reply({
+                            content: '你不能使用這個！',
+                            flags: MessageFlags.Ephemeral
+                        });
+                        return;
                     }
-                } else if (commands[0] === 'to_first') {
-                    await i.deferUpdate();
-                    page = 1;
-                    index = 0;
-                    if (commands[1] === 'phony_chat') {
-                        switch_page = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_first phony_chat')
-                                    .setLabel('<<')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_previous phony_chat')
-                                    .setLabel('<')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('display_number phony_chat')
-                                    .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                    .setStyle(ButtonStyle.Secondary)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_next phony_chat')
-                                    .setLabel('>')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_last phony_chat')
-                                    .setLabel('>>')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(false)
-                            );
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('\u200b')
-                            .setDescription(`${persona.phony_chat.at(0)
-                                ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
-                                : '沒有注入的對話歷史'}`)
-                            .setFooter({
-                                text: '偽造對話',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                    } else {
-                        switch_page = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_first summarize')
-                                    .setLabel('<<')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_previous summarize')
-                                    .setLabel('<')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('display_number summarize')
-                                    .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                    .setStyle(ButtonStyle.Secondary)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_next summarize')
-                                    .setLabel('>')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_last summarize')
-                                    .setLabel('>>')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(false)
-                            );
-                        if (persona.summarize_instruction[index].role === 'placeholder') {
-                            edit_button = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('create summarize')
-                                        .setLabel('新增')
-                                        .setStyle(ButtonStyle.Success)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('edit summarize')
-                                        .setLabel('編輯')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(true)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('delete summarize')
-                                        .setLabel('刪除')
-                                        .setStyle(ButtonStyle.Danger)
-                                        .setDisabled(true)
-                                );
-                        } else {
-                            edit_button = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('create summarize')
-                                        .setLabel('新增')
-                                        .setStyle(ButtonStyle.Success)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('edit summarize')
-                                        .setLabel('編輯')
-                                        .setStyle(ButtonStyle.Primary)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('delete summarize')
-                                        .setLabel('刪除')
-                                        .setStyle(ButtonStyle.Danger)
-                                );
-                        }
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('\u200b')
-                            .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
-                                persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
-                                    `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
-                            .setFooter({
-                                text: '總結',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                    }
-                } else if (commands[0] === 'to_previous') {
-                    await i.deferUpdate();
-                    page -= 1;
-                    if (commands[1] === 'phony_chat') {
-                        if (page == 1) {
+                    /**@type {string[]} */
+                    const commands = i.customId.split(' ');
+                    if (commands[0] === 'select_edit') {
+                        await i.deferUpdate();
+                        page = 1;
+                        index = 0;
+                        if (i.values[0] === 'opening') {
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('基本資訊')
+                                .setDescription(`名稱: ${persona.internal_name}\n顯示名稱: ${persona.display_name}\n當前狀態: ${persona.type}\n是否棄用: ${persona.deprecated ? '是' : '否'}`)
+                                .setFooter({
+                                    text: '概覽',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
                             switch_page = new ActionRowBuilder()
                                 .addComponents(
                                     new ButtonBuilder()
-                                        .setCustomId('to_first phony_chat')
+                                        .setCustomId('to_first')
                                         .setLabel('<<')
                                         .setStyle(ButtonStyle.Success)
                                         .setDisabled(true)
                                 )
                                 .addComponents(
                                     new ButtonBuilder()
-                                        .setCustomId('to_previous phony_chat')
+                                        .setCustomId('to_previous')
                                         .setLabel('<')
                                         .setStyle(ButtonStyle.Primary)
                                         .setDisabled(true)
                                 )
                                 .addComponents(
                                     new ButtonBuilder()
-                                        .setCustomId('display_number phony_chat')
-                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                        .setCustomId('display_number')
+                                        .setLabel('-/-')
                                         .setStyle(ButtonStyle.Secondary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_next phony_chat')
-                                        .setLabel('>')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_last phony_chat')
-                                        .setLabel('>>')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
-                                );
-                        } else {
-                            switch_page = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_first phony_chat')
-                                        .setLabel('<<')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_previous phony_chat')
-                                        .setLabel('<')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('display_number phony_chat')
-                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                        .setStyle(ButtonStyle.Secondary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_next phony_chat')
-                                        .setLabel('>')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_last phony_chat')
-                                        .setLabel('>>')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
-                                );
-                        }
-                        index -= 2;
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('\u200b')
-                            .setDescription(`${persona.phony_chat.at(0)
-                                ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
-                                : '沒有注入的對話歷史'}`)
-                            .setFooter({
-                                text: '偽造對話',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                    } else {
-                        if (page == 1) {
-                            switch_page = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_first summarize')
-                                        .setLabel('<<')
-                                        .setStyle(ButtonStyle.Success)
                                         .setDisabled(true)
                                 )
                                 .addComponents(
                                     new ButtonBuilder()
-                                        .setCustomId('to_previous summarize')
-                                        .setLabel('<')
+                                        .setCustomId('to_next')
+                                        .setLabel('>')
                                         .setStyle(ButtonStyle.Primary)
                                         .setDisabled(true)
                                 )
                                 .addComponents(
                                     new ButtonBuilder()
-                                        .setCustomId('display_number summarize')
-                                        .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                        .setStyle(ButtonStyle.Secondary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_next summarize')
-                                        .setLabel('>')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_last summarize')
+                                        .setCustomId('to_last')
                                         .setLabel('>>')
                                         .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
+                                        .setDisabled(true)
                                 );
-                        } else {
-                            switch_page = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_first summarize')
-                                        .setLabel('<<')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_previous summarize')
-                                        .setLabel('<')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('display_number summarize')
-                                        .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                        .setStyle(ButtonStyle.Secondary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_next summarize')
-                                        .setLabel('>')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_last summarize')
-                                        .setLabel('>>')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
-                                );
-                        }
-                        index -= 1;
-                        if (persona.summarize_instruction[index].role === 'placeholder') {
                             edit_button = new ActionRowBuilder()
                                 .addComponents(
                                     new ButtonBuilder()
-                                        .setCustomId('create summarize')
-                                        .setLabel('新增')
+                                        .setCustomId('edit opening')
+                                        .setLabel('編輯')
+                                        .setStyle(ButtonStyle.Primary)
+                                );
+                        } else if (i.values[0] === 'persona') {
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('persona設定')
+                                .addFields({
+                                    name: '主設定',
+                                    value: `\`\`\`${persona.persona.slice(0, 1000)}${persona.persona.length > 1000 ? '...' : ''}\`\`\``
+                                })
+                                .addFields({
+                                    name: '引用設定',
+                                    value: `\`\`\`${persona.profile.slice(0, 1000)}${persona.profile.length > 1000 ? '...' : ' '}\`\`\``
+                                })
+                                .setFooter({
+                                    text: '設定',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                            switch_page = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_first')
+                                        .setLabel('<<')
                                         .setStyle(ButtonStyle.Success)
+                                        .setDisabled(true)
                                 )
                                 .addComponents(
                                     new ButtonBuilder()
-                                        .setCustomId('edit summarize')
-                                        .setLabel('編輯')
+                                        .setCustomId('to_previous')
+                                        .setLabel('<')
                                         .setStyle(ButtonStyle.Primary)
                                         .setDisabled(true)
                                 )
                                 .addComponents(
                                     new ButtonBuilder()
-                                        .setCustomId('delete summarize')
-                                        .setLabel('刪除')
-                                        .setStyle(ButtonStyle.Danger)
+                                        .setCustomId('display_number')
+                                        .setLabel('-/-')
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_next')
+                                        .setLabel('>')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_last')
+                                        .setLabel('>>')
+                                        .setStyle(ButtonStyle.Success)
                                         .setDisabled(true)
                                 );
-                        } else {
                             edit_button = new ActionRowBuilder()
                                 .addComponents(
                                     new ButtonBuilder()
-                                        .setCustomId('create summarize')
-                                        .setLabel('新增')
-                                        .setStyle(ButtonStyle.Success)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('edit summarize')
+                                        .setCustomId('edit persona')
                                         .setLabel('編輯')
                                         .setStyle(ButtonStyle.Primary)
+                                );
+                        } else if (i.values[0] === 'format') {
+                            switch_page = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_first')
+                                        .setLabel('<<')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(true)
                                 )
                                 .addComponents(
                                     new ButtonBuilder()
-                                        .setCustomId('delete summarize')
-                                        .setLabel('刪除')
-                                        .setStyle(ButtonStyle.Danger)
-                                );
-                        }
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('\u200b')
-                            .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
-                                persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
-                                    `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
-                            .setFooter({
-                                text: '總結',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                    }
-                } else if (commands[0] === 'display_number') {
-                    if (commands[1] === 'phony_chat') {
-                        const modal = new ModalBuilder().setCustomId('ignore junp_page').setTitle('跳轉');
-                        modal.addLabelComponents(
-                            new LabelBuilder()
-                                .setLabel('頁面')
-                                .setTextInputComponent(
-                                    new TextInputBuilder()
-                                        .setCustomId('jump')
-                                        .setPlaceholder(`頁末: ${Math.round(persona.phony_chat.length / 2)}`)
-                                        .setRequired(true)
-                                        .setStyle(TextInputStyle.Short)
+                                        .setCustomId('to_previous')
+                                        .setLabel('<')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(true)
                                 )
-                        );
-                        await i.showModal(modal);
-                        try {
-                            const submit = await i.awaitModalSubmit({
-                                filter: i => i.customId === 'ignore junp_page' && i.user.id === interaction.user.id,
-                                time: cooldown_helper.from_second(30)
-                            });
-                            await submit.deferUpdate();
-                            const p = parseInt(submit.fields.getTextInputValue('jump'));
-                            if (p <= 1) {
-                                page = 1;
-                                index = 0;
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('display_number')
+                                        .setLabel('-/-')
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_next')
+                                        .setLabel('>')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_last')
+                                        .setLabel('>>')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(true)
+                                );
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`普通訊息:\n\`\`\`${persona.format || ' '}\`\`\`\n回覆:\n\`\`\`${persona.reply_format || ' '}\`\`\`\n使用者:\n\`\`\`${persona.user_format || ' '}\`\`\``)
+                                .setFooter({
+                                    text: '格式',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                            edit_button = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('edit format')
+                                        .setLabel('編輯')
+                                        .setStyle(ButtonStyle.Primary)
+                                );
+                        } else if (i.values[0] === 'phony_chat') {
+                            if (persona.phony_chat.length == 0) {
                                 switch_page = new ActionRowBuilder()
                                     .addComponents(
                                         new ButtonBuilder()
@@ -998,46 +337,7 @@ module.exports = {
                                             .setCustomId('display_number phony_chat')
                                             .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
                                             .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next phony_chat')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last phony_chat')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    );
-                            } else if (p >= (persona.phony_chat.length / 2)) {
-                                page = Math.round(persona.phony_chat.length / 2);
-                                index = 2 * (page - 1);
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first phony_chat')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous phony_chat')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
+                                            .setDisabled(true)
                                     )
                                     .addComponents(
                                         new ButtonBuilder()
@@ -1053,9 +353,7 @@ module.exports = {
                                             .setStyle(ButtonStyle.Success)
                                             .setDisabled(true)
                                     );
-                            } else if (!isNaN(p)) {
-                                page = p;
-                                index = 2 * (page - 1);
+                            } else {
                                 switch_page = new ActionRowBuilder()
                                     .addComponents(
                                         new ButtonBuilder()
@@ -1083,14 +381,14 @@ module.exports = {
                                             .setCustomId('to_next phony_chat')
                                             .setLabel('>')
                                             .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
+                                            .setDisabled(Math.round(persona.phony_chat.length / 2) <= 1)
                                     )
                                     .addComponents(
                                         new ButtonBuilder()
                                             .setCustomId('to_last phony_chat')
                                             .setLabel('>>')
                                             .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
+                                            .setDisabled(Math.round(persona.phony_chat.length / 2) <= 1)
                                     );
                             }
                             embed = new EmbedBuilder()
@@ -1107,152 +405,268 @@ module.exports = {
                                     iconURL: interaction.user.displayAvatarURL()
                                 })
                                 .setTimestamp();
-                            await submit.editReply({
-                                embeds: [embed],
-                                components: [select_list, switch_page, edit_button]
-                            });
-                        } catch {
-                            //do nothing
-                        }
-                    } else {
-                        const modal = new ModalBuilder().setCustomId('ignore junp_page').setTitle('跳轉');
-                        modal.addLabelComponents(
-                            new LabelBuilder()
-                                .setLabel('頁面')
-                                .setTextInputComponent(
-                                    new TextInputBuilder()
-                                        .setCustomId('jump')
-                                        .setPlaceholder(`頁末: ${persona.summarize_instruction.length}`)
-                                        .setRequired(true)
-                                        .setStyle(TextInputStyle.Short)
+                            edit_button = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('create phony_chat')
+                                        .setLabel('新增')
+                                        .setStyle(ButtonStyle.Success)
                                 )
-                        );
-                        await i.showModal(modal);
-                        try {
-                            const submit = await i.awaitModalSubmit({
-                                filter: i => i.customId === 'ignore junp_page' && i.user.id === interaction.user.id,
-                                time: cooldown_helper.from_second(30)
-                            });
-                            await submit.deferUpdate();
-                            const p = parseInt(submit.fields.getTextInputValue('jump'));
-                            if (p <= 1) {
-                                page = 1;
-                                index = 0;
-                                switch_page = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('edit phony_chat')
+                                        .setLabel('編輯')
+                                        .setStyle(ButtonStyle.Primary)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('delete phony_chat')
+                                        .setLabel('刪除')
+                                        .setStyle(ButtonStyle.Danger)
+                                );
+                        } else if (i.values[0] === 'summarize') {
+                            switch_page = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_first summarize')
+                                        .setLabel('<<')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_previous summarize')
+                                        .setLabel('<')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('display_number summarize')
+                                        .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_next summarize')
+                                        .setLabel('>')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(persona.summarize_instruction.length <= 1)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_last summarize')
+                                        .setLabel('>>')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(persona.summarize_instruction.length <= 1)
+                                );
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
+                                    persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
+                                        `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
+                                .setFooter({
+                                    text: '總結',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                            if (persona.summarize_instruction[index].role === 'placeholder') {
+                                edit_button = new ActionRowBuilder()
                                     .addComponents(
                                         new ButtonBuilder()
-                                            .setCustomId('to_first summarize')
-                                            .setLabel('<<')
+                                            .setCustomId('create summarize')
+                                            .setLabel('新增')
                                             .setStyle(ButtonStyle.Success)
-                                            .setDisabled(true)
                                     )
                                     .addComponents(
                                         new ButtonBuilder()
-                                            .setCustomId('to_previous summarize')
-                                            .setLabel('<')
+                                            .setCustomId('edit summarize')
+                                            .setLabel('編輯')
                                             .setStyle(ButtonStyle.Primary)
                                             .setDisabled(true)
                                     )
                                     .addComponents(
                                         new ButtonBuilder()
-                                            .setCustomId('display_number summarize')
-                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next summarize')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last summarize')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    );
-                            } else if (p >= (persona.summarize_instruction.length)) {
-                                page = persona.phony_chat.length / 2;
-                                index = page - 1;
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first summarize')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous summarize')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number summarize')
-                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next summarize')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last summarize')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
+                                            .setCustomId('delete summarize')
+                                            .setLabel('刪除')
+                                            .setStyle(ButtonStyle.Danger)
                                             .setDisabled(true)
                                     );
-                            } else if (!isNaN(p)) {
-                                page = p;
-                                index = page - 1;
-                                switch_page = new ActionRowBuilder()
+                            } else {
+                                edit_button = new ActionRowBuilder()
                                     .addComponents(
                                         new ButtonBuilder()
-                                            .setCustomId('to_first summarize')
-                                            .setLabel('<<')
+                                            .setCustomId('create summarize')
+                                            .setLabel('新增')
                                             .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
                                     )
                                     .addComponents(
                                         new ButtonBuilder()
-                                            .setCustomId('to_previous summarize')
-                                            .setLabel('<')
+                                            .setCustomId('edit summarize')
+                                            .setLabel('編輯')
                                             .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
                                     )
                                     .addComponents(
                                         new ButtonBuilder()
-                                            .setCustomId('display_number summarize')
-                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next summarize')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last summarize')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
+                                            .setCustomId('delete summarize')
+                                            .setLabel('刪除')
+                                            .setStyle(ButtonStyle.Danger)
                                     );
                             }
+                        } else {
+                            switch_page = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_first')
+                                        .setLabel('<<')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_previous')
+                                        .setLabel('<')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('display_number')
+                                        .setLabel('-/-')
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_next')
+                                        .setLabel('>')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_last')
+                                        .setLabel('>>')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(true)
+                                );
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`發送${persona.memory.short_term_max}倫對話\n總結${persona.memory.summarize_start_index}前的所有對話\n${persona.internal_name}最新的記憶:\n${persona.memory.summarized.length > 0 ? `\`\`\`${persona.memory.summarized.at(-1)}\`\`\`` : '尚未總結'}`)
+                                .setFooter({
+                                    text: '記憶處理',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                            edit_button = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('edit memory')
+                                        .setLabel('編輯')
+                                        .setStyle(ButtonStyle.Primary)
+                                );
+                        }
+                    } else if (commands[0] === 'to_first') {
+                        await i.deferUpdate();
+                        page = 1;
+                        index = 0;
+                        if (commands[1] === 'phony_chat') {
+                            switch_page = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_first phony_chat')
+                                        .setLabel('<<')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_previous phony_chat')
+                                        .setLabel('<')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('display_number phony_chat')
+                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_next phony_chat')
+                                        .setLabel('>')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_last phony_chat')
+                                        .setLabel('>>')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(false)
+                                );
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`${persona.phony_chat.at(0)
+                                    ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                    : '沒有注入的對話歷史'}`)
+                                .setFooter({
+                                    text: '偽造對話',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                        } else {
+                            switch_page = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_first summarize')
+                                        .setLabel('<<')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_previous summarize')
+                                        .setLabel('<')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('display_number summarize')
+                                        .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_next summarize')
+                                        .setLabel('>')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_last summarize')
+                                        .setLabel('>>')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(false)
+                                );
                             if (persona.summarize_instruction[index].role === 'placeholder') {
                                 edit_button = new ActionRowBuilder()
                                     .addComponents(
@@ -1306,441 +720,1206 @@ module.exports = {
                                     persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
                                         `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
                                 .setFooter({
+                                    text: '總結',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                        }
+                    } else if (commands[0] === 'to_previous') {
+                        await i.deferUpdate();
+                        page -= 1;
+                        if (commands[1] === 'phony_chat') {
+                            if (page == 1) {
+                                switch_page = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_first phony_chat')
+                                            .setLabel('<<')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(true)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_previous phony_chat')
+                                            .setLabel('<')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(true)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('display_number phony_chat')
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                            .setStyle(ButtonStyle.Secondary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_next phony_chat')
+                                            .setLabel('>')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_last phony_chat')
+                                            .setLabel('>>')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(false)
+                                    );
+                            } else {
+                                switch_page = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_first phony_chat')
+                                            .setLabel('<<')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_previous phony_chat')
+                                            .setLabel('<')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('display_number phony_chat')
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                            .setStyle(ButtonStyle.Secondary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_next phony_chat')
+                                            .setLabel('>')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_last phony_chat')
+                                            .setLabel('>>')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(false)
+                                    );
+                            }
+                            index -= 2;
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`${persona.phony_chat.at(0)
+                                    ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                    : '沒有注入的對話歷史'}`)
+                                .setFooter({
                                     text: '偽造對話',
                                     iconURL: interaction.user.displayAvatarURL()
                                 })
                                 .setTimestamp();
-                            await submit.editReply({
-                                embeds: [embed],
-                                components: [select_list, switch_page, edit_button]
-                            });
-                        } catch {
-                            //do nothing
-                        }
-                    }
-                    return;
-                } else if (commands[0] === 'to_next') {
-                    await i.deferUpdate();
-                    page += 1;
-                    if (commands[1] === 'phony_chat') {
-                        if (page == Math.round(persona.phony_chat.length / 2)) {
-                            switch_page = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_first phony_chat')
-                                        .setLabel('<<')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_previous phony_chat')
-                                        .setLabel('<')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('display_number phony_chat')
-                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                        .setStyle(ButtonStyle.Secondary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_next phony_chat')
-                                        .setLabel('>')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(true)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_last phony_chat')
-                                        .setLabel('>>')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(true)
-                                );
                         } else {
-                            switch_page = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_first phony_chat')
-                                        .setLabel('<<')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_previous phony_chat')
-                                        .setLabel('<')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('display_number phony_chat')
-                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                        .setStyle(ButtonStyle.Secondary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_next phony_chat')
-                                        .setLabel('>')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_last phony_chat')
-                                        .setLabel('>>')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
-                                );
+                            if (page == 1) {
+                                switch_page = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_first summarize')
+                                            .setLabel('<<')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(true)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_previous summarize')
+                                            .setLabel('<')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(true)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('display_number summarize')
+                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                            .setStyle(ButtonStyle.Secondary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_next summarize')
+                                            .setLabel('>')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_last summarize')
+                                            .setLabel('>>')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(false)
+                                    );
+                            } else {
+                                switch_page = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_first summarize')
+                                            .setLabel('<<')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_previous summarize')
+                                            .setLabel('<')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('display_number summarize')
+                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                            .setStyle(ButtonStyle.Secondary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_next summarize')
+                                            .setLabel('>')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_last summarize')
+                                            .setLabel('>>')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(false)
+                                    );
+                            }
+                            index -= 1;
+                            if (persona.summarize_instruction[index].role === 'placeholder') {
+                                edit_button = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('create summarize')
+                                            .setLabel('新增')
+                                            .setStyle(ButtonStyle.Success)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('edit summarize')
+                                            .setLabel('編輯')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(true)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('delete summarize')
+                                            .setLabel('刪除')
+                                            .setStyle(ButtonStyle.Danger)
+                                            .setDisabled(true)
+                                    );
+                            } else {
+                                edit_button = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('create summarize')
+                                            .setLabel('新增')
+                                            .setStyle(ButtonStyle.Success)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('edit summarize')
+                                            .setLabel('編輯')
+                                            .setStyle(ButtonStyle.Primary)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('delete summarize')
+                                            .setLabel('刪除')
+                                            .setStyle(ButtonStyle.Danger)
+                                    );
+                            }
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
+                                    persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
+                                        `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
+                                .setFooter({
+                                    text: '總結',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
                         }
-                        index += 2;
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('\u200b')
-                            .setDescription(`${persona.phony_chat.at(0)
-                                ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
-                                : '沒有注入的對話歷史'}`)
-                            .setFooter({
-                                text: '偽造對話',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                    } else {
-                        if (page == persona.summarize_instruction.length) {
-                            switch_page = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_first summarize')
-                                        .setLabel('<<')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_previous summarize')
-                                        .setLabel('<')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('display_number summarize')
-                                        .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                        .setStyle(ButtonStyle.Secondary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_next summarize')
-                                        .setLabel('>')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(true)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_last summarize')
-                                        .setLabel('>>')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(true)
-                                );
-                        } else {
-                            switch_page = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_first summarize')
-                                        .setLabel('<<')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_previous summarize')
-                                        .setLabel('<')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('display_number summarize')
-                                        .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                        .setStyle(ButtonStyle.Secondary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_next summarize')
-                                        .setLabel('>')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(false)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('to_last summarize')
-                                        .setLabel('>>')
-                                        .setStyle(ButtonStyle.Success)
-                                        .setDisabled(false)
-                                );
-                        }
-                        index += 1;
-                        if (persona.summarize_instruction[index].role === 'placeholder') {
-                            edit_button = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('create summarize')
-                                        .setLabel('新增')
-                                        .setStyle(ButtonStyle.Success)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('edit summarize')
-                                        .setLabel('編輯')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(true)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('delete summarize')
-                                        .setLabel('刪除')
-                                        .setStyle(ButtonStyle.Danger)
-                                        .setDisabled(true)
-                                );
-                        } else {
-                            edit_button = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('create summarize')
-                                        .setLabel('新增')
-                                        .setStyle(ButtonStyle.Success)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('edit summarize')
-                                        .setLabel('編輯')
-                                        .setStyle(ButtonStyle.Primary)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('delete summarize')
-                                        .setLabel('刪除')
-                                        .setStyle(ButtonStyle.Danger)
-                                );
-                        }
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('\u200b')
-                            .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
-                                persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
-                                    `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
-                            .setFooter({
-                                text: '總結',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                    }
-                } else if (commands[0] === 'to_last') {
-                    await i.deferUpdate();
-                    if (commands[1] === 'phony_chat') {
-                        page = Math.round(persona.phony_chat.length / 2);
-                        index = 2 * (page - 1);
-                        switch_page = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_first phony_chat')
-                                    .setLabel('<<')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_previous phony_chat')
-                                    .setLabel('<')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('display_number phony_chat')
-                                    .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                    .setStyle(ButtonStyle.Secondary)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_next phony_chat')
-                                    .setLabel('>')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_last phony_chat')
-                                    .setLabel('>>')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            );
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('\u200b')
-                            .setDescription(`${persona.phony_chat.at(0)
-                                ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
-                                : '沒有注入的對話歷史'}`)
-                            .setFooter({
-                                text: '偽造對話',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                    } else {
-                        page = persona.summarize_instruction.length;
-                        index = page - 1;
-                        switch_page = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_first summarize')
-                                    .setLabel('<<')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_previous summarize')
-                                    .setLabel('<')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('display_number summarize')
-                                    .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                    .setStyle(ButtonStyle.Secondary)
-                                    .setDisabled(false)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_next summarize')
-                                    .setLabel('>')
-                                    .setStyle(ButtonStyle.Primary)
-                                    .setDisabled(true)
-                            )
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('to_last summarize')
-                                    .setLabel('>>')
-                                    .setStyle(ButtonStyle.Success)
-                                    .setDisabled(true)
-                            );
-                        if (persona.summarize_instruction[index].role === 'placeholder') {
-                            edit_button = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('create summarize')
-                                        .setLabel('新增')
-                                        .setStyle(ButtonStyle.Success)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('edit summarize')
-                                        .setLabel('編輯')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(true)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('delete summarize')
-                                        .setLabel('刪除')
-                                        .setStyle(ButtonStyle.Danger)
-                                        .setDisabled(true)
-                                );
-                        } else {
-                            edit_button = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('create summarize')
-                                        .setLabel('新增')
-                                        .setStyle(ButtonStyle.Success)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('edit summarize')
-                                        .setLabel('編輯')
-                                        .setStyle(ButtonStyle.Primary)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('delete summarize')
-                                        .setLabel('刪除')
-                                        .setStyle(ButtonStyle.Danger)
-                                );
-                        }
-                        embed = new EmbedBuilder()
-                            .setAuthor({
-                                name: interaction.member?.displayName ?? interaction.user.displayName,
-                                iconURL: interaction.user.displayAvatarURL(),
-                            })
-                            .setTitle('\u200b')
-                            .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
-                                persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
-                                    `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
-                            .setFooter({
-                                text: '總結',
-                                iconURL: interaction.user.displayAvatarURL()
-                            })
-                            .setTimestamp();
-                    }
-                } else if (commands[0] === 'create') {
-                    if (commands[1] === 'phony_chat') {
-                        const modal = new ModalBuilder().setCustomId('ignore create_persona').setTitle('建立');
-                        modal
-                            .addLabelComponents(
+                    } else if (commands[0] === 'display_number') {
+                        if (commands[1] === 'phony_chat') {
+                            const modal = new ModalBuilder().setCustomId('ignore junp_page').setTitle('跳轉');
+                            modal.addLabelComponents(
                                 new LabelBuilder()
-                                    .setLabel('name')
+                                    .setLabel('頁面')
                                     .setTextInputComponent(
                                         new TextInputBuilder()
-                                            .setCustomId('name')
-                                            .setMaxLength(64)
-                                            .setPlaceholder('phony_chat的name欄位，只有role為user時才會使用，留空則使用你的username')
+                                            .setCustomId('jump')
+                                            .setPlaceholder(`頁末: ${Math.round(persona.phony_chat.length / 2)}`)
+                                            .setRequired(true)
                                             .setStyle(TextInputStyle.Short)
                                     )
-                            )
-                            .addLabelComponents(
+                            );
+                            await i.showModal(modal);
+                            try {
+                                const submit = await i.awaitModalSubmit({
+                                    filter: i => i.customId === 'ignore junp_page' && i.user.id === interaction.user.id,
+                                    time: cooldown_helper.from_second(30)
+                                });
+                                await submit.deferUpdate();
+                                const p = parseInt(submit.fields.getTextInputValue('jump'));
+                                if (p <= 1) {
+                                    page = 1;
+                                    index = 0;
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first phony_chat')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous phony_chat')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number phony_chat')
+                                                .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next phony_chat')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last phony_chat')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        );
+                                } else if (p >= (persona.phony_chat.length / 2)) {
+                                    page = Math.round(persona.phony_chat.length / 2);
+                                    index = 2 * (page - 1);
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first phony_chat')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous phony_chat')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number phony_chat')
+                                                .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next phony_chat')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last phony_chat')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        );
+                                } else if (!isNaN(p)) {
+                                    page = p;
+                                    index = 2 * (page - 1);
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first phony_chat')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous phony_chat')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number phony_chat')
+                                                .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next phony_chat')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last phony_chat')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        );
+                                }
+                                embed = new EmbedBuilder()
+                                    .setAuthor({
+                                        name: interaction.member?.displayName ?? interaction.user.displayName,
+                                        iconURL: interaction.user.displayAvatarURL(),
+                                    })
+                                    .setTitle('\u200b')
+                                    .setDescription(`${persona.phony_chat.at(0)
+                                        ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                        : '沒有注入的對話歷史'}`)
+                                    .setFooter({
+                                        text: '偽造對話',
+                                        iconURL: interaction.user.displayAvatarURL()
+                                    })
+                                    .setTimestamp();
+                                await submit.editReply({
+                                    embeds: [embed],
+                                    components: [select_list, switch_page, edit_button]
+                                });
+                            } catch {
+                                //do nothing
+                            }
+                        } else {
+                            const modal = new ModalBuilder().setCustomId('ignore junp_page').setTitle('跳轉');
+                            modal.addLabelComponents(
                                 new LabelBuilder()
-                                    .setLabel('訊息')
+                                    .setLabel('頁面')
                                     .setTextInputComponent(
                                         new TextInputBuilder()
-                                            .setCustomId('content')
-                                            .setMaxLength(4000)
-                                            .setPlaceholder('此訊息的內容')
+                                            .setCustomId('jump')
+                                            .setPlaceholder(`頁末: ${persona.summarize_instruction.length}`)
                                             .setRequired(true)
-                                            .setStyle(TextInputStyle.Paragraph)
+                                            .setStyle(TextInputStyle.Short)
                                     )
-                            )
-                            .addLabelComponents(
-                                new LabelBuilder()
-                                    .setLabel('role')
-                                    .setStringSelectMenuComponent(
-                                        new StringSelectMenuBuilder()
-                                            .setCustomId('role')
-                                            .setOptions([
-                                                { label: 'user', value: 'user' },
-                                                { label: 'assistant', value: 'assistant' }
-                                            ])
-                                            .setRequired(true)
+                            );
+                            await i.showModal(modal);
+                            try {
+                                const submit = await i.awaitModalSubmit({
+                                    filter: i => i.customId === 'ignore junp_page' && i.user.id === interaction.user.id,
+                                    time: cooldown_helper.from_second(30)
+                                });
+                                await submit.deferUpdate();
+                                const p = parseInt(submit.fields.getTextInputValue('jump'));
+                                if (p <= 1) {
+                                    page = 1;
+                                    index = 0;
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first summarize')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous summarize')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number summarize')
+                                                .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next summarize')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last summarize')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        );
+                                } else if (p >= (persona.summarize_instruction.length)) {
+                                    page = persona.phony_chat.length / 2;
+                                    index = page - 1;
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first summarize')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous summarize')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number summarize')
+                                                .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next summarize')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last summarize')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        );
+                                } else if (!isNaN(p)) {
+                                    page = p;
+                                    index = page - 1;
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first summarize')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous summarize')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number summarize')
+                                                .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next summarize')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last summarize')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        );
+                                }
+                                if (persona.summarize_instruction[index].role === 'placeholder') {
+                                    edit_button = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('create summarize')
+                                                .setLabel('新增')
+                                                .setStyle(ButtonStyle.Success)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('edit summarize')
+                                                .setLabel('編輯')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('delete summarize')
+                                                .setLabel('刪除')
+                                                .setStyle(ButtonStyle.Danger)
+                                                .setDisabled(true)
+                                        );
+                                } else {
+                                    edit_button = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('create summarize')
+                                                .setLabel('新增')
+                                                .setStyle(ButtonStyle.Success)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('edit summarize')
+                                                .setLabel('編輯')
+                                                .setStyle(ButtonStyle.Primary)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('delete summarize')
+                                                .setLabel('刪除')
+                                                .setStyle(ButtonStyle.Danger)
+                                        );
+                                }
+                                embed = new EmbedBuilder()
+                                    .setAuthor({
+                                        name: interaction.member?.displayName ?? interaction.user.displayName,
+                                        iconURL: interaction.user.displayAvatarURL(),
+                                    })
+                                    .setTitle('\u200b')
+                                    .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
+                                        persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
+                                            `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
+                                    .setFooter({
+                                        text: '偽造對話',
+                                        iconURL: interaction.user.displayAvatarURL()
+                                    })
+                                    .setTimestamp();
+                                await submit.editReply({
+                                    embeds: [embed],
+                                    components: [select_list, switch_page, edit_button]
+                                });
+                            } catch {
+                                //do nothing
+                            }
+                        }
+                        return;
+                    } else if (commands[0] === 'to_next') {
+                        await i.deferUpdate();
+                        page += 1;
+                        if (commands[1] === 'phony_chat') {
+                            if (page == Math.round(persona.phony_chat.length / 2)) {
+                                switch_page = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_first phony_chat')
+                                            .setLabel('<<')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(false)
                                     )
-                            )
-                            .addLabelComponents(
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_previous phony_chat')
+                                            .setLabel('<')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('display_number phony_chat')
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                            .setStyle(ButtonStyle.Secondary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_next phony_chat')
+                                            .setLabel('>')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(true)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_last phony_chat')
+                                            .setLabel('>>')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(true)
+                                    );
+                            } else {
+                                switch_page = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_first phony_chat')
+                                            .setLabel('<<')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_previous phony_chat')
+                                            .setLabel('<')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('display_number phony_chat')
+                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                            .setStyle(ButtonStyle.Secondary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_next phony_chat')
+                                            .setLabel('>')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_last phony_chat')
+                                            .setLabel('>>')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(false)
+                                    );
+                            }
+                            index += 2;
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`${persona.phony_chat.at(0)
+                                    ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                    : '沒有注入的對話歷史'}`)
+                                .setFooter({
+                                    text: '偽造對話',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                        } else {
+                            if (page == persona.summarize_instruction.length) {
+                                switch_page = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_first summarize')
+                                            .setLabel('<<')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_previous summarize')
+                                            .setLabel('<')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('display_number summarize')
+                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                            .setStyle(ButtonStyle.Secondary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_next summarize')
+                                            .setLabel('>')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(true)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_last summarize')
+                                            .setLabel('>>')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(true)
+                                    );
+                            } else {
+                                switch_page = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_first summarize')
+                                            .setLabel('<<')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_previous summarize')
+                                            .setLabel('<')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('display_number summarize')
+                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                            .setStyle(ButtonStyle.Secondary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_next summarize')
+                                            .setLabel('>')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(false)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('to_last summarize')
+                                            .setLabel('>>')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(false)
+                                    );
+                            }
+                            index += 1;
+                            if (persona.summarize_instruction[index].role === 'placeholder') {
+                                edit_button = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('create summarize')
+                                            .setLabel('新增')
+                                            .setStyle(ButtonStyle.Success)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('edit summarize')
+                                            .setLabel('編輯')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(true)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('delete summarize')
+                                            .setLabel('刪除')
+                                            .setStyle(ButtonStyle.Danger)
+                                            .setDisabled(true)
+                                    );
+                            } else {
+                                edit_button = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('create summarize')
+                                            .setLabel('新增')
+                                            .setStyle(ButtonStyle.Success)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('edit summarize')
+                                            .setLabel('編輯')
+                                            .setStyle(ButtonStyle.Primary)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('delete summarize')
+                                            .setLabel('刪除')
+                                            .setStyle(ButtonStyle.Danger)
+                                    );
+                            }
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
+                                    persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
+                                        `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
+                                .setFooter({
+                                    text: '總結',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                        }
+                    } else if (commands[0] === 'to_last') {
+                        await i.deferUpdate();
+                        if (commands[1] === 'phony_chat') {
+                            page = Math.round(persona.phony_chat.length / 2);
+                            index = 2 * (page - 1);
+                            switch_page = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_first phony_chat')
+                                        .setLabel('<<')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_previous phony_chat')
+                                        .setLabel('<')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('display_number phony_chat')
+                                        .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_next phony_chat')
+                                        .setLabel('>')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_last phony_chat')
+                                        .setLabel('>>')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(true)
+                                );
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`${persona.phony_chat.at(0)
+                                    ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                    : '沒有注入的對話歷史'}`)
+                                .setFooter({
+                                    text: '偽造對話',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                        } else {
+                            page = persona.summarize_instruction.length;
+                            index = page - 1;
+                            switch_page = new ActionRowBuilder()
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_first summarize')
+                                        .setLabel('<<')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_previous summarize')
+                                        .setLabel('<')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('display_number summarize')
+                                        .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setDisabled(false)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_next summarize')
+                                        .setLabel('>')
+                                        .setStyle(ButtonStyle.Primary)
+                                        .setDisabled(true)
+                                )
+                                .addComponents(
+                                    new ButtonBuilder()
+                                        .setCustomId('to_last summarize')
+                                        .setLabel('>>')
+                                        .setStyle(ButtonStyle.Success)
+                                        .setDisabled(true)
+                                );
+                            if (persona.summarize_instruction[index].role === 'placeholder') {
+                                edit_button = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('create summarize')
+                                            .setLabel('新增')
+                                            .setStyle(ButtonStyle.Success)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('edit summarize')
+                                            .setLabel('編輯')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(true)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('delete summarize')
+                                            .setLabel('刪除')
+                                            .setStyle(ButtonStyle.Danger)
+                                            .setDisabled(true)
+                                    );
+                            } else {
+                                edit_button = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('create summarize')
+                                            .setLabel('新增')
+                                            .setStyle(ButtonStyle.Success)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('edit summarize')
+                                            .setLabel('編輯')
+                                            .setStyle(ButtonStyle.Primary)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('delete summarize')
+                                            .setLabel('刪除')
+                                            .setStyle(ButtonStyle.Danger)
+                                    );
+                            }
+                            embed = new EmbedBuilder()
+                                .setAuthor({
+                                    name: interaction.member?.displayName ?? interaction.user.displayName,
+                                    iconURL: interaction.user.displayAvatarURL(),
+                                })
+                                .setTitle('\u200b')
+                                .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
+                                    persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
+                                        `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
+                                .setFooter({
+                                    text: '總結',
+                                    iconURL: interaction.user.displayAvatarURL()
+                                })
+                                .setTimestamp();
+                        }
+                    } else if (commands[0] === 'create') {
+                        if (commands[1] === 'phony_chat') {
+                            const modal = new ModalBuilder().setCustomId('ignore create_persona').setTitle('建立');
+                            modal
+                                .addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel('name')
+                                        .setTextInputComponent(
+                                            new TextInputBuilder()
+                                                .setCustomId('name')
+                                                .setMaxLength(64)
+                                                .setPlaceholder('phony_chat的name欄位，只有role為user時才會使用，留空則使用你的username')
+                                                .setStyle(TextInputStyle.Short)
+                                        )
+                                )
+                                .addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel('訊息')
+                                        .setTextInputComponent(
+                                            new TextInputBuilder()
+                                                .setCustomId('content')
+                                                .setMaxLength(4000)
+                                                .setPlaceholder('此訊息的內容')
+                                                .setRequired(true)
+                                                .setStyle(TextInputStyle.Paragraph)
+                                        )
+                                )
+                                .addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel('role')
+                                        .setStringSelectMenuComponent(
+                                            new StringSelectMenuBuilder()
+                                                .setCustomId('role')
+                                                .setOptions([
+                                                    { label: 'user', value: 'user' },
+                                                    { label: 'assistant', value: 'assistant' }
+                                                ])
+                                                .setRequired(true)
+                                        )
+                                )
+                                .addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel('創建位置')
+                                        .setStringSelectMenuComponent(
+                                            new StringSelectMenuBuilder()
+                                                .setCustomId('position')
+                                                .addOptions([
+                                                    { label: 'front', value: 'front', description: '在此位置的前方新增' },
+                                                    { label: 'back', value: 'back', description: '在此位置的後方新增' }
+                                                ])
+                                                .setRequired(true)
+                                        )
+                                );
+                            await i.showModal(modal);
+                            try {
+                                const submit = await i.awaitModalSubmit({
+                                    filter: i => i.customId === 'ignore create_persona' && i.user.id === interaction.user.id,
+                                    time: cooldown_helper.from_second(30)
+                                });
+                                await submit.deferUpdate();
+                                const name = submit.fields.getTextInputValue('name');
+                                const content = submit.fields.getTextInputValue('content');
+                                const role = submit.fields.getStringSelectValues('role')[0];
+                                const position = submit.fields.getStringSelectValues('position')[0];
+                                if (position === 'front') {
+                                    const temp = _.take(persona.phony_chat, index);
+                                    temp.push({
+                                        role: role,
+                                        name: role === 'user' ? (name ?? internal_user.internal_name) : undefined,
+                                        content: content
+                                    });
+                                    temp.push(..._.takeRight(persona.phony_chat, persona.phony_chat.length - index));
+                                    persona.phony_chat = temp;
+                                } else {
+                                    const temp = _.take(persona.phony_chat, index + 2);
+                                    temp.push({
+                                        role: role,
+                                        name: role === 'user' ? (name ?? internal_user.internal_name) : undefined,
+                                        content: content
+                                    });
+                                    temp.push(..._.takeRight(persona.phony_chat, persona.phony_chat.length - index - 2));
+                                    persona.phony_chat = temp;
+                                }
+                                if (page == 1) {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first phony_chat')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous phony_chat')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number phony_chat')
+                                                .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next phony_chat')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last phony_chat')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        );
+                                } else if (page == Math.round(persona.phony_chat.length / 2)) {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first phony_chat')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous phony_chat')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number phony_chat')
+                                                .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next phony_chat')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last phony_chat')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        );
+                                } else {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first phony_chat')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous phony_chat')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number phony_chat')
+                                                .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next phony_chat')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last phony_chat')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        );
+                                }
+                                embed = new EmbedBuilder()
+                                    .setAuthor({
+                                        name: interaction.member?.displayName ?? interaction.user.displayName,
+                                        iconURL: interaction.user.displayAvatarURL(),
+                                    })
+                                    .setTitle('\u200b')
+                                    .setDescription(`${persona.phony_chat.at(0)
+                                        ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                        : '沒有注入的對話歷史'}`)
+                                    .setFooter({
+                                        text: '偽造對話',
+                                        iconURL: interaction.user.displayAvatarURL()
+                                    })
+                                    .setTimestamp();
+                                await submit.editReply({
+                                    embeds: [embed],
+                                    components: [select_list, switch_page, edit_button]
+                                });
+                            } catch {
+                                //do nothing
+                            }
+                        } else {
+                            const modal = new ModalBuilder().setCustomId('ignore create_persona').setTitle('建立');
+                            modal.addLabelComponents(
                                 new LabelBuilder()
                                     .setLabel('創建位置')
                                     .setStringSelectMenuComponent(
@@ -1750,1183 +1929,1009 @@ module.exports = {
                                                 { label: 'front', value: 'front', description: '在此位置的前方新增' },
                                                 { label: 'back', value: 'back', description: '在此位置的後方新增' }
                                             ])
-                                            .setRequired(true)
                                     )
-                            );
-                        await i.showModal(modal);
-                        try {
-                            const submit = await i.awaitModalSubmit({
-                                filter: i => i.customId === 'ignore create_persona' && i.user.id === interaction.user.id,
-                                time: cooldown_helper.from_second(30)
-                            });
-                            await submit.deferUpdate();
-                            const name = submit.fields.getTextInputValue('name');
-                            const content = submit.fields.getTextInputValue('content');
-                            const role = submit.fields.getStringSelectValues('role')[0];
-                            const position = submit.fields.getStringSelectValues('position')[0];
-                            if (position === 'front') {
-                                const temp = _.take(persona.phony_chat, index);
-                                temp.push({
-                                    role: role,
-                                    name: role === 'user' ? (name ?? internal_user.internal_name) : undefined,
-                                    content: content
-                                });
-                                temp.push(..._.takeRight(persona.phony_chat, persona.phony_chat.length - index));
-                                persona.phony_chat = temp;
-                            } else {
-                                const temp = _.take(persona.phony_chat, index + 2);
-                                temp.push({
-                                    role: role,
-                                    name: role === 'user' ? (name ?? internal_user.internal_name) : undefined,
-                                    content: content
-                                });
-                                temp.push(..._.takeRight(persona.phony_chat, persona.phony_chat.length - index - 2));
-                                persona.phony_chat = temp;
-                            }
-                            if (page == 1) {
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first phony_chat')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous phony_chat')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next phony_chat')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last phony_chat')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    );
-                            } else if (page == Math.round(persona.phony_chat.length / 2)) {
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first phony_chat')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous phony_chat')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next phony_chat')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last phony_chat')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(true)
-                                    );
-                            } else {
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first phony_chat')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous phony_chat')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next phony_chat')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last phony_chat')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    );
-                            }
-                            embed = new EmbedBuilder()
-                                .setAuthor({
-                                    name: interaction.member?.displayName ?? interaction.user.displayName,
-                                    iconURL: interaction.user.displayAvatarURL(),
-                                })
-                                .setTitle('\u200b')
-                                .setDescription(`${persona.phony_chat.at(0)
-                                    ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
-                                    : '沒有注入的對話歷史'}`)
-                                .setFooter({
-                                    text: '偽造對話',
-                                    iconURL: interaction.user.displayAvatarURL()
-                                })
-                                .setTimestamp();
-                            await submit.editReply({
-                                embeds: [embed],
-                                components: [select_list, switch_page, edit_button]
-                            });
-                        } catch {
-                            //do nothing
-                        }
-                    } else {
-                        const modal = new ModalBuilder().setCustomId('ignore create_persona').setTitle('建立');
-                        modal.addLabelComponents(
-                            new LabelBuilder()
-                                .setLabel('創建位置')
-                                .setStringSelectMenuComponent(
-                                    new StringSelectMenuBuilder()
-                                        .setCustomId('position')
-                                        .addOptions([
-                                            { label: 'front', value: 'front', description: '在此位置的前方新增' },
-                                            { label: 'back', value: 'back', description: '在此位置的後方新增' }
-                                        ])
-                                )
-                        )
-                            .addLabelComponents(
-                                new LabelBuilder()
-                                    .setLabel('role')
-                                    .setStringSelectMenuComponent(
-                                        new StringSelectMenuBuilder()
-                                            .setCustomId('role')
-                                            .addOptions([
-                                                { label: 'user', value: 'user' },
-                                                { label: 'assistant', value: 'assistant' }
-                                            ])
-                                    )
-                            );
-                        await i.showModal(modal);
-                        try {
-                            const submit = await i.awaitModalSubmit({
-                                filter: i => i.customId === 'ignore create_persona' && i.user.id === interaction.user.id,
-                                time: cooldown_helper.from_second(30)
-                            });
-                            await submit.deferUpdate();
-                            const position = submit.fields.getStringSelectValues('position')[0];
-                            if (position === 'front') {
-                                const temp = _.take(persona.summarize_instruction, index);
-                                temp.push(submit.fields.getStringSelectValues('role')[0] === 'user' ? {
-                                    role: 'user',
-                                    name: internal_user.name,
-                                    content: ''
-                                } : {
-                                    role: 'assistant',
-                                    content: ''
-                                });
-                                temp.push(..._.takeRight(persona.summarize_instruction, persona.summarize_instruction.length - index));
-                                persona.summarize_instruction = temp;
-                            } else {
-                                const temp = _.take(persona.summarize_instruction, index + 1);
-                                temp.push(submit.fields.getStringSelectValues('role')[0] === 'user' ? {
-                                    role: 'user',
-                                    name: internal_user.name,
-                                    content: ''
-                                } : {
-                                    role: 'assistant',
-                                    content: ''
-                                });
-                                temp.push(..._.takeRight(persona.summarize_instruction, persona.summarize_instruction.length - index - 1));
-                                persona.summarize_instruction = temp;
-                            }
-                            if (page == 1) {
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first summarize')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous summarize')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number summarize')
-                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next summarize')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last summarize')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    );
-                            } else if (page == persona.summarize_instruction.length) {
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first summarize')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous summarize')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number summarize')
-                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next summarize')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last summarize')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(true)
-                                    );
-                            } else {
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first summarize')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous summarize')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number summarize')
-                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next summarize')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last summarize')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    );
-                            }
-                            embed = new EmbedBuilder()
-                                .setAuthor({
-                                    name: interaction.member?.displayName ?? interaction.user.displayName,
-                                    iconURL: interaction.user.displayAvatarURL(),
-                                })
-                                .setTitle('\u200b')
-                                .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
-                                    persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
-                                        `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
-                                .setFooter({
-                                    text: '總結',
-                                    iconURL: interaction.user.displayAvatarURL()
-                                })
-                                .setTimestamp();
-                            edit_button = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('create summarize')
-                                        .setLabel('新增')
-                                        .setStyle(ButtonStyle.Success)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('edit summarize')
-                                        .setLabel('編輯')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(persona.summarize_instruction[index].role === 'placeholder')
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('delete summarize')
-                                        .setLabel('刪除')
-                                        .setStyle(ButtonStyle.Danger)
-                                        .setDisabled(persona.summarize_instruction[index].role === 'placeholder')
+                            )
+                                .addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel('role')
+                                        .setStringSelectMenuComponent(
+                                            new StringSelectMenuBuilder()
+                                                .setCustomId('role')
+                                                .addOptions([
+                                                    { label: 'user', value: 'user' },
+                                                    { label: 'assistant', value: 'assistant' }
+                                                ])
+                                        )
                                 );
-                            await submit.editReply({
-                                embeds: [embed],
-                                components: [select_list, switch_page, edit_button]
-                            });
-                        } catch {
-                            //do nothing
+                            await i.showModal(modal);
+                            try {
+                                const submit = await i.awaitModalSubmit({
+                                    filter: i => i.customId === 'ignore create_persona' && i.user.id === interaction.user.id,
+                                    time: cooldown_helper.from_second(30)
+                                });
+                                await submit.deferUpdate();
+                                const position = submit.fields.getStringSelectValues('position')[0];
+                                if (position === 'front') {
+                                    const temp = _.take(persona.summarize_instruction, index);
+                                    temp.push(submit.fields.getStringSelectValues('role')[0] === 'user' ? {
+                                        role: 'user',
+                                        name: internal_user.name,
+                                        content: ''
+                                    } : {
+                                        role: 'assistant',
+                                        content: ''
+                                    });
+                                    temp.push(..._.takeRight(persona.summarize_instruction, persona.summarize_instruction.length - index));
+                                    persona.summarize_instruction = temp;
+                                } else {
+                                    const temp = _.take(persona.summarize_instruction, index + 1);
+                                    temp.push(submit.fields.getStringSelectValues('role')[0] === 'user' ? {
+                                        role: 'user',
+                                        name: internal_user.name,
+                                        content: ''
+                                    } : {
+                                        role: 'assistant',
+                                        content: ''
+                                    });
+                                    temp.push(..._.takeRight(persona.summarize_instruction, persona.summarize_instruction.length - index - 1));
+                                    persona.summarize_instruction = temp;
+                                }
+                                if (page == 1) {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first summarize')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous summarize')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number summarize')
+                                                .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next summarize')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last summarize')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        );
+                                } else if (page == persona.summarize_instruction.length) {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first summarize')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous summarize')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number summarize')
+                                                .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next summarize')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last summarize')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        );
+                                } else {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first summarize')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous summarize')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number summarize')
+                                                .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next summarize')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last summarize')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        );
+                                }
+                                embed = new EmbedBuilder()
+                                    .setAuthor({
+                                        name: interaction.member?.displayName ?? interaction.user.displayName,
+                                        iconURL: interaction.user.displayAvatarURL(),
+                                    })
+                                    .setTitle('\u200b')
+                                    .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
+                                        persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
+                                            `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
+                                    .setFooter({
+                                        text: '總結',
+                                        iconURL: interaction.user.displayAvatarURL()
+                                    })
+                                    .setTimestamp();
+                                edit_button = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('create summarize')
+                                            .setLabel('新增')
+                                            .setStyle(ButtonStyle.Success)
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('edit summarize')
+                                            .setLabel('編輯')
+                                            .setStyle(ButtonStyle.Primary)
+                                            .setDisabled(persona.summarize_instruction[index].role === 'placeholder')
+                                    )
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('delete summarize')
+                                            .setLabel('刪除')
+                                            .setStyle(ButtonStyle.Danger)
+                                            .setDisabled(persona.summarize_instruction[index].role === 'placeholder')
+                                    );
+                                await submit.editReply({
+                                    embeds: [embed],
+                                    components: [select_list, switch_page, edit_button]
+                                });
+                            } catch {
+                                //do nothing
+                            }
                         }
-                    }
-                    return;
-                } else if (commands[0] === 'edit') {
-                    if (commands[1] === 'opening') {
-                        const modal = new ModalBuilder().setCustomId('ignore edit_opening').setTitle('編輯');
-                        modal.addLabelComponents(
-                            new LabelBuilder()
-                                .setLabel('顯示名稱')
-                                .setTextInputComponent(
-                                    new TextInputBuilder()
-                                        .setCustomId('display_name')
-                                        .setMaxLength(64)
-                                        .setStyle(TextInputStyle.Short)
-                                        .setRequired(true)
-                                        .setValue(persona.display_name)
-                                )
-                        )
-                            .addLabelComponents(
+                        return;
+                    } else if (commands[0] === 'edit') {
+                        if (commands[1] === 'opening') {
+                            const modal = new ModalBuilder().setCustomId('ignore edit_opening').setTitle('編輯');
+                            modal.addLabelComponents(
                                 new LabelBuilder()
-                                    .setLabel('實際名稱')
+                                    .setLabel('顯示名稱')
                                     .setTextInputComponent(
                                         new TextInputBuilder()
-                                            .setCustomId('internal_name')
+                                            .setCustomId('display_name')
                                             .setMaxLength(64)
                                             .setStyle(TextInputStyle.Short)
                                             .setRequired(true)
-                                            .setValue(persona.internal_name)
+                                            .setValue(persona.display_name)
                                     )
                             )
-                            .addLabelComponents(
-                                new LabelBuilder()
-                                    .setLabel('可見性')
-                                    .setStringSelectMenuComponent(
-                                        new StringSelectMenuBuilder()
-                                            .setCustomId('visible')
-                                            .addOptions([
-                                                { label: 'public', value: 'public', description: '公開', default: persona.type === type_t.public },
-                                                { label: 'private', value: 'private', description: '私人', default: persona.type === type_t.private }
-                                            ])
-                                    )
+                                .addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel('實際名稱')
+                                        .setTextInputComponent(
+                                            new TextInputBuilder()
+                                                .setCustomId('internal_name')
+                                                .setMaxLength(64)
+                                                .setStyle(TextInputStyle.Short)
+                                                .setRequired(true)
+                                                .setValue(persona.internal_name)
+                                        )
+                                )
+                                .addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel('可見性')
+                                        .setStringSelectMenuComponent(
+                                            new StringSelectMenuBuilder()
+                                                .setCustomId('visible')
+                                                .addOptions([
+                                                    { label: 'public', value: 'public', description: '公開', default: persona.type === type_t.public },
+                                                    { label: 'private', value: 'private', description: '私人', default: persona.type === type_t.private }
+                                                ])
+                                        )
 
-                            )
-                            .addLabelComponents(
-                                new LabelBuilder()
-                                    .setLabel('是否棄用')
-                                    .setCheckboxComponent(
-                                        new CheckboxBuilder()
-                                            .setCustomId('deprecated')
-                                            .setDefault(persona.deprecated)
-                                    )
+                                )
+                                .addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel('是否棄用')
+                                        .setCheckboxComponent(
+                                            new CheckboxBuilder()
+                                                .setCustomId('deprecated')
+                                                .setDefault(persona.deprecated)
+                                        )
 
-                            );
-                        await i.showModal(modal);
-                        try {
-                            const submit = await i.awaitModalSubmit({
-                                filter: i => i.customId === 'ignore edit_opening' && i.user.id === interaction.user.id,
-                                time: cooldown_helper.from_second(30)
-                            });
-                            await submit.deferUpdate();
-                            persona.display_name = submit.fields.getTextInputValue('display_name');
-                            persona.internal_name = submit.fields.getTextInputValue('internal_name');
-                            persona.type = submit.fields.getStringSelectValues('visible')[0] === 'public' ? type_t.public : type_t.private;
-                            persona.deprecated = submit.fields.getCheckbox('deprecated');
-                            embed = new EmbedBuilder()
-                                .setAuthor({
-                                    name: interaction.member?.displayName ?? interaction.user.displayName,
-                                    iconURL: interaction.user.displayAvatarURL(),
-                                })
-                                .setTitle('基本資訊')
-                                .setDescription(`名稱: ${persona.internal_name}\n顯示名稱: ${persona.display_name}\n當前狀態: ${persona.type}\n是否棄用: ${persona.deprecated ? '是' : '否'}`)
-                                .setFooter({
-                                    text: '概覽',
-                                    iconURL: interaction.user.displayAvatarURL()
-                                })
-                                .setTimestamp();
-                            await submit.editReply({
-                                embeds: [embed],
-                                components: [select_list, switch_page, edit_button]
-                            });
-                            return;
-                        } catch {
-                            //do nothing
-                        }
-                    } else if (commands[1] === 'persona') {
-                        if (persona.persona.length > 4000 || persona.profile.length > 4000) {
-                            await i.reply({
-                                content: '設定太長啦！\n已經沒辦法在Discord編輯了喔！',
-                                flags: MessageFlags.Ephemeral
-                            });
-                            return;
-                        }
-                        const modal = new ModalBuilder().setCustomId('ignore edit_persona').setTitle('編輯');
-                        modal.addLabelComponents(
-                            new LabelBuilder()
-                                .setLabel('主設定')
-                                .setTextInputComponent(
-                                    new TextInputBuilder()
-                                        .setCustomId('persona')
-                                        .setMaxLength(4000)
-                                        .setStyle(TextInputStyle.Paragraph)
-                                        .setValue(persona.persona)
-                                )
-                        )
-                            .addLabelComponents(
-                                new LabelBuilder()
-                                    .setLabel('引用設定')
-                                    .setTextInputComponent(
-                                        new TextInputBuilder()
-                                            .setCustomId('profile')
-                                            .setMaxLength(4000)
-                                            .setStyle(TextInputStyle.Paragraph)
-                                            .setValue(persona.profile)
-                                            .setRequired(false)
-                                    )
-                            );
-                        await i.showModal(modal);
-                        try {
-                            const submit = await i.awaitModalSubmit({
-                                filter: i => i.customId === 'ignore edit_persona' && i.user.id === interaction.user.id,
-                                time: cooldown_helper.from_second(30)
-                            });
-                            await submit.deferUpdate();
-                            persona.persona = submit.fields.getTextInputValue('persona');
-                            persona.profile = submit.fields.getTextInputValue('profile') ?? '';
-                            embed = new EmbedBuilder()
-                                .setAuthor({
-                                    name: interaction.member?.displayName ?? interaction.user.displayName,
-                                    iconURL: interaction.user.displayAvatarURL(),
-                                })
-                                .setTitle('persona設定')
-                                .addFields({
-                                    name: '主設定',
-                                    value: `\`\`\`${persona.persona.slice(0, 1000)}${persona.persona.length > 1000 ? '...' : ''}\`\`\``
-                                })
-                                .addFields({
-                                    name: '引用設定',
-                                    value: `\`\`\`${persona.profile.slice(0, 1000)}${persona.profile.length > 1000 ? '...' : ' '}\`\`\``
-                                })
-                                .setFooter({
-                                    text: '設定',
-                                    iconURL: interaction.user.displayAvatarURL()
-                                })
-                                .setTimestamp();
-                            await submit.editReply({
-                                embeds: [embed],
-                                components: [select_list, switch_page, edit_button]
-                            });
-                            return;
-                        } catch {
-                            //do nothing
-                        }
-                    } else if (commands[1] === 'format') {
-                        if (persona.format.length > 4000 || persona.reply_format.length > 4000 || persona.user_format.length > 4000) {
-                            await i.reply({
-                                content: '設定太長啦！\n已經沒辦法在Discord編輯了喔！',
-                                flags: MessageFlags.Ephemeral
-                            });
-                            return;
-                        }
-                        const modal = new ModalBuilder().setCustomId('ignore edit_format').setTitle('編輯');
-                        modal.addLabelComponents(
-                            new LabelBuilder()
-                                .setLabel('普通訊息')
-                                .setTextInputComponent(
-                                    new TextInputBuilder()
-                                        .setCustomId('format')
-                                        .setMaxLength(4000)
-                                        .setStyle(TextInputStyle.Paragraph)
-                                        .setValue(persona.format)
-                                )
-                        )
-                            .addLabelComponents(
-                                new LabelBuilder()
-                                    .setLabel('回覆')
-                                    .setTextInputComponent(
-                                        new TextInputBuilder()
-                                            .setCustomId('reply_format')
-                                            .setMaxLength(4000)
-                                            .setStyle(TextInputStyle.Paragraph)
-                                            .setValue(persona.reply_format)
-                                    )
-                            )
-                            .addLabelComponents(
-                                new LabelBuilder()
-                                    .setLabel('使用者')
-                                    .setTextInputComponent(
-                                        new TextInputBuilder()
-                                            .setCustomId('user_format')
-                                            .setMaxLength(4000)
-                                            .setStyle(TextInputStyle.Paragraph)
-                                            .setValue(persona.user_format)
-                                    )
-                            );
-                        await i.showModal(modal);
-                        try {
-                            const submit = await i.awaitModalSubmit({
-                                filter: i => i.customId === 'ignore edit_format' && i.user.id === interaction.user.id,
-                                time: cooldown_helper.from_second(30)
-                            });
-                            await submit.deferUpdate();
-                            persona.format = submit.fields.getTextInputValue('format');
-                            persona.reply_format = submit.fields.getTextInputValue('reply_format');
-                            persona.user_format = submit.fields.getTextInputValue('user_format');
-                            embed = new EmbedBuilder()
-                                .setAuthor({
-                                    name: interaction.member?.displayName ?? interaction.user.displayName,
-                                    iconURL: interaction.user.displayAvatarURL(),
-                                })
-                                .setTitle('\u200b')
-                                .setDescription(`普通訊息:\n\`\`\`${persona.format || ' '}\`\`\`\n回覆:\n\`\`\`${persona.reply_format || ' '}\`\`\`\n使用者:\n\`\`\`${persona.user_format || ' '}\`\`\``)
-                                .setFooter({
-                                    text: '格式',
-                                    iconURL: interaction.user.displayAvatarURL()
-                                })
-                                .setTimestamp();
-                            await submit.editReply({
-                                embeds: [embed],
-                                components: [select_list, switch_page, edit_button]
-                            });
-                            return;
-                        } catch {
-                            //do nothing
-                        }
-                    } else if (commands[1] === 'phony_chat') {
-                        if (persona.phony_chat.length === 0) {
-                            await i.reply({
-                                content: '你已經沒有東西可以編輯了！',
-                                flags: MessageFlags.Ephemeral
-                            });
-                            return;
-                        } else if (persona.phony_chat[index].content.length > 4000 || persona.phony_chat.at(index + 1).content.length > 4000) {
-                            await i.reply({
-                                content: '太長啦！\n已經沒辦法在Discord編輯了喔！',
-                                flags: MessageFlags.Ephemeral
-                            });
-                            return;
-                        }
-                        const modal = new ModalBuilder().setCustomId('ignore edit_phony_chat').setTitle('編輯');
-                        modal.addLabelComponents(
-                            new LabelBuilder()
-                                .setLabel(persona.phony_chat[index].role)
-                                .setTextInputComponent(
-                                    new TextInputBuilder()
-                                        .setCustomId('first')
-                                        .setValue(persona.phony_chat[index].content)
-                                        .setMaxLength(4000)
-                                        .setStyle(TextInputStyle.Paragraph)
-                                )
-                        );
-                        if (persona.phony_chat.at(index + 1)) {
+                                );
+                            await i.showModal(modal);
+                            try {
+                                const submit = await i.awaitModalSubmit({
+                                    filter: i => i.customId === 'ignore edit_opening' && i.user.id === interaction.user.id,
+                                    time: cooldown_helper.from_second(30)
+                                });
+                                await submit.deferUpdate();
+                                persona.display_name = submit.fields.getTextInputValue('display_name');
+                                persona.internal_name = submit.fields.getTextInputValue('internal_name');
+                                persona.type = submit.fields.getStringSelectValues('visible')[0] === 'public' ? type_t.public : type_t.private;
+                                persona.deprecated = submit.fields.getCheckbox('deprecated');
+                                embed = new EmbedBuilder()
+                                    .setAuthor({
+                                        name: interaction.member?.displayName ?? interaction.user.displayName,
+                                        iconURL: interaction.user.displayAvatarURL(),
+                                    })
+                                    .setTitle('基本資訊')
+                                    .setDescription(`名稱: ${persona.internal_name}\n顯示名稱: ${persona.display_name}\n當前狀態: ${persona.type}\n是否棄用: ${persona.deprecated ? '是' : '否'}`)
+                                    .setFooter({
+                                        text: '概覽',
+                                        iconURL: interaction.user.displayAvatarURL()
+                                    })
+                                    .setTimestamp();
+                                await submit.editReply({
+                                    embeds: [embed],
+                                    components: [select_list, switch_page, edit_button]
+                                });
+                                return;
+                            } catch {
+                                //do nothing
+                            }
+                        } else if (commands[1] === 'persona') {
+                            if (persona.persona.length > 4000 || persona.profile.length > 4000) {
+                                await i.reply({
+                                    content: '設定太長啦！\n已經沒辦法在Discord編輯了喔！',
+                                    flags: MessageFlags.Ephemeral
+                                });
+                                return;
+                            }
+                            const modal = new ModalBuilder().setCustomId('ignore edit_persona').setTitle('編輯');
                             modal.addLabelComponents(
                                 new LabelBuilder()
-                                    .setLabel(persona.phony_chat[index + 1].role)
+                                    .setLabel('主設定')
                                     .setTextInputComponent(
                                         new TextInputBuilder()
-                                            .setCustomId('second')
-                                            .setValue(persona.phony_chat[index + 1].content)
+                                            .setCustomId('persona')
+                                            .setMaxLength(4000)
+                                            .setStyle(TextInputStyle.Paragraph)
+                                            .setValue(persona.persona)
+                                    )
+                            )
+                                .addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel('引用設定')
+                                        .setTextInputComponent(
+                                            new TextInputBuilder()
+                                                .setCustomId('profile')
+                                                .setMaxLength(4000)
+                                                .setStyle(TextInputStyle.Paragraph)
+                                                .setValue(persona.profile)
+                                                .setRequired(false)
+                                        )
+                                );
+                            await i.showModal(modal);
+                            try {
+                                const submit = await i.awaitModalSubmit({
+                                    filter: i => i.customId === 'ignore edit_persona' && i.user.id === interaction.user.id,
+                                    time: cooldown_helper.from_second(30)
+                                });
+                                await submit.deferUpdate();
+                                persona.persona = submit.fields.getTextInputValue('persona');
+                                persona.profile = submit.fields.getTextInputValue('profile') ?? '';
+                                embed = new EmbedBuilder()
+                                    .setAuthor({
+                                        name: interaction.member?.displayName ?? interaction.user.displayName,
+                                        iconURL: interaction.user.displayAvatarURL(),
+                                    })
+                                    .setTitle('persona設定')
+                                    .addFields({
+                                        name: '主設定',
+                                        value: `\`\`\`${persona.persona.slice(0, 1000)}${persona.persona.length > 1000 ? '...' : ''}\`\`\``
+                                    })
+                                    .addFields({
+                                        name: '引用設定',
+                                        value: `\`\`\`${persona.profile.slice(0, 1000)}${persona.profile.length > 1000 ? '...' : ' '}\`\`\``
+                                    })
+                                    .setFooter({
+                                        text: '設定',
+                                        iconURL: interaction.user.displayAvatarURL()
+                                    })
+                                    .setTimestamp();
+                                await submit.editReply({
+                                    embeds: [embed],
+                                    components: [select_list, switch_page, edit_button]
+                                });
+                                return;
+                            } catch {
+                                //do nothing
+                            }
+                        } else if (commands[1] === 'format') {
+                            if (persona.format.length > 4000 || persona.reply_format.length > 4000 || persona.user_format.length > 4000) {
+                                await i.reply({
+                                    content: '設定太長啦！\n已經沒辦法在Discord編輯了喔！',
+                                    flags: MessageFlags.Ephemeral
+                                });
+                                return;
+                            }
+                            const modal = new ModalBuilder().setCustomId('ignore edit_format').setTitle('編輯');
+                            modal.addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('普通訊息')
+                                    .setTextInputComponent(
+                                        new TextInputBuilder()
+                                            .setCustomId('format')
+                                            .setMaxLength(4000)
+                                            .setStyle(TextInputStyle.Paragraph)
+                                            .setValue(persona.format)
+                                    )
+                            )
+                                .addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel('回覆')
+                                        .setTextInputComponent(
+                                            new TextInputBuilder()
+                                                .setCustomId('reply_format')
+                                                .setMaxLength(4000)
+                                                .setStyle(TextInputStyle.Paragraph)
+                                                .setValue(persona.reply_format)
+                                        )
+                                )
+                                .addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel('使用者')
+                                        .setTextInputComponent(
+                                            new TextInputBuilder()
+                                                .setCustomId('user_format')
+                                                .setMaxLength(4000)
+                                                .setStyle(TextInputStyle.Paragraph)
+                                                .setValue(persona.user_format)
+                                        )
+                                );
+                            await i.showModal(modal);
+                            try {
+                                const submit = await i.awaitModalSubmit({
+                                    filter: i => i.customId === 'ignore edit_format' && i.user.id === interaction.user.id,
+                                    time: cooldown_helper.from_second(30)
+                                });
+                                await submit.deferUpdate();
+                                persona.format = submit.fields.getTextInputValue('format');
+                                persona.reply_format = submit.fields.getTextInputValue('reply_format');
+                                persona.user_format = submit.fields.getTextInputValue('user_format');
+                                embed = new EmbedBuilder()
+                                    .setAuthor({
+                                        name: interaction.member?.displayName ?? interaction.user.displayName,
+                                        iconURL: interaction.user.displayAvatarURL(),
+                                    })
+                                    .setTitle('\u200b')
+                                    .setDescription(`普通訊息:\n\`\`\`${persona.format || ' '}\`\`\`\n回覆:\n\`\`\`${persona.reply_format || ' '}\`\`\`\n使用者:\n\`\`\`${persona.user_format || ' '}\`\`\``)
+                                    .setFooter({
+                                        text: '格式',
+                                        iconURL: interaction.user.displayAvatarURL()
+                                    })
+                                    .setTimestamp();
+                                await submit.editReply({
+                                    embeds: [embed],
+                                    components: [select_list, switch_page, edit_button]
+                                });
+                                return;
+                            } catch {
+                                //do nothing
+                            }
+                        } else if (commands[1] === 'phony_chat') {
+                            if (persona.phony_chat.length === 0) {
+                                await i.reply({
+                                    content: '你已經沒有東西可以編輯了！',
+                                    flags: MessageFlags.Ephemeral
+                                });
+                                return;
+                            } else if (persona.phony_chat[index].content.length > 4000 || persona.phony_chat.at(index + 1).content.length > 4000) {
+                                await i.reply({
+                                    content: '太長啦！\n已經沒辦法在Discord編輯了喔！',
+                                    flags: MessageFlags.Ephemeral
+                                });
+                                return;
+                            }
+                            const modal = new ModalBuilder().setCustomId('ignore edit_phony_chat').setTitle('編輯');
+                            modal.addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel(persona.phony_chat[index].role)
+                                    .setTextInputComponent(
+                                        new TextInputBuilder()
+                                            .setCustomId('first')
+                                            .setValue(persona.phony_chat[index].content)
                                             .setMaxLength(4000)
                                             .setStyle(TextInputStyle.Paragraph)
                                     )
                             );
+                            if (persona.phony_chat.at(index + 1)) {
+                                modal.addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel(persona.phony_chat[index + 1].role)
+                                        .setTextInputComponent(
+                                            new TextInputBuilder()
+                                                .setCustomId('second')
+                                                .setValue(persona.phony_chat[index + 1].content)
+                                                .setMaxLength(4000)
+                                                .setStyle(TextInputStyle.Paragraph)
+                                        )
+                                );
+                            }
+                            await i.showModal(modal);
+                            try {
+                                const submit = await i.awaitModalSubmit({
+                                    filter: i => i.customId === 'ignore edit_phony_chat' && i.user.id === interaction.user.id,
+                                    time: cooldown_helper.from_second(30)
+                                });
+                                await submit.deferUpdate();
+                                persona.phony_chat[index].content = submit.fields.getTextInputValue('first');
+                                if (persona.phony_chat.at(index + 1)) persona.phony_chat[index + 1].content = submit.fields.getTextInputValue('second');
+                                embed = new EmbedBuilder()
+                                    .setAuthor({
+                                        name: interaction.member?.displayName ?? interaction.user.displayName,
+                                        iconURL: interaction.user.displayAvatarURL(),
+                                    })
+                                    .setTitle('\u200b')
+                                    .setDescription(`${persona.phony_chat.at(0)
+                                        ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                        : '沒有注入的對話歷史'}`)
+                                    .setFooter({
+                                        text: '偽造對話',
+                                        iconURL: interaction.user.displayAvatarURL()
+                                    })
+                                    .setTimestamp();
+                                await submit.editReply({
+                                    embeds: [embed],
+                                    components: [select_list, switch_page, edit_button]
+                                });
+                                return;
+                            } catch {
+                                //do nothing
+                            }
+                        } else if (commands[1] === 'summarize') {
+                            if (persona.summarize_instruction[index].content.length > 4000) {
+                                await i.reply({
+                                    content: '太長啦！\n已經沒辦法在Discord編輯了喔！',
+                                    flags: MessageFlags.Ephemeral
+                                });
+                                return;
+                            }
+                            const modal = new ModalBuilder().setCustomId('ignore edit_summarize').setTitle('編輯');
+                            modal.addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel(persona.summarize_instruction[index].role === 'user' ? 'user' : persona.internal_name)
+                                    .setTextInputComponent(
+                                        new TextInputBuilder()
+                                            .setCustomId('instruction')
+                                            .setValue(persona.summarize_instruction[index].content)
+                                            .setMaxLength(4000)
+                                            .setStyle(TextInputStyle.Paragraph)
+                                    )
+                            );
+                            await i.showModal(modal);
+                            try {
+                                const submit = await i.awaitModalSubmit({
+                                    filter: i => i.customId === 'ignore edit_summarize' && i.user.id === interaction.user.id,
+                                    time: cooldown_helper.from_second(30)
+                                });
+                                await submit.deferUpdate();
+                                persona.summarize_instruction[index].content = submit.fields.getTextInputValue('instruction');
+                                embed = new EmbedBuilder()
+                                    .setAuthor({
+                                        name: interaction.member?.displayName ?? interaction.user.displayName,
+                                        iconURL: interaction.user.displayAvatarURL(),
+                                    })
+                                    .setTitle('\u200b')
+                                    .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
+                                        persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
+                                            `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
+                                    .setFooter({
+                                        text: '總結',
+                                        iconURL: interaction.user.displayAvatarURL()
+                                    })
+                                    .setTimestamp();
+                                await submit.editReply({
+                                    embeds: [embed],
+                                    components: [select_list, switch_page, edit_button]
+                                });
+                                return;
+                            } catch {
+                                //do nothing
+                            }
+                        } else {
+                            if (persona.format.length > 4000 || persona.reply_format.length > 4000 || persona.user_format.length > 4000) {
+                                await i.reply({
+                                    content: '設定太長啦！\n已經沒辦法在Discord編輯了喔！',
+                                    flags: MessageFlags.Ephemeral
+                                });
+                                return;
+                            }
+                            const modal = new ModalBuilder().setCustomId('ignore edit_memory').setTitle('編輯');
+                            modal.addLabelComponents(
+                                new LabelBuilder()
+                                    .setLabel('發送倫數')
+                                    .setTextInputComponent(
+                                        new TextInputBuilder()
+                                            .setCustomId('short_term')
+                                            .setMaxLength(10)
+                                            .setStyle(TextInputStyle.Short)
+                                            .setValue(persona.memory.short_term_max.toString())
+                                    )
+                            )
+                                .addLabelComponents(
+                                    new LabelBuilder()
+                                        .setLabel('總結開始位置')
+                                        .setTextInputComponent(
+                                            new TextInputBuilder()
+                                                .setCustomId('summarize_start_index')
+                                                .setMaxLength(10)
+                                                .setStyle(TextInputStyle.Short)
+                                                .setValue(persona.memory.summarize_start_index.toString())
+                                        )
+                                );
+                            await i.showModal(modal);
+                            try {
+                                const submit = await i.awaitModalSubmit({
+                                    filter: i => i.customId === 'ignore edit_memory' && i.user.id === interaction.user.id,
+                                    time: cooldown_helper.from_second(30)
+                                });
+                                await submit.deferUpdate();
+                                const short_term = parseInt(submit.fields.getTextInputValue('short_term'));
+                                const summarize_start_index = parseInt(submit.fields.getTextInputValue('summarize_start_index'));
+                                persona.memory.short_term_max = isNaN(short_term) ? persona.memory.short_term_max : short_term;
+                                persona.memory.summarize_start_index = isNaN(summarize_start_index) ? persona.memory.summarize_start_index : summarize_start_index;
+                                embed = new EmbedBuilder()
+                                    .setAuthor({
+                                        name: interaction.member?.displayName ?? interaction.user.displayName,
+                                        iconURL: interaction.user.displayAvatarURL(),
+                                    })
+                                    .setTitle('\u200b')
+                                    .setDescription(`發送${persona.memory.short_term_max}倫對話\n總結${persona.memory.summarize_start_index}前的所有對話\n${persona.internal_name}最新的記憶:\n${persona.memory.summarized.length > 0 ? `\`\`\`${persona.memory.summarized.at(-1)}\`\`\`` : '尚未總結'}`)
+                                    .setFooter({
+                                        text: '記憶處理',
+                                        iconURL: interaction.user.displayAvatarURL()
+                                    })
+                                    .setTimestamp();
+                                await submit.editReply({
+                                    embeds: [embed],
+                                    components: [select_list, switch_page, edit_button]
+                                });
+                                return;
+                            } catch {
+                                //do nothing
+                            }
                         }
-                        await i.showModal(modal);
-                        try {
-                            const submit = await i.awaitModalSubmit({
-                                filter: i => i.customId === 'ignore edit_phony_chat' && i.user.id === interaction.user.id,
-                                time: cooldown_helper.from_second(30)
-                            });
-                            await submit.deferUpdate();
-                            persona.phony_chat[index].content = submit.fields.getTextInputValue('first');
-                            if (persona.phony_chat.at(index + 1)) persona.phony_chat[index + 1].content = submit.fields.getTextInputValue('second');
-                            embed = new EmbedBuilder()
-                                .setAuthor({
-                                    name: interaction.member?.displayName ?? interaction.user.displayName,
-                                    iconURL: interaction.user.displayAvatarURL(),
-                                })
-                                .setTitle('\u200b')
-                                .setDescription(`${persona.phony_chat.at(0)
-                                    ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
-                                    : '沒有注入的對話歷史'}`)
-                                .setFooter({
-                                    text: '偽造對話',
-                                    iconURL: interaction.user.displayAvatarURL()
-                                })
-                                .setTimestamp();
-                            await submit.editReply({
-                                embeds: [embed],
-                                components: [select_list, switch_page, edit_button]
-                            });
-                            return;
-                        } catch {
-                            //do nothing
-                        }
-                    } else if (commands[1] === 'summarize') {
-                        if (persona.summarize_instruction[index].content.length > 4000) {
-                            await i.reply({
-                                content: '太長啦！\n已經沒辦法在Discord編輯了喔！',
-                                flags: MessageFlags.Ephemeral
-                            });
-                            return;
-                        }
-                        const modal = new ModalBuilder().setCustomId('ignore edit_summarize').setTitle('編輯');
+                        return;
+                    } else if (commands[0] === 'delete') {
+                        const modal = new ModalBuilder().setCustomId('ignore confirm').setTitle('刪除');
                         modal.addLabelComponents(
                             new LabelBuilder()
-                                .setLabel(persona.summarize_instruction[index].role === 'user' ? 'user' : persona.internal_name)
+                                .setLabel('確認')
                                 .setTextInputComponent(
                                     new TextInputBuilder()
-                                        .setCustomId('instruction')
-                                        .setValue(persona.summarize_instruction[index].content)
-                                        .setMaxLength(4000)
-                                        .setStyle(TextInputStyle.Paragraph)
+                                        .setCustomId('confirm')
+                                        .setPlaceholder('輸入\'確認\'以繼續')
+                                        .setMaxLength(39)
+                                        .setStyle(TextInputStyle.Short)
                                 )
                         );
                         await i.showModal(modal);
                         try {
                             const submit = await i.awaitModalSubmit({
-                                filter: i => i.customId === 'ignore edit_summarize' && i.user.id === interaction.user.id,
+                                filter: i => i.customId === 'ignore confirm' && i.user.id === interaction.user.id,
                                 time: cooldown_helper.from_second(30)
                             });
-                            await submit.deferUpdate();
-                            persona.summarize_instruction[index].content = submit.fields.getTextInputValue('instruction');
-                            embed = new EmbedBuilder()
-                                .setAuthor({
-                                    name: interaction.member?.displayName ?? interaction.user.displayName,
-                                    iconURL: interaction.user.displayAvatarURL(),
-                                })
-                                .setTitle('\u200b')
-                                .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
-                                    persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
-                                        `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
-                                .setFooter({
-                                    text: '總結',
-                                    iconURL: interaction.user.displayAvatarURL()
-                                })
-                                .setTimestamp();
-                            await submit.editReply({
-                                embeds: [embed],
-                                components: [select_list, switch_page, edit_button]
-                            });
-                            return;
-                        } catch {
-                            //do nothing
-                        }
-                    } else {
-                        if (persona.format.length > 4000 || persona.reply_format.length > 4000 || persona.user_format.length > 4000) {
-                            await i.reply({
-                                content: '設定太長啦！\n已經沒辦法在Discord編輯了喔！',
-                                flags: MessageFlags.Ephemeral
-                            });
-                            return;
-                        }
-                        const modal = new ModalBuilder().setCustomId('ignore edit_memory').setTitle('編輯');
-                        modal.addLabelComponents(
-                            new LabelBuilder()
-                                .setLabel('發送倫數')
-                                .setTextInputComponent(
-                                    new TextInputBuilder()
-                                        .setCustomId('short_term')
-                                        .setMaxLength(10)
-                                        .setStyle(TextInputStyle.Short)
-                                        .setValue(persona.memory.short_term_max.toString())
-                                )
-                        )
-                            .addLabelComponents(
-                                new LabelBuilder()
-                                    .setLabel('總結開始位置')
-                                    .setTextInputComponent(
-                                        new TextInputBuilder()
-                                            .setCustomId('summarize_start_index')
-                                            .setMaxLength(10)
-                                            .setStyle(TextInputStyle.Short)
-                                            .setValue(persona.memory.summarize_start_index.toString())
-                                    )
-                            );
-                        await i.showModal(modal);
-                        try {
-                            const submit = await i.awaitModalSubmit({
-                                filter: i => i.customId === 'ignore edit_memory' && i.user.id === interaction.user.id,
-                                time: cooldown_helper.from_second(30)
-                            });
-                            await submit.deferUpdate();
-                            const short_term = parseInt(submit.fields.getTextInputValue('short_term'));
-                            const summarize_start_index = parseInt(submit.fields.getTextInputValue('summarize_start_index'));
-                            persona.memory.short_term_max = isNaN(short_term) ? persona.memory.short_term_max : short_term;
-                            persona.memory.summarize_start_index = isNaN(summarize_start_index) ? persona.memory.summarize_start_index : summarize_start_index;
-                            embed = new EmbedBuilder()
-                                .setAuthor({
-                                    name: interaction.member?.displayName ?? interaction.user.displayName,
-                                    iconURL: interaction.user.displayAvatarURL(),
-                                })
-                                .setTitle('\u200b')
-                                .setDescription(`發送${persona.memory.short_term_max}倫對話\n總結${persona.memory.summarize_start_index}前的所有對話\n${persona.internal_name}最新的記憶:\n${persona.memory.summarized.length > 0 ? `\`\`\`${persona.memory.summarized.at(-1)}\`\`\`` : '尚未總結'}`)
-                                .setFooter({
-                                    text: '記憶處理',
-                                    iconURL: interaction.user.displayAvatarURL()
-                                })
-                                .setTimestamp();
-                            await submit.editReply({
-                                embeds: [embed],
-                                components: [select_list, switch_page, edit_button]
-                            });
-                            return;
-                        } catch {
-                            //do nothing
-                        }
-                    }
-                    return;
-                } else if (commands[0] === 'delete') {
-                    const modal = new ModalBuilder().setCustomId('ignore confirm').setTitle('刪除');
-                    modal.addLabelComponents(
-                        new LabelBuilder()
-                            .setLabel('確認')
-                            .setTextInputComponent(
-                                new TextInputBuilder()
-                                    .setCustomId('confirm')
-                                    .setPlaceholder('輸入\'確認\'以繼續')
-                                    .setMaxLength(39)
-                                    .setStyle(TextInputStyle.Short)
-                            )
-                    );
-                    await i.showModal(modal);
-                    try {
-                        const submit = await i.awaitModalSubmit({
-                            filter: i => i.customId === 'ignore confirm' && i.user.id === interaction.user.id,
-                            time: cooldown_helper.from_second(30)
-                        });
-                        if (submit.fields.getTextInputValue('confirm') !== '確認') return;
-                        if (commands[1] === 'phony_chat') {
-                            if (persona.phony_chat.length <= 0) {
-                                await submit.reply({
-                                    content: '不能再刪了！',
-                                    flags: MessageFlags.Ephemeral
-                                });
-                                return;
-                            }
-                            await submit.deferUpdate();
-                            if (page == Math.round(persona.phony_chat.length / 2)) {
-                                page -= 1;
-                                _.remove(persona.phony_chat, (obj, idx) => {
-                                    return idx === index || idx === index + 1;
-                                });
-                                index = 2 * (page - 1);
+                            if (submit.fields.getTextInputValue('confirm') !== '確認') return;
+                            if (commands[1] === 'phony_chat') {
+                                if (persona.phony_chat.length <= 0) {
+                                    await submit.reply({
+                                        content: '不能再刪了！',
+                                        flags: MessageFlags.Ephemeral
+                                    });
+                                    return;
+                                }
+                                await submit.deferUpdate();
+                                if (page == Math.round(persona.phony_chat.length / 2)) {
+                                    page -= 1;
+                                    _.remove(persona.phony_chat, (obj, idx) => {
+                                        return idx === index || idx === index + 1;
+                                    });
+                                    index = 2 * (page - 1);
+                                } else {
+                                    _.remove(persona.phony_chat, (obj, idx) => {
+                                        return idx === index || idx === index + 1;
+                                    });
+                                }
+                                if (page == 1) {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first phony_chat')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous phony_chat')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number phony_chat')
+                                                .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next phony_chat')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last phony_chat')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        );
+                                } else if (page == Math.round(persona.phony_chat.length / 2)) {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first phony_chat')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous phony_chat')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number phony_chat')
+                                                .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next phony_chat')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last phony_chat')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        );
+                                } else if (persona.phony_chat.length == 0) {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first phony_chat')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous phony_chat')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number phony_chat')
+                                                .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next phony_chat')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last phony_chat')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        );
+                                } else {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first phony_chat')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous phony_chat')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number phony_chat')
+                                                .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next phony_chat')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last phony_chat')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        );
+                                }
+                                embed = new EmbedBuilder()
+                                    .setAuthor({
+                                        name: interaction.member?.displayName ?? interaction.user.displayName,
+                                        iconURL: interaction.user.displayAvatarURL(),
+                                    })
+                                    .setTitle('\u200b')
+                                    .setDescription(`${persona.phony_chat.at(0)
+                                        ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
+                                        : '沒有注入的對話歷史'}`)
+                                    .setFooter({
+                                        text: '偽造對話',
+                                        iconURL: interaction.user.displayAvatarURL()
+                                    })
+                                    .setTimestamp();
                             } else {
-                                _.remove(persona.phony_chat, (obj, idx) => {
-                                    return idx === index || idx === index + 1;
-                                });
-                            }
-                            if (page == 1) {
-                                switch_page = new ActionRowBuilder()
+                                if (persona.summarize_instruction.length <= 1) {
+                                    await submit.reply({
+                                        content: '不能再刪了！',
+                                        flags: MessageFlags.Ephemeral
+                                    });
+                                    return;
+                                } else if (persona.summarize_instruction[index].role === 'placeholder') {
+                                    await submit.reply({
+                                        content: '這個不能刪！',
+                                        flags: MessageFlags.Ephemeral
+                                    });
+                                    return;
+                                }
+                                await submit.deferUpdate();
+                                if (page == persona.summarize_instruction.length) {
+                                    _.remove(persona.summarize_instruction, (obj, idx) => {
+                                        return idx === index;
+                                    });
+                                    page -= 1;
+                                    index = page - 1;
+                                } else {
+                                    _.remove(persona.summarize_instruction, (obj, idx) => {
+                                        return idx === index;
+                                    });
+                                }
+                                if (page == 1) {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first summarize')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous summarize')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number summarize')
+                                                .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next summarize')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(persona.summarize_instruction.length == 1)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last summarize')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(persona.summarize_instruction.length == 1)
+                                        );
+                                } else if (page == persona.summarize_instruction.length) {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first summarize')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous summarize')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number summarize')
+                                                .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next summarize')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(true)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last summarize')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(true)
+                                        );
+                                } else {
+                                    switch_page = new ActionRowBuilder()
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_first summarize')
+                                                .setLabel('<<')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_previous summarize')
+                                                .setLabel('<')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('display_number summarize')
+                                                .setLabel(`${page}/${persona.summarize_instruction.length}`)
+                                                .setStyle(ButtonStyle.Secondary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_next summarize')
+                                                .setLabel('>')
+                                                .setStyle(ButtonStyle.Primary)
+                                                .setDisabled(false)
+                                        )
+                                        .addComponents(
+                                            new ButtonBuilder()
+                                                .setCustomId('to_last summarize')
+                                                .setLabel('>>')
+                                                .setStyle(ButtonStyle.Success)
+                                                .setDisabled(false)
+                                        );
+                                }
+                                embed = new EmbedBuilder()
+                                    .setAuthor({
+                                        name: interaction.member?.displayName ?? interaction.user.displayName,
+                                        iconURL: interaction.user.displayAvatarURL(),
+                                    })
+                                    .setTitle('\u200b')
+                                    .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
+                                        persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
+                                            `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
+                                    .setFooter({
+                                        text: '總結',
+                                        iconURL: interaction.user.displayAvatarURL()
+                                    })
+                                    .setTimestamp();
+                                edit_button = new ActionRowBuilder()
                                     .addComponents(
                                         new ButtonBuilder()
-                                            .setCustomId('to_first phony_chat')
-                                            .setLabel('<<')
+                                            .setCustomId('create summarize')
+                                            .setLabel('新增')
                                             .setStyle(ButtonStyle.Success)
-                                            .setDisabled(true)
                                     )
                                     .addComponents(
                                         new ButtonBuilder()
-                                            .setCustomId('to_previous phony_chat')
-                                            .setLabel('<')
+                                            .setCustomId('edit summarize')
+                                            .setLabel('編輯')
                                             .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(true)
+                                            .setDisabled(persona.summarize_instruction[index].role === 'placeholder')
                                     )
                                     .addComponents(
                                         new ButtonBuilder()
-                                            .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next phony_chat')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last phony_chat')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    );
-                            } else if (page == Math.round(persona.phony_chat.length / 2)) {
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first phony_chat')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous phony_chat')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next phony_chat')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last phony_chat')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(true)
-                                    );
-                            } else if (persona.phony_chat.length == 0) {
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first phony_chat')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous phony_chat')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next phony_chat')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last phony_chat')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(true)
-                                    );
-                            } else {
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first phony_chat')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous phony_chat')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number phony_chat')
-                                            .setLabel(`${page}/${Math.round(persona.phony_chat.length / 2) ? Math.round(persona.phony_chat.length / 2) : 1}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next phony_chat')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last phony_chat')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    );
-                            }
-                            embed = new EmbedBuilder()
-                                .setAuthor({
-                                    name: interaction.member?.displayName ?? interaction.user.displayName,
-                                    iconURL: interaction.user.displayAvatarURL(),
-                                })
-                                .setTitle('\u200b')
-                                .setDescription(`${persona.phony_chat.at(0)
-                                    ? `${persona.phony_chat[index].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index].content.slice(0, 1000)}${persona.phony_chat[index].content.length > 1000 ? '...' : ''}${persona.phony_chat.at(index + 1) ? `\n\`\`\`\n${persona.phony_chat[index + 1].role === 'user' ? 'user' : persona.internal_name}:\n\`\`\`${persona.phony_chat[index + 1].content.slice(0, 1000)}${persona.phony_chat[index + 1].content.length > 1000 ? '...' : persona.phony_chat[index + 1].length > 1000 ? '...' : ''}\`\`\`` : ''}`
-                                    : '沒有注入的對話歷史'}`)
-                                .setFooter({
-                                    text: '偽造對話',
-                                    iconURL: interaction.user.displayAvatarURL()
-                                })
-                                .setTimestamp();
-                        } else {
-                            if (persona.summarize_instruction.length <= 1) {
-                                await submit.reply({
-                                    content: '不能再刪了！',
-                                    flags: MessageFlags.Ephemeral
-                                });
-                                return;
-                            } else if (persona.summarize_instruction[index].role === 'placeholder') {
-                                await submit.reply({
-                                    content: '這個不能刪！',
-                                    flags: MessageFlags.Ephemeral
-                                });
-                                return;
-                            }
-                            await submit.deferUpdate();
-                            if (page == persona.summarize_instruction.length) {
-                                _.remove(persona.summarize_instruction, (obj, idx) => {
-                                    return idx === index;
-                                });
-                                page -= 1;
-                                index = page - 1;
-                            } else {
-                                _.remove(persona.summarize_instruction, (obj, idx) => {
-                                    return idx === index;
-                                });
-                            }
-                            if (page == 1) {
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first summarize')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous summarize')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number summarize')
-                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next summarize')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(persona.summarize_instruction.length == 1)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last summarize')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(persona.summarize_instruction.length == 1)
-                                    );
-                            } else if (page == persona.summarize_instruction.length) {
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first summarize')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous summarize')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number summarize')
-                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next summarize')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(true)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last summarize')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(true)
-                                    );
-                            } else {
-                                switch_page = new ActionRowBuilder()
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_first summarize')
-                                            .setLabel('<<')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_previous summarize')
-                                            .setLabel('<')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('display_number summarize')
-                                            .setLabel(`${page}/${persona.summarize_instruction.length}`)
-                                            .setStyle(ButtonStyle.Secondary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_next summarize')
-                                            .setLabel('>')
-                                            .setStyle(ButtonStyle.Primary)
-                                            .setDisabled(false)
-                                    )
-                                    .addComponents(
-                                        new ButtonBuilder()
-                                            .setCustomId('to_last summarize')
-                                            .setLabel('>>')
-                                            .setStyle(ButtonStyle.Success)
-                                            .setDisabled(false)
+                                            .setCustomId('delete summarize')
+                                            .setLabel('刪除')
+                                            .setStyle(ButtonStyle.Danger)
+                                            .setDisabled(persona.summarize_instruction[index].role === 'placeholder')
                                     );
                             }
-                            embed = new EmbedBuilder()
-                                .setAuthor({
-                                    name: interaction.member?.displayName ?? interaction.user.displayName,
-                                    iconURL: interaction.user.displayAvatarURL(),
-                                })
-                                .setTitle('\u200b')
-                                .setDescription(`${persona.summarize_instruction[index].role === 'placeholder' ? '對話歷史' :
-                                    persona.summarize_instruction[index].role === 'user' ? `user:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\`` :
-                                        `${persona.internal_name}:\n\`\`\`${persona.summarize_instruction[index].content.slice(0, 1000)}${persona.summarize_instruction[index].content.length > 1000 ? '...' : ''}\`\`\``}`)
-                                .setFooter({
-                                    text: '總結',
-                                    iconURL: interaction.user.displayAvatarURL()
-                                })
-                                .setTimestamp();
-                            edit_button = new ActionRowBuilder()
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('create summarize')
-                                        .setLabel('新增')
-                                        .setStyle(ButtonStyle.Success)
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('edit summarize')
-                                        .setLabel('編輯')
-                                        .setStyle(ButtonStyle.Primary)
-                                        .setDisabled(persona.summarize_instruction[index].role === 'placeholder')
-                                )
-                                .addComponents(
-                                    new ButtonBuilder()
-                                        .setCustomId('delete summarize')
-                                        .setLabel('刪除')
-                                        .setStyle(ButtonStyle.Danger)
-                                        .setDisabled(persona.summarize_instruction[index].role === 'placeholder')
-                                );
-                        }
 
-                        await submit.editReply({
-                            embeds: [embed],
-                            components: [select_list, switch_page, edit_button]
-                        });
-                        return;
-                    } catch {
-                        //do nothing
+                            await submit.editReply({
+                                embeds: [embed],
+                                components: [select_list, switch_page, edit_button]
+                            });
+                            return;
+                        } catch {
+                            //do nothing
+                        }
                     }
+                    await i.editReply({
+                        embeds: [embed],
+                        components: [select_list, switch_page, edit_button]
+                    });
+                } catch (error) {
+                    console.log(`[Error]: an error has occurred in "edit_persona"! more detail below\n${error}`);
+                    //do nothing
                 }
-                await i.editReply({
-                    embeds: [embed],
-                    components: [select_list, switch_page, edit_button]
-                });
             });
         }
     },
