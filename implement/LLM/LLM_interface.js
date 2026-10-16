@@ -88,8 +88,8 @@ class LLM_interface {
         }
         let system_instruction = new placeholder_replacer([
             ['user', user_info],
-            ['user_name:creator', this.#users.get(persona.author)],
-            ['user_name:using', current_user_name]
+            ['user:creator', this.#users.get(persona.author)],
+            ['user:using', current_user_name]
         ]).replace(persona.persona).replace(/\$\{link:(.*?)\}/g, '');
 
         /**@type {chat_interaction[]} */
@@ -153,8 +153,8 @@ class LLM_interface {
         }
         let system_instruction = new placeholder_replacer([
             ['user', user_info],
-            ['user_name:creator', this.#users.get(persona.author)],
-            ['user_name:using', current_user_name]
+            ['user:creator', this.#users.get(persona.author)],
+            ['user:using', current_user_name]
         ]).replace(persona.persona).replace(/\$\{link:(.*?)\}/g, '');
 
         /**@type {chat_interaction[]} */
