@@ -50,7 +50,7 @@ module.exports = {
                 p.display_name,
                 p.internal_name,
                 p.type,
-                p.author,
+                interaction.user.id,
                 p.persona,
                 p.profile,
                 p.format,

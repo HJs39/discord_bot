@@ -58,7 +58,7 @@ module.exports = {
             const persona_source = await fetch(attachment.url);
             /**@type {persona} */
             const persona = await persona_source.json();
-            const p = import_persona_t.parse(import_persona);
+            const p = import_persona_t.parse(persona);
             client.chat.edit_persona(persona_id, p);
             await interaction.editReply(`上傳成功！\n設定已經更新啦！`);
         } catch (error) {
