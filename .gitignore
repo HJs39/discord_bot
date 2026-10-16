@@ -152,6 +152,8 @@ assets/quotes.json
 assets/personas.json
 assets/user_repository.json
 assets/message_repository.json
+assets/would_you_rather.json
+assets/activity.json
 assets/private-*
 not-commit-*
 
