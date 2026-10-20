@@ -1,4 +1,5 @@
-const { ContainerBuilder, SeparatorBuilder, SeparatorSpacingSize, TextDisplayBuilder, SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
+const { ContainerBuilder, SeparatorBuilder, SeparatorSpacingSize, TextDisplayBuilder, SlashCommandBuilder, MessageFlags } = require('discord.js');
+const JEV = require('../implement/LLM/jev');
 const { colors } = require('../assets/embed_color.js');
 const _ = require('lodash');
 
@@ -51,29 +52,15 @@ module.exports = {
         else if (choose_type === 'can or can\'t') type = answer_type[3];
         else if (choose_type === 'agree or disagree') type = answer_type[4];
         else type = answer_type[5];
-        const jev_url = 'http://127.0.0.1:8017/v1/systemone';
-        const request_data = {
-            //"model": "jev-latest",
-            "state": {
-                [context_name]: context
-            },
-            "questions": {
-                [question_name]: {
-                    "type": "noul",
-                    "instructions": question
-                }
+        const answer = await JEV.send_request({
+            [context_name]: context
+        }, {
+            [question_name]: {
+                "type": "noul",
+                "instructions": question
             }
-        };
-        const response = await fetch(jev_url,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(request_data)
-            }
-        );
-        if (!response.ok) {
+        });
+        if (answer === undefined) {
             const component_v2 = new ContainerBuilder()
                 .setAccentColor(colors.error)
                 .addTextDisplayComponents(
@@ -85,7 +72,6 @@ module.exports = {
             });
             return;
         }
-        const answer = await response.json();
         const component_v2 = new ContainerBuilder()
             .setAccentColor(colors.normal)
             .addTextDisplayComponents(
@@ -113,7 +99,7 @@ module.exports = {
                     .setSpacing(SeparatorSpacingSize.Small)
             )
             .addTextDisplayComponents(
-                new TextDisplayBuilder().setContent(`${type[_.get(answer, `answers.${question_name}.noul`) > 0.5 ? 1 : 0]}(愛麗絲對這個答案有${_.get(answer, `answers.${question_name}.noul`) > 0.5 ? Math.round((_.get(answer, `answers.${question_name}.noul`)) * 10000) / 100 : Math.round((Math.abs(_.get(answer, `answers.${question_name}.noul`) - 1)) * 10000) / 100}%的信心)`)
+                new TextDisplayBuilder().setContent(`${type[answer.noul.get(question_name).result > 0.5 ? 1 : 0]}(愛麗絲對這個答案有${answer.noul.get(question_name).result > 0.5 ? Math.round(answer.noul.get(question_name).result * 10000) / 100 : Math.round((Math.abs(answer.noul.get(question_name).result - 1)) * 10000) / 100}%的信心)`)
             );
         await interaction.editReply({
             components: [component_v2],
