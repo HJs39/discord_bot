@@ -30,15 +30,15 @@ module.exports = {
         const process = interaction.options.getString('process');
         const argument_list = interaction.options.getString('argument_list') ?? "";
         const description = interaction.options.getString("description") ?? "";
-        const arguments = argument_list.split(',');
+        const args = argument_list.split(',');
         const channel_name = _.get(interaction, 'channel.name', '未知');
         _.forEach(argument_list, _.trim);
         const embed = new EmbedBuilder();
         try {
             const statement = shunting_yard(process);
-            if (_.has(defined_function, `${function_name}.${arguments.length}`)) {
+            if (_.has(defined_function, `${function_name}.${args.length}`)) {
                 embed.setTitle("註冊失敗")
-                    .setDescription(`以\`${arguments.length}\`個參數呼叫的\`${function_name}\`已經存在`)
+                    .setDescription(`以\`${args.length}\`個參數呼叫的\`${function_name}\`已經存在`)
                     .setColor("#ff0000")
                     .setFooter({
                         text: `在${channel_name}`,
@@ -48,9 +48,9 @@ module.exports = {
             } else {
                 if (_.has(defined_function, `${function_name}`)) {
                     _.assign(_.get(defined_function, `${function_name}`), {
-                        [arguments.length]: {
+                        [args.length]: {
                             statement: statement,
-                            arg_list: arguments,
+                            arg_list: args,
                             description: description,
                             author: interaction.user.id
                         }
@@ -58,9 +58,9 @@ module.exports = {
                 } else {
                     _.assign(defined_function, {
                         [function_name]: {
-                            [arguments.length]: {
+                            [args.length]: {
                                 statement: statement,
-                                arg_list: arguments,
+                                arg_list: args,
                                 description: description,
                                 author: interaction.user.id
                             }
@@ -68,7 +68,7 @@ module.exports = {
                     });
                 }
                 embed.setTitle("註冊成功")
-                    .setDescription(`以\`${arguments.length}\`個參數呼叫的\`${function_name}\`現在可以在"calc"中使用了!`)
+                    .setDescription(`以\`${args.length}\`個參數呼叫的\`${function_name}\`現在可以在"calc"中使用了!`)
                     .setColor("#b3e9ff")
                     .setFooter({
                         text: `在${channel_name}`,
