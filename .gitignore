@@ -157,4 +157,7 @@ assets/activity.json
 assets/private-*
 not-commit-*
 
+test/*.json
+test/*.png
+
 todo.txt
