@@ -496,7 +496,7 @@ class LLM_interface {
     /**
      * 
      * @param {import("./assets").snowflake[]} snowflakes 
-     * @returns {context}
+     * @returns {context[]}
      */
     fetch_contexts(snowflakes) {
         return this.#messages.fetch(snowflakes);
